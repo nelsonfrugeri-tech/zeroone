@@ -1,268 +1,320 @@
 # claude-code
 
-> Create software with AI coders — um sistema multi-agent para o Claude Code que transforma o diretório `~/.claude` em um ambiente de desenvolvimento inteligente com agentes especializados e base de conhecimento versionada.
+> Create software with AI coders — a multi-agent system for Claude Code that turns the `~/.claude` directory into an intelligent development environment with specialized agents and a versioned knowledge base.
 
-## O que é este projeto?
+## What is this project?
 
-O **claude-code** é uma coleção de **agents** e **skills** projetada para ser instalada no diretório `~/.claude` e utilizada com o [Claude Code](https://docs.anthropic.com/en/docs/claude-code) da Anthropic. Ele define um ecossistema de agentes de IA especializados que colaboram entre si para cobrir todo o ciclo de vida do desenvolvimento de software — desde a análise de um repositório até a implementação de código, code review, debate técnico e deploy de infraestrutura local.
+**claude-code** is a collection of **agents** and **skills** designed to be installed in the `~/.claude` directory and used with Anthropic's [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It defines an ecosystem of specialized AI agents that collaborate to cover the entire software development lifecycle — from repository analysis to code implementation, code review, technical debate, and local infrastructure deployment.
 
-A ideia central é que cada agente tem um papel claro e delimitado, consome e produz artefatos padronizados (como `context.md` e issues em Markdown), e pode invocar outros agentes quando necessário, formando pipelines multi-agent.
+The core idea is that each agent has a clear, well-defined role, consumes and produces standardized artifacts (such as `context.md` and Markdown issues), and can invoke other agents when needed, forming multi-agent pipelines.
 
-## Arquitetura
+## Architecture
 
-O projeto se organiza em dois conceitos fundamentais:
+The project is organized around two fundamental concepts:
 
-**Agents** são definições de comportamento para o Claude Code. Cada arquivo `.md` dentro de `agents/` descreve o papel, personalidade, workflow passo a passo, ferramentas permitidas e padrões de comunicação de um agente. Eles são o "quem faz o quê".
+**Agents** are behavior definitions for Claude Code. Each `.md` file inside `agents/` describes an agent's role, personality, step-by-step workflow, allowed tools, and communication patterns. They are the "who does what."
 
-**Skills** são bases de conhecimento técnico que os agentes consultam como referência. Cada skill contém um `SKILL.md` descritivo e uma pasta `references/` com materiais de apoio sobre tópicos específicos. Elas são o "como fazer bem feito".
+**Skills** are technical knowledge bases that agents consult as reference. Each skill contains a descriptive `SKILL.md` and a `references/` folder with supporting materials on specific topics. They are the "how to do it well."
 
 ```
 ~/.claude/
-├── agents/                    # Agents especializados
-│   ├── builder.md             #   Sobe infraestrutura local
-│   ├── debater.md             #   Debate e melhoria de skills
-│   ├── dev-py.md              #   Desenvolvimento Python
-│   ├── executor.md            #   Implementa melhorias de skills
-│   ├── explorer.md            #   Análise de repositórios
-│   └── review-py.md           #   Code review Python
+├── agents/                    # Specialized agents
+│   ├── adapters/
+│   │   └── slack.md           #   Slack integration adapter
+│   ├── architect.md           #   Software architect / tech lead
+│   ├── builder.md             #   Spins up local infrastructure
+│   ├── debater.md             #   Debates and improves skills
+│   ├── dev-py.md              #   Python development
+│   ├── elliot-alderson.md     #   Brilliant introvert dev (security/minimalism)
+│   ├── executor.md            #   Implements skill improvements
+│   ├── explorer.md            #   Repository analysis
+│   ├── mr-robot.md            #   Senior software architect (direct, critical)
+│   ├── oracle.md              #   Ecosystem manager & knowledge keeper
+│   ├── review-py.md           #   Python code review
+│   ├── slack-monitor.md       #   Slack agent monitor
+│   ├── tech-pm.md             #   Technical product/platform manager
+│   └── tyrell-wellick.md      #   Technical PM (strategic, execution-obsessed)
 │
-├── skills/                    # Knowledge bases reutilizáveis
+├── skills/                    # Reusable knowledge bases
 │   ├── ai-engineer/           #   AI/ML engineering (LLM, RAG, Agents)
-│   ├── arch-py/               #   Arquitetura Python
-│   └── review-py/             #   Templates e critérios de review
+│   ├── arch-py/               #   Python architecture
+│   ├── product-manager/       #   Product management (backlog, roadmap)
+│   └── review-py/             #   Review templates and criteria
 │
-├── hooks/                     # Automações do Claude Code
-│   ├── memory-keeper-save.sh  #   Auto-save de contexto (PreCompact/Stop)
-│   ├── memory-keeper-restore.sh # Auto-restore de contexto (SessionStart)
-│   ├── memory-keeper-purge.sh #   Expurgo periódico (cron: 15/7 dias)
-│   ├── run-memory-keeper.sh   #   Wrapper MCP (gerado pelo bootstrap)
-│   ├── setup-cron.sh          #   Instalador do cron de expurgo
-│   └── logs/                  #   Logs (não versionado)
+├── hooks/                     # Claude Code automations
+│   ├── memory-keeper-save.sh  #   Auto-save context (PreCompact/Stop)
+│   ├── memory-keeper-restore.sh # Auto-restore context (SessionStart)
+│   ├── memory-keeper-purge.sh #   Periodic purge (cron: 15/7 days)
+│   ├── run-memory-keeper.sh   #   MCP wrapper (generated by bootstrap)
+│   ├── setup-cron.sh          #   Purge cron installer
+│   └── logs/                  #   Logs (not versioned)
 │
-├── setup/                     # Onboarding e configuração
-│   ├── mcp-manifest.json      #   MCPs necessários (declarativo)
-│   ├── bootstrap.sh           #   Script de setup por máquina
-│   ├── .local-state.json      #   Estado local (não versionado)
-│   └── bootstrap.log          #   Log do bootstrap (não versionado)
+├── setup/                     # Onboarding and configuration
+│   ├── mcp-manifest.json      #   Required MCPs (declarative)
+│   ├── bootstrap.sh           #   Per-machine setup script
+│   ├── .local-state.json      #   Local state (not versioned)
+│   └── bootstrap.log          #   Bootstrap log (not versioned)
 │
-├── CLAUDE.md                  # Instruções globais para o Claude
-├── settings.json              # Settings compartilhados (hooks, env vars)
+├── CLAUDE.md                  # Global instructions for Claude
+├── settings.json              # Shared settings (hooks, env vars)
 └── .gitignore
 ```
 
-### O que NÃO é versionado
+### What is NOT versioned
 
-| Arquivo | Local | Motivo |
-|---------|-------|--------|
-| `~/.claude.json` | `~/` | MCPs user-scoped, específico da máquina |
-| `~/mcp-data/` | `~/` | Dados do Memory Keeper (SQLite) |
-| `hooks/logs/` | repo | Logs de execução |
-| `setup/.local-state.json` | repo | Estado do bootstrap da máquina |
-| `workspace/` | repo | Outputs dos agents por projeto |
-| `projects/` | repo | Sessões e memória do Claude Code |
+| File | Location | Reason |
+|------|----------|--------|
+| `~/.claude.json` | `~/` | User-scoped MCPs, machine-specific |
+| `~/mcp-data/` | `~/` | Memory Keeper data (SQLite) |
+| `hooks/logs/` | repo | Execution logs |
+| `setup/.local-state.json` | repo | Machine bootstrap state |
+| `workspace/` | repo | Agent outputs per project |
+| `projects/` | repo | Claude Code sessions and memory |
 
 ## Agents
 
 ### Explorer
 
-O ponto de partida recomendado para qualquer pipeline. Analisa profundamente um repositório e gera um relatório estruturado `context.md` em `.claude/workspace/{projeto}/`. O relatório cobre identidade do projeto, arquitetura, contratos de serviço (endpoints, workers, CLI), infraestrutura, variáveis de ambiente, análise de qualidade cruzada com a skill `arch-py`, saúde das dependências e atividade recente. Opera em dois modos: análise completa (primeira execução) e atualização incremental (execuções subsequentes baseadas no delta de commits).
+The recommended starting point for any pipeline. Deeply analyzes a repository and generates a structured `context.md` report in `.claude/workspace/{project}/`. The report covers project identity, architecture, service contracts (endpoints, workers, CLI), infrastructure, environment variables, quality analysis cross-referenced with the `arch-py` skill, dependency health, and recent activity. Operates in two modes: full analysis (first run) and incremental update (subsequent runs based on commit delta).
 
 **Trigger:** `/explorer`
-**Skill base:** `arch-py`
-**Modelo:** Opus
+**Base skill:** `arch-py`
+**Model:** Opus
 
 ### Dev-Py
 
-Agente de desenvolvimento Python com personalidade questionadora e obsessão por qualidade. Segue um workflow rígido de 8 etapas: questionar (entender o problema), pesquisar (buscar referências na web e na documentação), projetar (apresentar opções com trade-offs), testar (test-first, sempre antes de implementar), implementar (código com type hints, error handling, docstrings), validar (mypy, ruff, pytest, coverage), revisar (auto-review contra `arch-py`) e documentar decisões técnicas. Consome o `context.md` do explorer quando disponível.
+A Python development agent with a questioning personality and an obsession with quality. Follows a strict 8-step workflow: question (understand the problem), research (search web and docs for references), design (present options with trade-offs), test (test-first, always before implementing), implement (code with type hints, error handling, docstrings), validate (mypy, ruff, pytest, coverage), review (self-review against `arch-py`), and document technical decisions. Consumes the explorer's `context.md` when available.
 
-**Trigger:** qualquer tarefa de implementação Python
-**Skill base:** `arch-py`
-**Modelo:** Opus
+**Trigger:** any Python implementation task
+**Base skill:** `arch-py`
+**Model:** Opus
 
 ### Review-Py
 
-Agente de code review sistemático entre branches Git. Oferece três modos: análise de impacto (estatísticas e features identificadas), review por arquivo (comentários detalhados com severidade, código atual vs. sugerido, referências) e relatório completo combinando ambos. Os comentários são formatados em Markdown para copy-paste direto em PRs. Usa a skill `review-py` para templates e critérios de severidade, e a skill `arch-py` para avaliar qualidade técnica.
+A systematic code review agent between Git branches. Offers three modes: impact analysis (statistics and identified features), per-file review (detailed comments with severity, current vs. suggested code, references), and full report combining both. Comments are formatted in Markdown for direct copy-paste into PRs. Uses the `review-py` skill for templates and severity criteria, and the `arch-py` skill for technical quality assessment.
 
 **Trigger:** `/review`
-**Skills base:** `review-py`, `arch-py`
-**Modelo:** Opus
+**Base skills:** `review-py`, `arch-py`
+**Model:** Opus
 
 ### Builder
 
-Agente que sobe toda a infraestrutura local de um projeto automaticamente. Lê o `context.md`, identifica dependências (MongoDB, Redis, PostgreSQL), sobe containers Docker, verifica e cria `.env`, instala dependências do projeto, inicia API/frontend e valida tudo com testes de conexão e curl. Inclui tratamento robusto de erros (porta em uso, Docker parado, falha de instalação) e oferece watch mode para monitoramento contínuo.
+An agent that spins up a project's entire local infrastructure automatically. Reads `context.md`, identifies dependencies (MongoDB, Redis, PostgreSQL), starts Docker containers, checks and creates `.env`, installs project dependencies, starts the API/frontend, and validates everything with connection tests and curl. Includes robust error handling (port in use, Docker stopped, installation failure) and offers a watch mode for continuous monitoring.
 
 **Trigger:** `/builder`, `/build`
-**Skill base:** `arch-py`
+**Base skill:** `arch-py`
 
 ### Debater
 
-Agente debatedor com personalidade configurável (Socrático, Expert, Colaborativo — ou combinações) e profundidade ajustável. Debate sobre tópicos das skills, pesquisa estado da arte via web, analisa gaps e conteúdo desatualizado, e ao final do debate cria issues estruturadas em Markdown com propostas de melhoria. A personalidade pode ser alterada durante a conversa. Funciona como o motor de melhoria contínua das skills.
+A debater agent with configurable personality (Socratic, Expert, Collaborative — or combinations) and adjustable depth. Debates skill topics, researches state of the art via web, analyzes gaps and outdated content, and at the end of the debate creates structured Markdown issues with improvement proposals. The personality can be changed during the conversation. Functions as the continuous improvement engine for skills.
 
 **Trigger:** `/debater`, `/debate`
-**Skills base:** todas as skills disponíveis
+**Base skills:** all available skills
 
 ### Executor
 
-Agente que implementa melhorias nas skills a partir de issues criadas pelo Debater. Lista issues disponíveis, lê a issue escolhida, planeja as mudanças, pede aprovação, executa edições no arquivo da skill, valida as modificações e remove a issue automaticamente após sucesso. Só remove a issue se a validação for 100% bem-sucedida.
+An agent that implements skill improvements from issues created by the Debater. Lists available issues, reads the selected issue, plans changes, asks for approval, edits the skill file, validates modifications, and automatically removes the issue after success. Only removes the issue if validation is 100% successful.
 
 **Trigger:** `/executor`, `/executar`
-**Skills base:** `arch-py`, `review-py`, `ai-engineer`
+**Base skills:** `arch-py`, `review-py`, `ai-engineer`
+
+### Oracle
+
+The meta-agent responsible for the entire Claude Code ecosystem. Understands and manages agents, skills, MCP servers, projects, and workspaces. Creates new agents and teams, maintains a detailed knowledge base, and serves as the central point of context and memory across sessions. Uses all skills as baseline.
+
+**Trigger:** `@agents/oracle`
+**Base skills:** all available skills
+**Model:** Opus
+
+### Architect
+
+Software architect and tech lead agent. A constructive critic that identifies flaws, bugs, potential errors, and technical risks. Thinks in trade-offs, long-term decisions, and system robustness. Responsible for designing architectures (diagrams), defining technical standards, performing design reviews, and technically guiding the team.
+
+**Trigger:** `@agents/architect`
+**Base skill:** `arch-py`
+**Model:** Opus
+
+### Tech-PM
+
+Technical Product/Platform Manager agent. Responsible for defining what to build, prioritizing backlog, writing user stories with acceptance criteria, planning sprints/releases, managing roadmap, and ensuring alignment between stakeholders, design, and the technical team. Focuses on value delivery, clear communication, and data-driven decisions.
+
+**Trigger:** `@agents/tech-pm`
+**Base skill:** `product-manager`
+**Model:** Opus
+
+### Slack Monitor
+
+Monitors Slack agents — starts them, watches logs, and shuts them down gracefully. Uses the Slack adapter for integration.
+
+**Trigger:** `@agents/slack-monitor`
+
+### Persona Agents
+
+Character-driven agents with distinct personalities for specialized interactions:
+
+- **Mr. Robot** — Senior software architect. Direct, questioning, zero tolerance for bullshit.
+- **Elliot Alderson** — Brilliant introvert dev. Obsessive about clean code, security, and minimalism.
+- **Tyrell Wellick** — Ambitious technical PM. Organized, strategic, obsessed with execution and delivery.
 
 ## Skills
 
 ### arch-py
 
-Base de conhecimento sobre arquitetura e padrões Python modernos. Cobre type system, async/await, dataclasses, context managers, decorators, Pydantic v2, error handling, logging, configuration, concurrency, clean architecture, dependency injection e repository pattern. É a skill mais referenciada — usada como baseline de qualidade pelo Explorer, Dev-Py e Review-Py.
+Knowledge base on modern Python architecture and patterns. Covers type system, async/await, dataclasses, context managers, decorators, Pydantic v2, error handling, logging, configuration, concurrency, clean architecture, dependency injection, and repository pattern. The most referenced skill — used as the quality baseline by Explorer, Dev-Py, and Review-Py.
 
 ### review-py
 
-Contém templates de comentários para code review, checklists, critérios de severidade, templates de relatórios e scripts auxiliares de análise de diff. Usada pelo agente Review-Py para padronizar o formato e a qualidade dos reviews.
+Contains code review comment templates, checklists, severity criteria, report templates, and helper diff analysis scripts. Used by the Review-Py agent to standardize review format and quality.
 
 ### ai-engineer
 
-Base de conhecimento sobre engenharia de AI/ML, incluindo LLMs, RAG e sistemas de agentes. Usada como referência pelo Debater e Executor quando o debate envolve tópicos de inteligência artificial.
+Knowledge base on AI/ML engineering, including LLMs, RAG, and agent systems. Used as a reference by the Debater and Executor when debates involve artificial intelligence topics.
 
-## Fluxo Multi-Agent
+### product-manager
 
-Os agentes são projetados para trabalhar em pipeline. O fluxo mais comum é:
+Knowledge base on technical product management. Covers discovery, delivery, product metrics, OKRs, stakeholder management, backlog prioritization, user stories with acceptance criteria, roadmap planning, and cross-functional communication. Used by the Tech-PM agent as its baseline reference.
 
-1. **Explorer** analisa o repositório e gera `context.md`
-2. **Dev-Py** consome o `context.md` e implementa features/bug fixes com qualidade
-3. **Review-Py** consome o `context.md` e faz code review entre branches
-4. **Builder** consome o `context.md` e sobe toda infra local
+## Multi-Agent Flow
 
-Para melhoria contínua das próprias skills:
+Agents are designed to work in pipelines. The most common flow is:
 
-1. **Debater** debate um tópico e cria issues com propostas de melhoria
-2. **Executor** lê as issues, implementa as mudanças nas skills e remove as issues
+1. **Explorer** analyzes the repository and generates `context.md`
+2. **Dev-Py** consumes `context.md` and implements features/bug fixes with quality
+3. **Review-Py** consumes `context.md` and performs code review between branches
+4. **Builder** consumes `context.md` and spins up all local infrastructure
 
-## Setup (primeira vez)
+For continuous improvement of the skills themselves:
 
-### Cenário A: Máquina nova (sem `~/.claude`)
+1. **Debater** debates a topic and creates issues with improvement proposals
+2. **Executor** reads the issues, implements changes in the skills, and removes the issues
+
+## Setup (first time)
+
+### Scenario A: New machine (no `~/.claude`)
 
 ```bash
 REPO_URL=git@github.com:<org>/dotclaude.git \
   bash <(curl -sL https://raw.githubusercontent.com/<org>/dotclaude/main/setup/bootstrap.sh) --init
 ```
 
-### Cenário B: Máquina com Claude Code já instalado (`~/.claude` existe)
+### Scenario B: Machine with Claude Code already installed (`~/.claude` exists)
 
 ```bash
-# 1. Baixe o bootstrap (pode ser via curl ou copiar manualmente)
+# 1. Download the bootstrap (via curl or copy manually)
 curl -sL https://raw.githubusercontent.com/<org>/dotclaude/main/setup/bootstrap.sh \
   -o /tmp/bootstrap.sh
 
-# 2. Rode o init (faz backup automático antes de sincronizar)
+# 2. Run init (automatically backs up before syncing)
 REPO_URL=git@github.com:<org>/dotclaude.git bash /tmp/bootstrap.sh --init
 
-# 3. Instale os MCPs
+# 3. Install MCPs
 bash ~/.claude/setup/bootstrap.sh
 
-# 4. Instale o cron de expurgo do Memory Keeper
+# 4. Install Memory Keeper purge cron
 bash ~/.claude/hooks/setup-cron.sh
 ```
 
-> O `--init` faz backup de tudo em `~/.claude-backup-<timestamp>/` antes de
-> sincronizar. Verifique com `cd ~/.claude && git status` e remova o backup
-> quando estiver confortável.
+> The `--init` flag backs up everything to `~/.claude-backup-<timestamp>/` before
+> syncing. Verify with `cd ~/.claude && git status` and remove the backup
+> when you're comfortable.
 
-### Verificação
+### Verification
 
 ```bash
 bash ~/.claude/setup/bootstrap.sh --check
 ```
 
-## Atualização (repo remoto mudou)
+## Updating (remote repo changed)
 
-Quando alguém do time fizer push de mudanças (novos agents, skills, hooks):
+When someone on the team pushes changes (new agents, skills, hooks):
 
 ```bash
-# 1. Pull das mudanças
+# 1. Pull changes
 cd ~/.claude && git pull
 
-# 2. Se houve mudança em hooks ou setup/mcp-manifest.json, reinstale MCPs
+# 2. If hooks or setup/mcp-manifest.json changed, reinstall MCPs
 bash ~/.claude/setup/bootstrap.sh
 
-# 3. Se houve mudança no cron/purge, reinstale o cron
+# 3. If cron/purge changed, reinstall the cron
 bash ~/.claude/hooks/setup-cron.sh
 ```
 
-### O que requer ação após pull
+### What requires action after pull
 
-| O que mudou | Ação necessária |
-|-------------|-----------------|
-| `agents/*.md` | Nenhuma (carregado automaticamente) |
-| `skills/**` | Nenhuma (carregado automaticamente) |
-| `CLAUDE.md` | Nenhuma (carregado automaticamente) |
-| `settings.json` | Reiniciar sessão do Claude Code |
-| `hooks/*.sh` | Nenhuma (executado automaticamente) |
+| What changed | Required action |
+|--------------|-----------------|
+| `agents/*.md` | None (loaded automatically) |
+| `skills/**` | None (loaded automatically) |
+| `CLAUDE.md` | None (loaded automatically) |
+| `settings.json` | Restart Claude Code session |
+| `hooks/*.sh` | None (executed automatically) |
 | `setup/mcp-manifest.json` | `bash ~/.claude/setup/bootstrap.sh` |
 
 ### Quick update (one-liner)
 
 ```bash
-cd ~/.claude && git pull && bash setup/bootstrap.sh && echo "Atualizado!"
+cd ~/.claude && git pull && bash setup/bootstrap.sh && echo "Updated!"
 ```
 
-## Configuração por máquina (MCPs)
+## Per-machine configuration (MCPs)
 
-MCPs são **específicos por máquina** e ficam em `~/.claude.json` (fora do repo).
+MCPs are **machine-specific** and live in `~/.claude.json` (outside the repo).
 
-O `setup/mcp-manifest.json` declara quais MCPs são necessários e o `bootstrap.sh`
-instala automaticamente, detectando o Node disponível na máquina (nvm, fnm ou sistema).
+The `setup/mcp-manifest.json` declares which MCPs are required and `bootstrap.sh`
+installs them automatically, detecting the available Node version (nvm, fnm, or system).
 
-Para adicionar um MCP **só na sua máquina** (sem afetar o time):
+To add an MCP **only on your machine** (without affecting the team):
 
 ```bash
-claude mcp add --scope user meu-mcp -- <comando>
+claude mcp add --scope user my-mcp -- <command>
 ```
 
-Para propor um MCP **para todo o time**, adicione no `mcp-manifest.json` e abra um PR.
+To propose an MCP **for the whole team**, add it to `mcp-manifest.json` and open a PR.
 
 ## Memory Keeper
 
-Sistema de memória persistente entre sessões do Claude Code.
+Persistent memory system across Claude Code sessions.
 
-### Como funciona
+### How it works
 
-- **SessionStart** → hook injeta instrução para restaurar contexto
-- **PreCompact/Stop** → hook injeta instrução para salvar contexto
-- Dados salvos em `~/mcp-data/memory-keeper/` (SQLite, por máquina)
+- **SessionStart** → hook injects instruction to restore context
+- **PreCompact/Stop** → hook injects instruction to save context
+- Data saved in `~/mcp-data/memory-keeper/` (SQLite, per machine)
 
-### Política de expurgo
+### Purge policy
 
-- Cron roda **diariamente** às 3h
-- A cada **15 dias**, limpa registros com mais de **7 dias**
-- Faz **backup** do SQLite antes de purgar (mantém últimos 3)
-- Logs em `~/.claude/hooks/logs/purge.log`
+- Cron runs **daily** at 3 AM
+- Every **15 days**, cleans records older than **7 days**
+- **Backs up** the SQLite database before purging (keeps last 3)
+- Logs in `~/.claude/hooks/logs/purge.log`
 
-### Comandos manuais
+### Manual commands
 
 ```bash
-# Preview do que seria purgado (sem deletar)
+# Preview what would be purged (without deleting)
 ~/.claude/hooks/memory-keeper-purge.sh --dry-run
 
-# Forçar expurgo agora
+# Force purge now
 ~/.claude/hooks/memory-keeper-purge.sh --force
 
-# Limpar MCPs instalados pelo bootstrap
+# Clean MCPs installed by bootstrap
 bash ~/.claude/setup/bootstrap.sh --clean
 ```
 
-## Contribuindo
+## Contributing
 
-1. Crie uma branch: `git checkout -b feat/minha-feature`
-2. Faça suas mudanças em agents/, skills/, hooks/ ou setup/
-3. Teste localmente
-4. Abra PR para `main`
+1. Create a branch: `git checkout -b feat/my-feature`
+2. Make your changes in agents/, skills/, hooks/, or setup/
+3. Test locally
+4. Open a PR to `main`
 
-### Convenções
+### Conventions
 
-- **Agents**: um arquivo `.md` por agent em `agents/`
-- **Skills**: pasta com `SKILL.md` + `references/` em `skills/<nome>/`
-- **Hooks**: scripts `.sh` executáveis em `hooks/`
-- **Issues de skills**: criadas pelo agent debater em `issues/skills/<nome>/`
+- **Agents**: one `.md` file per agent in `agents/`
+- **Skills**: folder with `SKILL.md` + `references/` in `skills/<name>/`
+- **Hooks**: executable `.sh` scripts in `hooks/`
+- **Skill issues**: created by the debater agent in `issues/skills/<name>/`
 
-## Licença
+## License
 
-Este é um projeto open source. Consulte o repositório para informações sobre licença.
+This is an open source project. Check the repository for license information.
