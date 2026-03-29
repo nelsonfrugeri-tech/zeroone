@@ -12,7 +12,7 @@
 # Uso: ./memory-keeper-purge.sh [--force] [--dry-run]
 
 set -euo pipefail
-export PATH="/Users/nelson.frugeri/.nvm/versions/node/v22.15.0/bin:$PATH"
+export PATH="$HOME/.nvm/versions/node/$(ls "$HOME/.nvm/versions/node/" 2>/dev/null | tail -1)/bin:$PATH"
 
 DB_DIR="${DATA_DIR:-$HOME/mcp-data/memory-keeper}"
 DB_FILE="$DB_DIR/context.db"
