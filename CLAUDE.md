@@ -14,4 +14,4 @@ Onde:
 
 **NUNCA** salve arquivos gerados na raiz do repositório do projeto. Isso evita que arquivos de workspace sejam commitados acidentalmente no repo remoto.
 
-Exemplo: se o projeto está em `/Users/nelson.frugeri/projects/lm-gateway`, salve em `~/.claude/workspace/lm-gateway/`.
+Exemplo: se o projeto está em `~/projects/lm-gateway`, salve em `~/.claude/workspace/lm-gateway/`.
