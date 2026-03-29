@@ -5,6 +5,7 @@
 !.gitignore
 !CLAUDE.md
 !README.md
+!LICENSE
 !agents/
 !skills/
 !hooks/
