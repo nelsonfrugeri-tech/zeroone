@@ -96,7 +96,7 @@ Ecosystem-only. They build and maintain the foundation for all projects.
 
 | Agent | What it does |
 |-------|-------------|
-| **oracle** | Manages the ecosystem — agents, skills, memory, projects. Creates teams, configures projects, keeps knowledge base alive. |
+| **oracle** | Manages the ecosystem — agents, skills, memory, projects. Creates teams, configures projects. Coordinates multi-Oracle instances via Mem0 shared memory and Agent Teams. |
 | **sentinel** | SRE specialist. Monitors systems, queries traces and metrics, analyzes health and performance, helps with incidents. |
 
 ### Experts — Specialist Agents
@@ -169,6 +169,10 @@ Terminal 1 (Oracle)          Terminal 2 (Oracle)          Terminal 3 (dev-py)
 | `feedback` | User preferences | "Always use pt-BR for conversation, English for code" |
 | `reference` | Where to find things | "Pipeline bugs tracked in Linear project INGEST" |
 | `episodic` | What happened | "Migrated from memory-keeper to Mem0 on 2026-03-30" |
+| `task_claim` | Coordination: who's working on what | "Oracle-A working on MCP isolation" |
+| `blocker` | Coordination: signal blockers | "Blocked on Qdrant timeout" |
+| `progress` | Coordination: status updates | "MCP server 80% complete" |
+| `conflict` | Coordination: collision detected | "Two agents editing settings.json" |
 
 ### Why Mem0?
 
@@ -266,13 +270,6 @@ Agent tries to open PR
 └─────────────────────┘
 ```
 
-### Memory Hooks (legacy — being replaced by Mem0)
-
-| Hook | Event | Purpose |
-|------|-------|---------|
-| `memory-keeper-restore.sh` | SessionStart | Restore context from previous session |
-| `memory-keeper-save.sh` | PreCompact, Stop | Save context before session ends |
-
 ---
 
 ## Parallel Execution
@@ -294,18 +291,40 @@ claude --worktree pr-reviews --agent oracle
 claude --worktree feat-auth --agent dev-py
 ```
 
-### Agent Teams (experimental)
+### Agent Teams + Multi-Oracle Coordination
 
-One lead agent orchestrates multiple teammates:
+Multiple Oracle instances coordinate through Mem0 shared memory and Agent Teams:
 
 ```
-Lead Oracle
-├── Teammate A (worktree: task-a) ── mem0_store("claimed task A")
-├── Teammate B (worktree: task-b) ── mem0_recall("what is A doing?")
-└── Teammate C (worktree: task-c) ── mem0_store("finished task C")
-         │
-         └── All share Mem0 memory pool
+Terminal 1: Oracle Lead        Terminal 2: Oracle A        Terminal 3: Oracle B
+       │                              │                           │
+       │  mem0_search(task_claim)     │  mem0_store(task_claim)   │  mem0_store(task_claim)
+       │  "check active claims"       │  "working on feature X"   │  "working on feature Y"
+       │                              │                           │
+       └──────────────┬───────────────┴───────────────────────────┘
+                      │
+                      ▼
+           ┌─────────────────────┐
+           │  Mem0 (shared)      │
+           │                     │
+           │  task_claim → who   │ ← Prevents duplicate work
+           │  decision → what    │ ← Shares architectural choices
+           │  blocker → blocked  │ ← Signals blockers to team
+           │  progress → status  │ ← Status updates
+           │  conflict → alert   │ ← Collision detection
+           └─────────────────────┘
 ```
+
+**Coordination protocol:**
+1. **Startup** — `mem0_search(memory_type="task_claim")` to check active work
+2. **Claim** — `mem0_store(memory_type="task_claim")` before starting
+3. **Work** — Store decisions and progress for visibility
+4. **Finish** — Delete task claim, store final progress summary
+
+**Team patterns:**
+- **Parallel experts** — Oracle spawns dev-py + review-py + architect in worktrees
+- **Research + Build** — explorer → architect → dev-py pipeline
+- **Multi-Oracle** — Multiple Oracle instances in separate terminals, coordinated via Mem0
 
 Enable in `settings.json`:
 ```json
@@ -348,9 +367,7 @@ Enable in `settings.json`:
 │       └── pyproject.toml         #   Dependencies
 │
 ├── hooks/                         # Programmatic enforcement
-│   ├── pr-docs-check.sh           #   Blocks PR without CHANGELOG
-│   ├── memory-keeper-save.sh      #   Session memory (legacy)
-│   └── memory-keeper-restore.sh   #   Session restore (legacy)
+│   └── pr-docs-check.sh           #   Blocks PR without CHANGELOG
 │
 ├── setup/                         # Onboarding
 │   ├── bootstrap.sh               #   Install MCPs, verify env

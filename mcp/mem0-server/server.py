@@ -95,10 +95,12 @@ async def mem0_store(
 
     Args:
         content: The memory content to store. Should be concise, factual, and self-contained.
-        memory_type: Category — feedback, project, reference, decision, procedural, general.
+        memory_type: Category — feedback, project, reference, decision, procedural, general,
+            task_claim, blocker, progress, conflict (coordination types for multi-agent).
         project: Project name (empty for cross-project memories).
         tags: Comma-separated tags (e.g. "architecture,python").
-        user_id: Memory scope/owner (defaults to MEM0_USER_ID env var).
+        user_id: Memory scope/owner (defaults to MEM0_USER_ID env var). Use shared ID
+            (e.g. "oracle-team") for cross-instance coordination memories.
     """
     uid = user_id or DEFAULT_USER
 
@@ -182,7 +184,8 @@ async def mem0_search(
 
     Args:
         query: Natural language search query.
-        memory_type: Filter by type — feedback, project, reference, decision, procedural, general.
+        memory_type: Filter by type — feedback, project, reference, decision, procedural, general,
+            task_claim, blocker, progress, conflict (coordination types for multi-agent).
         project: Filter by project name.
         limit: Maximum results (default 10).
         user_id: Filter by owner (defaults to MEM0_USER_ID env var).

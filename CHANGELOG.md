@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Multi-Oracle coordination via Agent Teams + Mem0 shared memory
+  - Coordination memory types: `task_claim`, `blocker`, `progress`, `conflict`
+  - Startup/shutdown protocols for multi-instance coordination
+  - Task deduplication and conflict detection via Mem0
+  - Team patterns: parallel experts, research+build, multi-Oracle
 - Semantic Memory MCP server (`mcp/mem0-server/`) — shared vector memory via Qdrant + Ollama embeddings
   - 6 tools: `mem0_store`, `mem0_recall`, `mem0_search`, `mem0_list`, `mem0_delete`, `mem0_update`
   - No LLM required — Claude Code handles intelligence, server is pure storage + semantic search
@@ -17,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Local AI Performance" foundational principle in CLAUDE.md
 
 ### Changed
+- Oracle agent rewritten: markdown knowledge base → Mem0, memory-keeper → Mem0, added Agent Teams coordination
 - Memory system migrated from markdown files + memory-keeper hooks to Qdrant vector store
   - 23 memories migrated successfully
   - Content stored intact (no LLM extraction loss)
