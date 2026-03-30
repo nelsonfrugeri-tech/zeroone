@@ -6,12 +6,12 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-CLI-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/9_Agents-Ready-blue?style=for-the-badge)](#-agents)
-[![Skills](https://img.shields.io/badge/4_Skills-Loaded-purple?style=for-the-badge)](#-skills)
+[![Skills](https://img.shields.io/badge/5_Skills-Loaded-purple?style=for-the-badge)](#-skills)
 [![Memory](https://img.shields.io/badge/Mem0-Shared_Memory-green?style=for-the-badge)](#-shared-memory-mem0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 **Turn `~/.claude` into a fully autonomous development environment.**
-**9 specialized agents, 4 knowledge bases, shared semantic memory, and zero configuration.**
+**9 specialized agents, 5 knowledge bases, shared semantic memory, and zero configuration.**
 
 [Features](#-features) · [Quick Start](#-quick-start) · [Agents](#-agents) · [Memory](#-shared-memory-mem0) · [Autonomy](#-autonomy--permissions) · [Hooks](#-hooks)
 
@@ -75,6 +75,20 @@ claude --agent review-py    # Code review mode
 | [Docker](https://docker.com) | Runs Qdrant + Ollama for shared memory |
 | Node.js 18+ | MCP server runtime |
 
+### Configure MCP servers
+
+```bash
+# Copy the example and fill in your credentials
+cp .mcp.json.example .mcp.json
+
+# Edit .mcp.json and set your values:
+# - GitHub: GITHUB_APP_ID, GITHUB_APP_PEM_PATH, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_SLUG
+# - Mem0: defaults work for local Docker (localhost:6333, localhost:11434)
+# - Langfuse: LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY (optional)
+```
+
+See [`.mcp.json.example`](.mcp.json.example) for all available env vars.
+
 ### Start memory infrastructure
 
 ```bash
@@ -123,6 +137,7 @@ Agents consult these for domain-specific expertise.
 | **review-py** | Code review templates, checklists, severity criteria | review-py |
 | **ai-engineer** | LLM engineering, RAG, agents, vector DBs, MLOps | dev-py, debater |
 | **product-manager** | Discovery, delivery, OKRs, user stories, roadmap | tech-pm |
+| **github** | GitHub operations via MCP — enforced bot-identity PRs, issues, comments | oracle, dev-py, architect, review-py, tech-pm, explorer |
 
 ---
 
@@ -183,6 +198,35 @@ Terminal 1 (Oracle)          Terminal 2 (Oracle)          Terminal 3 (dev-py)
 | Search | Exact match only | Semantic similarity (vector search) |
 | LLM | None | Local qwen3:4b for fact extraction |
 | Cost | Free (but limited) | Free (100% local, no API calls) |
+
+---
+
+## GitHub Integration (MCP)
+
+All GitHub write operations go through a dedicated MCP server with bot identity — PRs, issues, and comments are created as the agent's GitHub App, never the user's personal account.
+
+```
+Agent (oracle, dev-py, ...)
+        │
+        ▼
+┌────────────────────────┐
+│  GitHub MCP Server     │
+│                        │
+│  github_create_pr()    │ ← Bot identity (oracle-zeroone)
+│  github_create_issue() │ ← Multi-app: each agent has its own App
+│  github_add_comment()  │ ← JWT → installation token auth
+│  github_close_pr()     │
+│  github_list_issues()  │
+│                        │
+│  Auth: env vars        │ ← GITHUB_APP_ID, _PEM_PATH, _INSTALLATION_ID, _SLUG
+└────────────────────────┘
+```
+
+**Rules enforced by the `github` skill:**
+- All GitHub writes MUST use `mcp__github__*` tools — never `curl`, `gh CLI`, or raw HTTP
+- CHANGELOG must be updated before creating a PR (blocks otherwise)
+- README warnings treated as hard blocks
+- Credentials configured via env vars in `.mcp.json` — never hardcoded in source
 
 ---
 
@@ -358,13 +402,16 @@ Enable in `settings.json`:
 ├── skills/                        # Knowledge bases
 │   ├── arch-py/                   #   Python architecture
 │   ├── ai-engineer/               #   AI/ML engineering
+│   ├── github/                    #   GitHub operations (enforced MCP usage)
 │   ├── product-manager/           #   Product management
 │   └── review-py/                 #   Code review
 │
 ├── mcp/                           # MCP servers
-│   └── mem0-server/               #   Shared semantic memory
-│       ├── server.py              #   FastMCP + Mem0 integration
-│       └── pyproject.toml         #   Dependencies
+│   ├── mem0-server/               #   Shared semantic memory
+│   │   ├── server.py              #   Qdrant + Ollama embeddings
+│   │   └── pyproject.toml         #   Dependencies
+│   └── github-server/             #   GitHub operations via bot identity
+│       └── server.py              #   JWT → installation token (env var auth)
 │
 ├── hooks/                         # Programmatic enforcement
 │   └── pr-docs-check.sh           #   Blocks PR without CHANGELOG

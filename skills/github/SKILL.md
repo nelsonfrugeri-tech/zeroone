@@ -3,7 +3,7 @@ name: github
 description: |
   Skill de operações GitHub — OBRIGATÓRIA para qualquer escrita no GitHub (PRs, issues, comments).
   Força o uso do MCP github server (tools mcp__github__*). NUNCA usar curl, gh CLI, ou urllib para GitHub.
-  Cada agent autentica via seu próprio GitHub App registrado em apps.json.
+  Cada agent autentica via seu próprio GitHub App registrado em env vars.
   Validações embutidas: CHANGELOG obrigatório, README warning, API collections warning.
   Triggers: /github, criar PR, abrir issue, comentar PR, GitHub operations.
 ---
@@ -45,7 +45,7 @@ Isso é **inegociável**. As tools MCP:
 
 ## Identificação do Agent
 
-Cada agent tem seu próprio GitHub App registrado em `apps.json`.
+Cada agent tem seu próprio GitHub App registrado em `env vars`.
 O parâmetro `agent_name` é **obrigatório** em todas as tools de escrita.
 
 O agent DEVE usar seu próprio nome. Exemplos:
@@ -54,7 +54,11 @@ O agent DEVE usar seu próprio nome. Exemplos:
 - Elliot → `agent_name: "elliot"`
 - Tyrell → `agent_name: "tyrell"`
 
-Se o agent não estiver registrado, a tool retorna erro com a lista de agents disponíveis.
+GitHub App credentials are configured via environment variables in `.mcp.json`:
+- `GITHUB_APP_ID` — GitHub App ID
+- `GITHUB_APP_PEM_PATH` — Path to the App's private key PEM file
+- `GITHUB_APP_INSTALLATION_ID` — Installation ID for the target org/user
+- `GITHUB_APP_SLUG` — App slug (bot identity in responses)
 
 ---
 

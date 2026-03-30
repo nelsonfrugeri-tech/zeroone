@@ -24,53 +24,40 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(name="github")
 
 # ---------------------------------------------------------------------------
-# GitHub App registry — maps agent names to their GitHub App credentials
+# GitHub App auth — all credentials via environment variables
 # ---------------------------------------------------------------------------
-
-_APPS_REGISTRY: dict | None = None
-
-
-def _load_registry() -> dict:
-    """Load agent → GitHub App mapping from config."""
-    global _APPS_REGISTRY
-    if _APPS_REGISTRY is not None:
-        return _APPS_REGISTRY
-
-    config_path = os.environ.get(
-        "GITHUB_APPS_CONFIG",
-        os.path.join(os.path.dirname(__file__), "apps.json"),
-    )
-    try:
-        with open(config_path) as f:
-            _APPS_REGISTRY = json.load(f)
-    except FileNotFoundError:
-        _APPS_REGISTRY = {}
-        logger.warning("No apps.json found at %s — agent auth will fail", config_path)
-    return _APPS_REGISTRY
+#
+# Required env vars:
+#   GITHUB_APP_ID             — GitHub App ID
+#   GITHUB_APP_PEM_PATH       — Path to the App's private key PEM file
+#   GITHUB_APP_INSTALLATION_ID — Installation ID for the target org/user
+#   GITHUB_APP_SLUG           — App slug (used as bot identity in responses)
+# ---------------------------------------------------------------------------
 
 
 def _get_installation_token(agent_name: str) -> tuple[str, str]:
-    """Get a GitHub installation token for the given agent's App.
+    """Get a GitHub installation token via env var credentials.
 
     Returns (token, app_slug) tuple.
-    Raises ToolError-compatible ValueError on failure.
+    Raises ValueError if env vars are missing or PEM file not found.
     """
-    registry = _load_registry()
-    agent_key = agent_name.lower().replace(" ", "-")
+    app_id = os.environ.get("GITHUB_APP_ID", "")
+    pem_path = os.path.expanduser(os.environ.get("GITHUB_APP_PEM_PATH", ""))
+    installation_id = os.environ.get("GITHUB_APP_INSTALLATION_ID", "")
+    app_slug = os.environ.get("GITHUB_APP_SLUG", agent_name)
 
-    app_config = registry.get(agent_key)
-    if not app_config:
-        available = ", ".join(sorted(registry.keys())) or "(none)"
+    missing = []
+    if not app_id:
+        missing.append("GITHUB_APP_ID")
+    if not pem_path:
+        missing.append("GITHUB_APP_PEM_PATH")
+    if not installation_id:
+        missing.append("GITHUB_APP_INSTALLATION_ID")
+    if missing:
         raise ValueError(
-            f"No GitHub App configured for agent '{agent_name}'. "
-            f"Available agents: {available}. "
-            f"Add this agent to apps.json."
+            f"Missing required env vars: {', '.join(missing)}. "
+            f"Set them in your .mcp.json env block."
         )
-
-    app_id = app_config["app_id"]
-    pem_path = os.path.expanduser(app_config["pem_path"])
-    installation_id = app_config["installation_id"]
-    app_slug = app_config.get("slug", agent_key)
 
     if not os.path.isfile(pem_path):
         raise ValueError(f"PEM file not found: {pem_path}")
@@ -184,7 +171,7 @@ async def github_create_pr(
     title: Annotated[str, Field(description="PR title (max 256 chars)", max_length=256)],
     body: Annotated[str, Field(description="PR body/description in markdown")],
     head: Annotated[str, Field(description="Source branch name")],
-    agent_name: Annotated[str, Field(description="Agent creating this PR (must match apps.json)")],
+    agent_name: Annotated[str, Field(description="Agent creating this PR (used for logging/tracking)")],
     base: Annotated[str, Field(description="Target branch")] = "main",
     draft: Annotated[bool, Field(description="Create as draft PR")] = False,
     project_dir: Annotated[str, Field(description="Local project directory for doc validation")] = "",
@@ -266,7 +253,7 @@ async def github_create_issue(
     title: Annotated[str, Field(description="Issue title")],
     body: Annotated[str, Field(description="Issue body in markdown")] = "",
     labels: Annotated[str, Field(description="Comma-separated labels")] = "",
-    agent_name: Annotated[str, Field(description="Agent creating this issue (must match apps.json)")] = "",
+    agent_name: Annotated[str, Field(description="Agent creating this issue (used for logging/tracking)")] = "",
 ) -> str:
     """Create a GitHub issue.
 
@@ -323,7 +310,7 @@ async def github_add_comment(
     repo: Annotated[str, Field(description="Repository in owner/repo format")],
     issue_number: Annotated[int, Field(description="Issue or PR number")],
     body: Annotated[str, Field(description="Comment body in markdown")],
-    agent_name: Annotated[str, Field(description="Agent posting this comment (must match apps.json)")],
+    agent_name: Annotated[str, Field(description="Agent posting this comment (used for logging/tracking)")],
 ) -> str:
     """Add a comment to an issue or PR via the agent's GitHub App identity."""
     try:
@@ -365,7 +352,7 @@ async def github_add_comment(
 async def github_close_pr(
     repo: Annotated[str, Field(description="Repository in owner/repo format")],
     pr_number: Annotated[int, Field(description="PR number to close")],
-    agent_name: Annotated[str, Field(description="Agent closing this PR (must match apps.json)")],
+    agent_name: Annotated[str, Field(description="Agent closing this PR (used for logging/tracking)")],
 ) -> str:
     """Close a Pull Request via the agent's GitHub App identity."""
     try:
@@ -407,7 +394,7 @@ async def github_list_issues(
     state: Annotated[str, Field(description="Filter by state: open, closed, all")] = "open",
     labels: Annotated[str, Field(description="Comma-separated labels to filter")] = "",
     limit: Annotated[int, Field(description="Max results")] = 10,
-    agent_name: Annotated[str, Field(description="Agent querying (must match apps.json)")] = "",
+    agent_name: Annotated[str, Field(description="Agent querying (used for logging/tracking)")] = "",
 ) -> str:
     """List issues for a repository."""
     try:

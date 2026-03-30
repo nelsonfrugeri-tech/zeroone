@@ -7,6 +7,7 @@
 !README.md
 !LICENSE
 !CHANGELOG.md
+!.mcp.json.example
 !agents/
 !skills/
 !hooks/
@@ -22,3 +23,5 @@ setup/bootstrap.log
 mcp/mem0-server/__pycache__/
 mcp/mem0-server/.venv/
 mcp/mem0-server/uv.lock
+mcp/github-server/.venv/
+mcp/github-server/__pycache__/
