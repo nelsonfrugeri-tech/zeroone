@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - GitHub skill updated to reference env vars instead of apps.json
 
 ### Added
-- `.env.example` — documents all env vars for GitHub, Mem0, and Langfuse MCP servers
+- `.mcp.json.example` — template with all MCP server configs and env var placeholders
 
 ### Removed
 - `mcp/github-server/apps.json` — contained hardcoded credentials, replaced by env vars

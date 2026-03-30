@@ -75,19 +75,19 @@ claude --agent review-py    # Code review mode
 | [Docker](https://docker.com) | Runs Qdrant + Ollama for shared memory |
 | Node.js 18+ | MCP server runtime |
 
-### Configure credentials
+### Configure MCP servers
 
 ```bash
-# Copy the example and fill in your values
-cp .env.example .env.local  # for reference only — values go in .mcp.json
+# Copy the example and fill in your credentials
+cp .mcp.json.example .mcp.json
 
-# Edit .mcp.json and set env vars for each MCP server:
+# Edit .mcp.json and set your values:
 # - GitHub: GITHUB_APP_ID, GITHUB_APP_PEM_PATH, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_SLUG
-# - Mem0: QDRANT_HOST, QDRANT_PORT, OLLAMA_URL (defaults work for local Docker)
-# - Langfuse: LANGFUSE_HOST, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY (optional)
+# - Mem0: defaults work for local Docker (localhost:6333, localhost:11434)
+# - Langfuse: LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY (optional)
 ```
 
-See [`.env.example`](.env.example) for all available variables and setup instructions.
+See [`.mcp.json.example`](.mcp.json.example) for all available env vars.
 
 ### Start memory infrastructure
 
