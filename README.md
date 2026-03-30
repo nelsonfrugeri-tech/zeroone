@@ -120,6 +120,51 @@ FOUNDS (foundational)                    EXPERTS (specialists)
 
 ---
 
+## Autonomy & Permissions
+
+Agents operate in **auto mode** — maximum autonomy for development work, with guardrails for critical operations.
+
+`settings.json` is not versioned (contains local configs). Configure it after cloning:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "autoMode": {
+    "allow": [
+      "Reading, searching, and exploring files and directories",
+      "Writing and editing source code, configs, docs, and scripts",
+      "Running build, test, lint, format, and dev server commands",
+      "Git operations: status, diff, log, add, commit, branch, checkout, push, pull, fetch",
+      "Creating and managing GitHub issues and PRs",
+      "Running package managers and Docker operations",
+      "Creating directories and new files",
+      "Running MCP tool calls"
+    ],
+    "soft_deny": [
+      "Deleting files or directories — always confirm first",
+      "Creating, rotating, or modifying tokens, API keys, secrets, or credentials",
+      "Modifying .env files, PEM files, certificates, or any file containing secrets",
+      "Changing permissions or access controls",
+      "Force-pushing or destructive git operations",
+      "Publishing packages or deploying to production",
+      "Sending messages to external services on behalf of the user"
+    ],
+    "environment": [
+      "Development environment with multiple projects",
+      "Agents have high autonomy for code and infrastructure work",
+      "Security-sensitive operations always require human approval",
+      "File deletion always requires human approval"
+    ]
+  }
+}
+```
+
+**Principle:** agents should never be blocked on routine work. Only security-critical and destructive operations require human approval.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
