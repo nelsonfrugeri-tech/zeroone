@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Semantic Memory MCP server (`mcp/mem0-server/`) — shared vector memory via Qdrant + Ollama embeddings
+  - 6 tools: `mem0_store`, `mem0_recall`, `mem0_search`, `mem0_list`, `mem0_delete`, `mem0_update`
+  - No LLM required — Claude Code handles intelligence, server is pure storage + semantic search
+  - Persistent memory across terminals and sessions
+  - Metadata: type (feedback/project/reference/decision/procedural), project, tags
+  - Local embeddings via Ollama (nomic-embed-text) + Qdrant vector DB
+- "Local AI Performance" foundational principle in CLAUDE.md
+
+### Changed
+- Memory system migrated from markdown files + memory-keeper hooks to Qdrant vector store
+  - 23 memories migrated successfully
+  - Content stored intact (no LLM extraction loss)
+
+### Removed
+- `hooks/memory-keeper-restore.sh` — replaced by Mem0 MCP
+- `hooks/memory-keeper-save.sh` — replaced by Mem0 MCP
+- `hooks/memory-keeper-purge.sh` — replaced by Mem0 MCP
+- Memory-keeper hooks from `settings.json` (SessionStart, PreCompact, Stop)
+- `mcp__memory-keeper__*` permission from settings.json
+
 ## [0.1.0] - 2026-03-30
 
 ### Added

@@ -1,0 +1,8 @@
+{
+  "oracle": {
+    "app_id": "3205587",
+    "pem_path": "~/.ssh/bike-shop-oracle.pem",
+    "installation_id": "119539737",
+    "slug": "oracle-zeroone"
+  }
+}

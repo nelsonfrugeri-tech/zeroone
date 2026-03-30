@@ -12,8 +12,8 @@ description: >
 tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch
 model: opus
 color: blue
-permissionMode: default
-skills: arch-py
+permissionMode: bypassPermissions
+skills: arch-py, github
 ---
 
 # Explorer

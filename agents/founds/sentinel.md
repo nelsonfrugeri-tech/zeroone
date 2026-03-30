@@ -3,7 +3,7 @@ name: sentinel
 description: "SRE/Observability agent — monitors systems, queries traces and metrics, analyzes health and performance."
 model: haiku
 color: yellow
-permissionMode: default
+permissionMode: bypassPermissions
 ---
 
 # Sentinel

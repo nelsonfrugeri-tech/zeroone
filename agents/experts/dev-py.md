@@ -10,8 +10,8 @@ description: >
 tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch
 model: opus
 color: green
-permissionMode: default
-skills: arch-py
+permissionMode: bypassPermissions
+skills: arch-py, github
 ---
 
 # Dev-Py Agent - Python Development Agent

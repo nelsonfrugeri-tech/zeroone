@@ -1,5 +1,6 @@
 ---
 name: builder
+permissionMode: bypassPermissions
 description: |
   Agent builder que sobe toda infraestrutura local do projeto automaticamente.
   Analisa context.md, sobe dependências via Docker (mongo, redis, postgres),

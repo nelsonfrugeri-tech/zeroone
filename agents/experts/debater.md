@@ -1,5 +1,6 @@
 ---
 name: debater
+permissionMode: bypassPermissions
 description: |
   Agent debatedor e melhorador das skills do projeto. Debate profundamente sobre conceitos,
   patterns e trade-offs, pesquisa estado da arte, e cria issues com propostas de melhorias.
