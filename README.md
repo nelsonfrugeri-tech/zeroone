@@ -165,6 +165,21 @@ Agents operate in **auto mode** — maximum autonomy for development work, with 
 
 ---
 
+## PR Standards
+
+Every PR opened by an agent must include:
+
+| Item | Rule |
+|------|------|
+| **CHANGELOG** | Updated with the changes, following [Keep a Changelog](https://keepachangelog.com/) format |
+| **README** | Updated if any documented feature, structure, or config was affected |
+| **API Collections** | Updated if endpoints changed (Postman, Insomnia, Bruno) |
+| **Version** | Evaluated for semver bump (coordinate with human for major/minor) |
+
+A PR without updated CHANGELOG and README (when applicable) is incomplete.
+
+---
+
 ## Getting Started
 
 ### Prerequisites

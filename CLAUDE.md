@@ -55,3 +55,31 @@ Agents operate in **auto mode** with maximum autonomy. Do NOT ask for approval o
 - **Destructive git** — reset --hard, clean -f, branch -D on remote branches
 - **Publishing** — deploying to production, publishing packages
 - **External messages** — sending messages to Slack, email, webhooks on behalf of the user
+
+## PR Checklist (mandatory for every PR)
+
+Before opening any PR, agents MUST complete ALL applicable items. This is not optional.
+
+### 1. CHANGELOG
+- Update `CHANGELOG.md` with the changes in this PR
+- Follow [Keep a Changelog](https://keepachangelog.com/) format
+- Categorize: Added, Changed, Deprecated, Removed, Fixed, Security
+- If the project doesn't have a CHANGELOG.md yet, create one
+
+### 2. README
+- Read the current `README.md` and check if any section is affected by the changes
+- Update affected sections (architecture, setup, usage, config, structure, etc.)
+- If adding a new feature, document it in README
+- If removing something, remove it from README
+
+### 3. API Collections (if applicable)
+- Check if the project has Postman/Insomnia/Bruno collections
+- If API endpoints were added, changed, or removed, update the collection
+- Common locations: `docs/`, `postman/`, `*.postman_collection.json`, `*.insomnia.json`
+
+### 4. Version
+- If the project uses semantic versioning, evaluate if the version should be bumped
+- Coordinate with the human on version bumps for major/minor changes
+
+**Rule:** A PR without updated CHANGELOG and README (when applicable) is incomplete.
+Do not open it. Do the work first.
