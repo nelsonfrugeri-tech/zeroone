@@ -61,3 +61,18 @@ All agents (founds and experts) MUST follow this principle:
 
 **Rule:** If you can't research (no web access), explicitly say so and flag that the recommendation
 is based on training data which may be outdated.
+
+## Local AI Performance — Foundational Principle
+
+**Local AI/ML workloads must be optimized for the host platform's GPU and memory constraints.**
+
+### Rules
+1. **Always use native inference runtime** (not containerized) — native runtimes access GPU acceleration directly; containers typically run CPU-only on consumer hardware
+2. **Model selection must prioritize local performance** — prefer models that fit comfortably in available memory and achieve interactive-speed inference (60+ tok/s)
+3. **No thinking/reasoning models for automated tasks** — models with chain-of-thought (reasoning traces) waste tokens on internal reasoning that downstream tools never see. Use instruction-following models for tool/pipeline tasks
+4. **Containerized inference is for CI/cloud only** — never use for local development when native GPU is available
+
+### Why
+- Containerized runtimes on consumer hardware lack GPU passthrough → orders of magnitude slower
+- Thinking/reasoning models consume tokens invisibly, causing timeouts in tool pipelines
+- Memory is shared between OS, apps, and models — right-size models to fit the available budget

@@ -9,8 +9,8 @@ description: >
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 color: yellow
-permissionMode: default
-skills: review-py, arch-py
+permissionMode: bypassPermissions
+skills: review-py, arch-py, github
 ---
 
 # Review-Py Agent

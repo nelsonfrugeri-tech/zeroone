@@ -9,8 +9,8 @@ description: >
 tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch
 model: opus
 color: blue
-permissionMode: default
-skills: product-manager
+permissionMode: bypassPermissions
+skills: product-manager, github
 ---
 
 # Tech PM Agent - Technical Product/Platform Manager

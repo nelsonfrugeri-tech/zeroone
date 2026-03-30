@@ -1,80 +1,80 @@
-"""Mem0 MCP Server — shared semantic memory for Claude Code agents.
+"""Semantic Memory MCP Server — shared vector memory for Claude Code agents.
 
-Connects to Qdrant (vector DB) + Ollama (embeddings) + Anthropic (fact extraction)
-to provide persistent, searchable memory across multiple terminals and sessions.
+Stores and retrieves memories via Qdrant (vector DB) + Ollama (embeddings).
+No LLM needed — Claude Code handles intelligence (fact extraction, summarization).
+This server is a pure storage + semantic search layer.
 """
 
 from __future__ import annotations
 
 import json
-import logging
 import os
+import uuid
 from datetime import datetime, timezone
 
+import httpx
 from mcp.server.fastmcp import FastMCP
-
-logger = logging.getLogger(__name__)
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    Distance,
+    FieldCondition,
+    Filter,
+    MatchValue,
+    PointStruct,
+    VectorParams,
+)
 
 mcp = FastMCP(name="mem0")
 
 # ---------------------------------------------------------------------------
-# Mem0 initialization (lazy singleton)
+# Configuration (all via env vars)
 # ---------------------------------------------------------------------------
 
-_mem0_instance = None
-
-
-def _build_config() -> dict:
-    return {
-        "vector_store": {
-            "provider": "qdrant",
-            "config": {
-                "host": os.environ.get("QDRANT_HOST", "localhost"),
-                "port": int(os.environ.get("QDRANT_PORT", "6333")),
-                "collection_name": os.environ.get(
-                    "MEM0_COLLECTION", "claude-code-memory"
-                ),
-                "embedding_model_dims": 768,
-            },
-        },
-        "embedder": {
-            "provider": "ollama",
-            "config": {
-                "model": os.environ.get("OLLAMA_MODEL", "nomic-embed-text"),
-                "ollama_base_url": os.environ.get(
-                    "OLLAMA_URL", "http://localhost:11434"
-                ),
-            },
-        },
-        "llm": {
-            "provider": "ollama",
-            "config": {
-                "model": os.environ.get("MEM0_LLM_MODEL", "qwen3:4b"),
-                "ollama_base_url": os.environ.get(
-                    "OLLAMA_URL", "http://localhost:11434"
-                ),
-                "temperature": 0.1,
-                "max_tokens": 2000,
-            },
-        },
-    }
-
-
-def get_mem0():
-    """Lazy-init Mem0 client."""
-    global _mem0_instance
-    if _mem0_instance is None:
-        from mem0 import Memory
-
-        _mem0_instance = Memory.from_config(_build_config())
-    return _mem0_instance
-
+QDRANT_HOST = os.environ.get("QDRANT_HOST", "localhost")
+QDRANT_PORT = int(os.environ.get("QDRANT_PORT", "6333"))
+COLLECTION = os.environ.get("MEM0_COLLECTION", "claude-code-memory")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text")
+EMBED_DIMS = int(os.environ.get("OLLAMA_EMBED_DIMS", "768"))
+DEFAULT_USER = os.environ.get("MEM0_USER_ID", "claude-code")
 
 # ---------------------------------------------------------------------------
-# Default user_id scoping
+# Clients (lazy singletons)
 # ---------------------------------------------------------------------------
 
-_DEFAULT_USER = os.environ.get("MEM0_USER_ID", "claude-code")
+_qdrant: QdrantClient | None = None
+_http: httpx.Client | None = None
+
+
+def get_qdrant() -> QdrantClient:
+    global _qdrant
+    if _qdrant is None:
+        _qdrant = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+        # Ensure collection exists
+        collections = [c.name for c in _qdrant.get_collections().collections]
+        if COLLECTION not in collections:
+            _qdrant.create_collection(
+                collection_name=COLLECTION,
+                vectors_config=VectorParams(size=EMBED_DIMS, distance=Distance.COSINE),
+            )
+    return _qdrant
+
+
+def get_http() -> httpx.Client:
+    global _http
+    if _http is None:
+        _http = httpx.Client(timeout=30.0)
+    return _http
+
+
+def embed(text: str) -> list[float]:
+    """Get embedding vector from Ollama."""
+    resp = get_http().post(
+        f"{OLLAMA_URL}/api/embed",
+        json={"model": EMBED_MODEL, "input": text},
+    )
+    resp.raise_for_status()
+    return resp.json()["embeddings"][0]
 
 
 # ---------------------------------------------------------------------------
@@ -90,31 +90,37 @@ async def mem0_store(
     tags: str = "",
     user_id: str = "",
 ) -> str:
-    """Store a fact, decision, procedure, or any knowledge in shared memory.
+    """Store a memory in shared semantic storage. Content should be pre-processed
+    (extracted facts, summaries) by Claude Code before storing.
 
     Args:
-        content: The memory content to store. Be specific and factual.
-        memory_type: Type of memory — procedural, decision, project, feedback, reference, episodic, general.
-        project: Project name this memory relates to (empty for cross-project).
-        tags: Comma-separated tags for categorization (e.g. "architecture,python,testing").
+        content: The memory content to store. Should be concise, factual, and self-contained.
+        memory_type: Category — feedback, project, reference, decision, procedural, general.
+        project: Project name (empty for cross-project memories).
+        tags: Comma-separated tags (e.g. "architecture,python").
         user_id: Memory scope/owner (defaults to MEM0_USER_ID env var).
     """
-    uid = user_id or _DEFAULT_USER
-    metadata = {
-        "type": memory_type,
-        "stored_at": datetime.now(timezone.utc).isoformat(),
-    }
-    if project:
-        metadata["project"] = project
-    if tags:
-        metadata["tags"] = tags
+    uid = user_id or DEFAULT_USER
 
     try:
-        result = get_mem0().add(content, user_id=uid, metadata=metadata)
-        count = len(result.get("results", [])) if isinstance(result, dict) else 1
-        return json.dumps(
-            {"status": "stored", "memories_created": count, "user_id": uid}
+        vector = embed(content)
+        point_id = str(uuid.uuid4())
+        payload = {
+            "content": content,
+            "user_id": uid,
+            "type": memory_type,
+            "stored_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if project:
+            payload["project"] = project
+        if tags:
+            payload["tags"] = tags
+
+        get_qdrant().upsert(
+            collection_name=COLLECTION,
+            points=[PointStruct(id=point_id, vector=vector, payload=payload)],
         )
+        return json.dumps({"status": "stored", "id": point_id, "user_id": uid})
     except Exception as e:
         return json.dumps({"status": "error", "error": str(e)})
 
@@ -125,33 +131,39 @@ async def mem0_recall(
     limit: int = 10,
     user_id: str = "",
 ) -> str:
-    """Search shared memory semantically. Use before starting work to get context.
+    """Semantic search across all memories. Use before starting work to get context.
 
     Args:
-        query: Natural language query to search memories (e.g. "how to create GitHub issues").
-        limit: Maximum number of memories to return (default 10).
-        user_id: Memory scope to search (defaults to MEM0_USER_ID env var).
+        query: Natural language query (e.g. "language preferences", "bike-shop architecture").
+        limit: Maximum results (default 10).
+        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
     """
-    uid = user_id or _DEFAULT_USER
+    uid = user_id or DEFAULT_USER
 
     try:
-        results = get_mem0().search(query, user_id=uid, limit=limit)
-        memories = []
+        vector = embed(query)
+        results = get_qdrant().query_points(
+            collection_name=COLLECTION,
+            query=vector,
+            query_filter=Filter(
+                must=[FieldCondition(key="user_id", match=MatchValue(value=uid))]
+            ),
+            limit=limit,
+            with_payload=True,
+        )
 
-        items = results if isinstance(results, list) else results.get("results", [])
-        for r in items:
-            memory = {
-                "content": r.get("memory", ""),
-                "score": r.get("score", 0),
-            }
-            if meta := r.get("metadata"):
-                memory["type"] = meta.get("type", "general")
-                memory["project"] = meta.get("project", "")
-                memory["tags"] = meta.get("tags", "")
-                memory["stored_at"] = meta.get("stored_at", "")
-            if mid := r.get("id"):
-                memory["id"] = mid
-            memories.append(memory)
+        memories = []
+        for point in results.points:
+            p = point.payload or {}
+            memories.append({
+                "id": str(point.id),
+                "content": p.get("content", ""),
+                "score": round(point.score, 4),
+                "type": p.get("type", "general"),
+                "project": p.get("project", ""),
+                "tags": p.get("tags", ""),
+                "stored_at": p.get("stored_at", ""),
+            })
 
         return json.dumps({"query": query, "count": len(memories), "memories": memories})
     except Exception as e:
@@ -166,43 +178,51 @@ async def mem0_search(
     limit: int = 10,
     user_id: str = "",
 ) -> str:
-    """Search memory with optional filters by type and project.
+    """Search memories with filters by type and/or project.
 
     Args:
         query: Natural language search query.
-        memory_type: Filter by type — procedural, decision, project, feedback, reference, episodic, general.
+        memory_type: Filter by type — feedback, project, reference, decision, procedural, general.
         project: Filter by project name.
         limit: Maximum results (default 10).
-        user_id: Memory scope (defaults to MEM0_USER_ID env var).
+        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
     """
-    uid = user_id or _DEFAULT_USER
+    uid = user_id or DEFAULT_USER
 
     try:
-        results = get_mem0().search(query, user_id=uid, limit=limit * 3)
-        items = results if isinstance(results, list) else results.get("results", [])
+        vector = embed(query)
+        conditions = [
+            FieldCondition(key="user_id", match=MatchValue(value=uid))
+        ]
+        if memory_type:
+            conditions.append(
+                FieldCondition(key="type", match=MatchValue(value=memory_type))
+            )
+        if project:
+            conditions.append(
+                FieldCondition(key="project", match=MatchValue(value=project))
+            )
+
+        results = get_qdrant().query_points(
+            collection_name=COLLECTION,
+            query=vector,
+            query_filter=Filter(must=conditions),
+            limit=limit,
+            with_payload=True,
+        )
 
         memories = []
-        for r in items:
-            meta = r.get("metadata", {})
-            if memory_type and meta.get("type", "") != memory_type:
-                continue
-            if project and meta.get("project", "") != project:
-                continue
-
-            memory = {
-                "content": r.get("memory", ""),
-                "score": r.get("score", 0),
-                "type": meta.get("type", "general"),
-                "project": meta.get("project", ""),
-                "tags": meta.get("tags", ""),
-                "stored_at": meta.get("stored_at", ""),
-            }
-            if mid := r.get("id"):
-                memory["id"] = mid
-            memories.append(memory)
-
-            if len(memories) >= limit:
-                break
+        for point in results.points:
+            p = point.payload or {}
+            memories.append({
+                "id": str(point.id),
+                "content": p.get("content", ""),
+                "score": round(point.score, 4),
+                "type": p.get("type", "general"),
+                "project": p.get("project", ""),
+                "tags": p.get("tags", ""),
+                "stored_at": p.get("stored_at", ""),
+            })
 
         return json.dumps({"query": query, "count": len(memories), "memories": memories})
     except Exception as e:
@@ -214,31 +234,36 @@ async def mem0_list(
     user_id: str = "",
     limit: int = 50,
 ) -> str:
-    """List all memories. Use to see what's stored.
+    """List all stored memories.
 
     Args:
-        user_id: Memory scope (defaults to MEM0_USER_ID env var).
+        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
         limit: Maximum memories to return (default 50).
     """
-    uid = user_id or _DEFAULT_USER
+    uid = user_id or DEFAULT_USER
 
     try:
-        results = get_mem0().get_all(user_id=uid, limit=limit)
-        items = results if isinstance(results, list) else results.get("results", [])
+        results = get_qdrant().scroll(
+            collection_name=COLLECTION,
+            scroll_filter=Filter(
+                must=[FieldCondition(key="user_id", match=MatchValue(value=uid))]
+            ),
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
 
         memories = []
-        for r in items:
-            meta = r.get("metadata", {})
-            memory = {
-                "content": r.get("memory", ""),
-                "type": meta.get("type", "general"),
-                "project": meta.get("project", ""),
-                "tags": meta.get("tags", ""),
-                "stored_at": meta.get("stored_at", ""),
-            }
-            if mid := r.get("id"):
-                memory["id"] = mid
-            memories.append(memory)
+        for point in results[0]:
+            p = point.payload or {}
+            memories.append({
+                "id": str(point.id),
+                "content": p.get("content", ""),
+                "type": p.get("type", "general"),
+                "project": p.get("project", ""),
+                "tags": p.get("tags", ""),
+                "stored_at": p.get("stored_at", ""),
+            })
 
         return json.dumps({"count": len(memories), "memories": memories})
     except Exception as e:
@@ -258,15 +283,23 @@ async def mem0_delete(
         user_id: Memory scope (defaults to MEM0_USER_ID env var).
         delete_all: If true, deletes ALL memories for user_id. Use with caution.
     """
-    uid = user_id or _DEFAULT_USER
+    uid = user_id or DEFAULT_USER
 
     try:
-        mem0 = get_mem0()
+        qdrant = get_qdrant()
         if delete_all:
-            mem0.delete_all(user_id=uid)
+            qdrant.delete(
+                collection_name=COLLECTION,
+                points_selector=Filter(
+                    must=[FieldCondition(key="user_id", match=MatchValue(value=uid))]
+                ),
+            )
             return json.dumps({"status": "deleted_all", "user_id": uid})
         elif memory_id:
-            mem0.delete(memory_id)
+            qdrant.delete(
+                collection_name=COLLECTION,
+                points_selector=[memory_id],
+            )
             return json.dumps({"status": "deleted", "memory_id": memory_id})
         else:
             return json.dumps(
@@ -281,14 +314,28 @@ async def mem0_update(
     memory_id: str,
     content: str,
 ) -> str:
-    """Update an existing memory's content.
+    """Update an existing memory's content (re-embeds automatically).
 
     Args:
-        memory_id: The ID of the memory to update (from recall/search results).
+        memory_id: The ID of the memory to update.
         content: The new content for this memory.
     """
     try:
-        get_mem0().update(memory_id, content)
+        qdrant = get_qdrant()
+        # Get existing point to preserve metadata
+        points = qdrant.retrieve(collection_name=COLLECTION, ids=[memory_id])
+        if not points:
+            return json.dumps({"status": "error", "error": f"Memory {memory_id} not found"})
+
+        old_payload = points[0].payload or {}
+        old_payload["content"] = content
+        old_payload["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+        vector = embed(content)
+        qdrant.upsert(
+            collection_name=COLLECTION,
+            points=[PointStruct(id=memory_id, vector=vector, payload=old_payload)],
+        )
         return json.dumps({"status": "updated", "memory_id": memory_id})
     except Exception as e:
         return json.dumps({"status": "error", "error": str(e)})
