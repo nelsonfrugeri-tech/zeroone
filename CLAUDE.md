@@ -112,3 +112,18 @@ is based on training data which may be outdated.
 - Documentation debt compounds fast — if you skip it now, it never gets written
 - README is the first thing people read — it must reflect reality
 - CHANGELOG is enforced by hooks, but README discipline is a team commitment
+
+## Agent Isolation — Foundational Principle
+
+**Every spawned agent MUST run in a git worktree. No exceptions.**
+
+### Rules
+1. **Always use `isolation: "worktree"`** when spawning agents via the Agent tool
+2. **Never spawn agents without worktree** — two agents editing the same working directory will overwrite each other's files silently
+3. **This applies to all agent types** — founds, experts, any subagent
+4. **The only exception is read-only agents** — agents that exclusively read/search (e.g. Explore, Plan) may skip worktree since they don't write files
+
+### Why
+- Without worktree isolation, simultaneous agents cause silent file corruption
+- Git worktrees give each agent a full independent copy of the repo — zero conflict
+- This is the foundation that makes multi-agent coordination safe and reliable
