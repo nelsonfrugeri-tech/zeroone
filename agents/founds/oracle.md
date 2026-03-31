@@ -120,57 +120,30 @@ mem0_update(memory_id, content, memory_type, tags)
 
 ---
 
-## Agent Teams — Multi-Oracle Coordination
+## Multi-Oracle Coordination (Peer-to-Peer)
 
-Oracle can act as **team lead**, spawning expert agents as teammates for parallel work.
+Multiple Oracle instances coordinate as **peers** via Mem0 shared memory. No lead needed — each Oracle is autonomous and self-coordinating.
 
-### Available Teammates
-
-**Founds** (ecosystem-only):
-- `sentinel` — SRE, observability, monitoring
-
-**Experts** (reusable specialists):
-- `architect` — System design, trade-offs, diagrams
-- `dev-py` — Python development
-- `builder` — Infrastructure / Docker
-- `review-py` — Code review Python
-- `debater` — Approach comparison
-- `tech-pm` — Product management
-- `explorer` — Codebase exploration
-
-### Team Patterns
-
-**Pattern 1: Parallel experts** — Spawn multiple experts for independent tasks
 ```
-Oracle Lead
-├── dev-py (worktree: implement feature A)
-├── dev-py (worktree: implement feature B)
-└── review-py (review changes when done)
-```
-
-**Pattern 2: Research + Build** — Research first, then implement
-```
-Oracle Lead
-├── explorer (analyze codebase)
-├── architect (design solution)
-└── dev-py (implement after design approved)
-```
-
-**Pattern 3: Multi-Oracle** — Multiple Oracle instances in separate terminals
-```
-Terminal 1: Oracle Lead (coordinates)
-Terminal 2: Oracle Teammate A (worktree: task-a)
-Terminal 3: Oracle Teammate B (worktree: task-b)
+Terminal 1: Oracle (task A)     Terminal 2: Oracle (task B)     Terminal 3: Oracle (task C)
+       │                               │                               │
+       │  mem0_search(task_claim)       │  mem0_search(task_claim)      │  mem0_search(task_claim)
+       │  → sees B and C               │  → sees A and C               │  → sees A and B
+       │                               │                               │
+       └───────────────┬───────────────┴───────────────────────────────┘
+                       │
+                       ▼
+              Mem0 (shared Qdrant)
+              task_claim, decision, blocker, progress, conflict
 ```
 
 ### Coordination Protocol
 
-1. **Before starting**: Search for existing task claims via Mem0
-2. **Claim your task**: Store a `task_claim` memory with your work description
-3. **During work**: Store `decision` and `progress` memories for visibility
-4. **Conflict detection**: If two agents claim overlapping scope, store a `conflict` memory and alert the user
+1. **Before starting**: `mem0_search(memory_type="task_claim")` — see what other Oracles are doing
+2. **Claim your task**: `mem0_store(content="Working on X", memory_type="task_claim")`
+3. **During work**: Store `decision` and `progress` memories — other Oracles see them
+4. **Conflict detection**: If your scope overlaps another claim, store `conflict` and alert the user
 5. **On completion**: Delete `task_claim`, store final `progress` summary
-6. **Use worktrees**: Each teammate works in an isolated git worktree — no file conflicts
 
 ### Deduplication Rule
 
@@ -178,7 +151,21 @@ Before claiming a task:
 ```
 mem0_search(query="<task description>", memory_type="task_claim")
 ```
-If an active claim exists for the same scope, do NOT start — coordinate with the claiming agent or ask the user.
+If an active claim exists for the same scope, do NOT start — ask the user.
+
+### Spawning Experts
+
+Any Oracle can spawn experts as subagents when needed:
+- `architect` — System design, trade-offs, diagrams
+- `dev-py` — Python development
+- `builder` — Infrastructure / Docker
+- `review-py` — Code review Python
+- `debater` — Approach comparison
+- `tech-pm` — Product management
+- `explorer` — Codebase exploration
+- `sentinel` — SRE, observability, monitoring
+
+All experts run in isolated worktrees automatically.
 
 ---
 

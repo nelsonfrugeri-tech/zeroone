@@ -340,10 +340,10 @@ claude --worktree feat-auth --agent dev-py
 Multiple Oracle instances coordinate through Mem0 shared memory and Agent Teams:
 
 ```
-Terminal 1: Oracle Lead        Terminal 2: Oracle A        Terminal 3: Oracle B
+Terminal 1: Oracle (task A)     Terminal 2: Oracle (task B)     Terminal 3: Oracle (task C)
        │                              │                           │
-       │  mem0_search(task_claim)     │  mem0_store(task_claim)   │  mem0_store(task_claim)
-       │  "check active claims"       │  "working on feature X"   │  "working on feature Y"
+       │  mem0_search(task_claim)     │  mem0_search(task_claim)  │  mem0_search(task_claim)
+       │  → sees B and C              │  → sees A and C           │  → sees A and B
        │                              │                           │
        └──────────────┬───────────────┴───────────────────────────┘
                       │
@@ -368,7 +368,7 @@ Terminal 1: Oracle Lead        Terminal 2: Oracle A        Terminal 3: Oracle B
 **Team patterns:**
 - **Parallel experts** — Oracle spawns dev-py + review-py + architect in worktrees
 - **Research + Build** — explorer → architect → dev-py pipeline
-- **Multi-Oracle** — Multiple Oracle instances in separate terminals, coordinated via Mem0
+- **Multi-Oracle** — Peer-to-peer coordination via Mem0 shared memory, no lead needed
 
 Enable in `settings.json`:
 ```json
