@@ -128,6 +128,22 @@ is based on training data which may be outdated.
 - Git worktrees give each agent a full independent copy of the repo — zero conflict
 - This is the foundation that makes multi-agent coordination safe and reliable
 
+## GitHub Operations — Foundational Principle
+
+**All GitHub write operations MUST use the MCP github server (`mcp__github__*` tools). This is non-negotiable.**
+
+### Rules
+1. **Always use MCP tools** — `mcp__github__github_create_pr`, `mcp__github__github_create_issue`, `mcp__github__github_add_comment`, `mcp__github__github_close_pr`, `mcp__github__github_list_issues`
+2. **Never use `gh` CLI, `curl`, or `urllib` for write operations** — MCP is the single gateway for GitHub writes
+3. **Each agent authenticates via its own GitHub App** — registered in `mcp/github-server/apps.json`
+4. **PRs must be authored by the bot identity** — never by the user's personal account
+5. **The `github` skill is mandatory** — any agent that interacts with GitHub must declare `github` in its skills frontmatter
+
+### Why
+- Centralized auth with bot identity ensures auditability and clear authorship
+- MCP server enforces validations (CHANGELOG required, README warning) at the tool level
+- Personal PAT writes create confusion about who authored what
+
 ## Dependency Pinning — Foundational Principle
 
 **Every dependency must be pinned to an exact stable version (`==`). Never use `>=`, `~=`, `^`, or unpinned versions. This is non-negotiable.**
