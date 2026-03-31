@@ -56,10 +56,8 @@ Any project built on this foundation inherits all capabilities automatically.
 ```bash
 # Install
 git clone https://github.com/nelsonfrugeri-tech/claude-code.git ~/.claude
-bash ~/.claude/setup/bootstrap.sh
-
-# Verify
-bash ~/.claude/setup/bootstrap.sh --check
+cp ~/.claude/.mcp.json.example ~/.claude/.mcp.json
+# Edit .mcp.json with your credentials
 
 # Use any expert
 claude --agent architect    # System design mode
@@ -426,10 +424,6 @@ Enable in `settings.json`:
 │
 ├── hooks/                         # Programmatic enforcement
 │   └── pr-docs-check.sh           #   Blocks PR without CHANGELOG
-│
-├── setup/                         # Onboarding
-│   ├── bootstrap.sh               #   Install MCPs, verify env
-│   └── mcp-manifest.json          #   MCP server declarations
 │
 ├── CLAUDE.md                      # Global agent instructions
 ├── CHANGELOG.md                   # Version history
