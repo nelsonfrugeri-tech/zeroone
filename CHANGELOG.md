@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Debater agent: replaced hardcoded personal paths with `$HOME` env var
 
 ### Added
+- **Worktree enforcement hook** (`hooks/enforce-worktree.sh`) — deterministic SessionStart hook that blocks sessions not running in a git worktree. No prompt can bypass it
+- "Branch Discipline" foundational principle in CLAUDE.md — one branch per change, never commit to a branch under review
+- Tests for worktree enforcement hook (`tests/test-enforce-worktree.sh`) — 5 test cases covering: main repo blocked, worktree allowed, non-git allowed, empty cwd, actionable error message
 - `github_merge_pr` tool in GitHub MCP server — merge PRs via bot identity with merge/squash/rebase support
 - Frontend ecosystem: 3 new skills + 2 new expert agents (44 files, ~15,300 lines)
   - **arch-ts** skill — TypeScript/Frontend architecture: type system, React patterns, RSC, state management, testing, tooling (19 reference files)
@@ -23,8 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - **frontend-design** skill — UI/UX/Visual design: OKLCH colors, fluid typography, modern CSS layout, motion, UX patterns, WCAG 2.2, shadcn/ui ecosystem, 2026 visual trends (16 reference files)
   - **dev-ts** agent — TypeScript/Frontend developer with 8-step workflow, test-first, accessibility-first, bundle-aware
   - **review-ts** agent — Systematic frontend code review between git branches with accessibility and bundle impact analysis
+- "GitHub Operations" foundational principle in CLAUDE.md — all GitHub writes must use MCP tools
 
 ### Changed
+- "Agent Isolation" principle expanded: scope changed from agents-only to all sessions + agents; enforcement changed from prompt-based to deterministic hook
 - Oracle Semantic Router: experts and skills now discovered dynamically from directories instead of hardcoded lists
   - `~/.claude/agents/experts/` is the expert registry — adding a new agent makes it available automatically
   - `~/.claude/skills/` is the skill registry — adding a new skill makes it available automatically

@@ -115,18 +115,40 @@ is based on training data which may be outdated.
 
 ## Agent Isolation — Foundational Principle
 
-**Every spawned agent MUST run in a git worktree. No exceptions.**
+**Every session and every spawned agent MUST run in a git worktree. No exceptions. Enforced by SessionStart hook — not by prompt.**
 
 ### Rules
-1. **Always use `isolation: "worktree"`** when spawning agents via the Agent tool
-2. **Never spawn agents without worktree** — two agents editing the same working directory will overwrite each other's files silently
-3. **This applies to all agent types** — founds, experts, any subagent
-4. **The only exception is read-only agents** — agents that exclusively read/search (e.g. Explore, Plan) may skip worktree since they don't write files
+1. **Always start sessions with `-w`** — `claude -w <name>`. The `enforce-worktree.sh` hook blocks sessions not in a worktree
+2. **Always use `isolation: "worktree"`** when spawning agents via the Agent tool
+3. **Never edit files in a branch you didn't create** — if the branch belongs to another session/agent, create your own
+4. **This applies to all agent types** — founds, experts, Oracle itself, any subagent
+5. **The only exception is read-only agents** — agents that exclusively read/search (e.g. Explore, Plan) may skip worktree since they don't write files
+
+### Enforcement
+- `hooks/enforce-worktree.sh` runs on SessionStart — deterministic, no prompt can bypass it
+- Checks if `.git` is a file (worktree) vs directory (main repo)
+- Blocks with exit 2 if not in a worktree
 
 ### Why
 - Without worktree isolation, simultaneous agents cause silent file corruption
 - Git worktrees give each agent a full independent copy of the repo — zero conflict
 - This is the foundation that makes multi-agent coordination safe and reliable
+
+## Branch Discipline — Foundational Principle
+
+**Every logical change goes in its own branch. Never commit to a branch that has an open PR under review. This is non-negotiable.**
+
+### Rules
+1. **One branch per logical change** — a feature, a fix, a refactor. Never mix unrelated changes in the same branch
+2. **Never commit to a branch with an open PR** — if the PR is under review, the branch is frozen. Fixes go in a new branch
+3. **Review fixes get their own branch** — if PR #X needs fixes, create `fix/prX-review-fixes`, not a new commit on the same branch
+4. **Branch from the right base** — features branch from `main`, fixes branch from `main` (or from the feature branch if tightly coupled)
+5. **Never push directly to main** — always branch + PR
+
+### Why
+- Commits on a branch under review pollute the review context and confuse reviewers
+- Mixed changes in one branch make rollbacks impossible without cherry-picking
+- This is the most basic git workflow discipline
 
 ## GitHub Operations — Foundational Principle
 
