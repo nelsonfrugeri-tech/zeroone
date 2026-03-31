@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Workspace → Mem0 migration**: all agents now use Mem0 for project context instead of `.claude/workspace/` files
+  - Explorer persists context reports to Mem0 instead of writing `context.md` files
+  - Builder, dev-py, dev-ts, review-py, review-ts, architect all read context from Mem0
+  - Oracle knowledge base moved from `~/.claude/workspace/oracle/` to Mem0
+  - Removed all `.claude/workspace/` references across 8 agents
+- Debater agent: replaced hardcoded personal paths with `$HOME` env var
+
 ### Added
 - Frontend ecosystem: 3 new skills + 2 new expert agents (44 files, ~15,300 lines)
   - **arch-ts** skill — TypeScript/Frontend architecture: type system, React patterns, RSC, state management, testing, tooling (19 reference files)

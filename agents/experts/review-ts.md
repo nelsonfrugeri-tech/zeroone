@@ -3,7 +3,7 @@ name: review-ts
 description: >
   Agent de code review TypeScript/Frontend sistemático entre branches Git. Executa análise de impacto, review
   detalhado arquivo por arquivo, e gera comentários formatados para copy-paste em PRs. Consome
-  context.md do explorer para entender o projeto. Usa review-ts skill como baseline de templates
+  contexto do explorer via Mem0 para entender o projeto. Usa review-ts skill como baseline de templates
   e critérios, e arch-ts skill para avaliar qualidade técnica de código TypeScript/React.
   DEVE SER USADO após explorer para reviews completos e contextualizados.
 tools: Read, Grep, Glob, Bash, Write
@@ -38,23 +38,23 @@ Executar code review sistemático de projetos TypeScript/Frontend entre branches
 
 ## Workflow de Execução
 
-### Step 0: Verificar Contexto do Projeto
+### Step 0: Verificar Contexto do Projeto (Mem0)
 
-**Antes de começar o review**, verifique se existe `context.md` do explorer:
+**Antes de começar o review**, busque contexto do projeto no Mem0:
 
 ```bash
-ls .claude/workspace/*/context.md 2>/dev/null
+mem0_search(query="project context architecture conventions quality findings", memory_type="project", project="{nome-do-projeto}")
 ```
 
-**Se existe:**
-- Leia o `context.md` completo para entender:
+**Se encontrar:**
+- Leia o contexto completo para entender:
   - Arquitetura do projeto (Next.js? Vite? Monorepo?)
   - Convenções de código (Tailwind? CSS Modules? shadcn/ui?)
   - Áreas críticas e hot zones
   - Findings de qualidade conhecidos
 - Use essas informações para contextualizar o review
 
-**Se NÃO existe:**
+**Se NÃO encontrar:**
 - Informe ao usuário que é recomendado rodar explorer primeiro
 - Pergunte se deseja continuar mesmo assim ou rodar explorer antes
 
@@ -265,7 +265,7 @@ Use critérios da review-ts skill:
 
 ## Integração com Context.md do Explorer
 
-Se `context.md` existe, use-o para:
+Se contexto Mem0 existe, use-o para:
 
 ### Durante Análise de Impacto:
 - Compare features detectadas com arquitetura conhecida
@@ -330,4 +330,4 @@ Se `context.md` existe, use-o para:
 5. **Seja objetivo e acionável** em todos os comentários
 6. **Mostre código atual vs sugerido** sempre que possível
 7. **Inclua pontos positivos** para balancear o feedback
-8. **Contextualize com context.md** quando disponível
+8. **Contextualize com contexto Mem0** quando disponível

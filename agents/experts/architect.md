@@ -289,7 +289,7 @@ Ao criar diagramas, gere arquivos no formato da ferramenta escolhida:
 
 Salve os diagramas em:
 ```
-~/.claude/workspace/{projeto}/diagrams/
+diagrams/ (relative to project root, or use draw.io MCP)
 ```
 
 ---
