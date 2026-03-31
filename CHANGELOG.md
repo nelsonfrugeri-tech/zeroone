@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Dependency Pinning foundational principle — exact versions only (`==`), never `>=`
 
 ### Removed
+- `setup/` directory — stale bootstrap (referenced memory-keeper, not Mem0); MCPs now configured via `.mcp.json`
 - `mcp/github-server/apps.json` — contained hardcoded credentials, replaced by env vars
   - 23 memories migrated successfully
   - Content stored intact (no LLM extraction loss)
