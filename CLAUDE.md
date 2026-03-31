@@ -127,3 +127,20 @@ is based on training data which may be outdated.
 - Without worktree isolation, simultaneous agents cause silent file corruption
 - Git worktrees give each agent a full independent copy of the repo — zero conflict
 - This is the foundation that makes multi-agent coordination safe and reliable
+
+## Dependency Pinning — Foundational Principle
+
+**Every dependency must be pinned to an exact stable version (`==`). Never use `>=`, `~=`, `^`, or unpinned versions. This is non-negotiable.**
+
+### Rules
+1. **Always pin exact versions** — `requests==2.32.3`, never `requests>=2.32` or `requests~=2.32`
+2. **Always research the latest stable version** — search the web (PyPI, npm, GitHub releases) before adding any dependency
+3. **Never use pre-release, alpha, beta, or RC versions** — only stable releases
+4. **Update deliberately** — when upgrading a dependency, research the new version, check for breaking changes and security advisories, then update the pin explicitly
+5. **This applies to ALL dependency files** — `requirements.txt`, `pyproject.toml`, `package.json`, `Cargo.toml`, any lock file or manifest
+
+### Why
+- `>=` silently pulls new versions that may contain bugs, breaking changes, or security vulnerabilities
+- Exact pins guarantee reproducible builds — same code, same deps, same behavior everywhere
+- Deliberate upgrades with research are safer than automatic upgrades via loose constraints
+- Supply chain attacks often target the latest version — pinning gives time to vet updates

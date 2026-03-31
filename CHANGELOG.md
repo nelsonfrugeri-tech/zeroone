@@ -26,9 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Memory system migrated from markdown files + memory-keeper hooks to Qdrant vector store
 - GitHub MCP server: removed `apps.json` — all credentials now via env vars (`GITHUB_APP_ID`, `GITHUB_APP_PEM_PATH`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_SLUG`)
 - GitHub skill updated to reference env vars instead of apps.json
+- All dependencies pinned to exact stable versions (mcp==1.26.0, qdrant-client==1.17.1, httpx==0.28.1, PyJWT==2.12.1, pydantic==2.12.5)
 
 ### Added
 - `.mcp.json.example` — template with all MCP server configs and env var placeholders
+- `isolation: worktree` enforced on all 9 agents — every agent runs in an isolated git worktree
+- Semantic Router in founds agents — dynamic model selection (haiku/sonnet/opus), thinking depth, and expert delegation based on task complexity
+- Dependency Pinning foundational principle — exact versions only (`==`), never `>=`
 
 ### Removed
 - `mcp/github-server/apps.json` — contained hardcoded credentials, replaced by env vars

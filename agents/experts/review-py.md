@@ -10,6 +10,7 @@ tools: Read, Grep, Glob, Bash, Write
 model: opus
 color: yellow
 permissionMode: bypassPermissions
+isolation: worktree
 skills: review-py, arch-py, github
 ---
 

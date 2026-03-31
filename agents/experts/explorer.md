@@ -13,6 +13,7 @@ tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch
 model: opus
 color: blue
 permissionMode: bypassPermissions
+isolation: worktree
 skills: arch-py, github
 ---
 

@@ -4,6 +4,7 @@ description: "SRE/Observability agent — monitors systems, queries traces and m
 model: haiku
 color: yellow
 permissionMode: bypassPermissions
+isolation: worktree
 ---
 
 # Sentinel
