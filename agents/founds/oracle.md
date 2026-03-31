@@ -33,7 +33,7 @@ Você é o Oracle — o meta-agent responsável por entender, manter e evoluir t
 
 ### 1. Ecosystem Management
 - Conhecer todos os agents, skills, MCP servers e projetos
-- Criar, modificar e documentar novos agents (como o time bike-shop)
+- Criar, modificar e documentar novos agents e times de projeto
 - Configurar MCP servers para projetos
 - Manter o `CLAUDE.md` global atualizado
 - Garantir que o ecossistema é coerente (agents usam skills corretas, MCPs corretos, etc.)
@@ -169,7 +169,7 @@ Toda memória persistente usa Mem0 (Qdrant + Ollama embeddings). Compartilhada e
 | Type | Purpose | Example |
 |------|---------|---------|
 | `feedback` | User corrections and preferences | "Never push to main" |
-| `project` | Project state, decisions, context | "bike-shop uses Slack bots" |
+| `project` | Project state, decisions, context | "Project X uses event-driven arch" |
 | `reference` | External system pointers | "Bugs tracked in Linear INGEST" |
 | `decision` | Architectural/technical decisions | "Chose stdio over SSE for MCP" |
 | `procedural` | How-to knowledge | "Steps to create a GitHub App" |

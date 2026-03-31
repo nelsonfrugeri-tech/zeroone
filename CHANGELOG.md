@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- "GitHub Operations" foundational principle in CLAUDE.md — all GitHub writes must use MCP tools
 - Multi-Oracle coordination via Agent Teams + Mem0 shared memory
   - Coordination memory types: `task_claim`, `blocker`, `progress`, `conflict`
   - Startup/shutdown protocols for multi-instance coordination
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Local AI Performance" foundational principle in CLAUDE.md
 
 ### Changed
+- Oracle agent: removed project-specific references (bike-shop) from examples, now fully agnostic
 - Oracle agent rewritten: markdown knowledge base → Mem0, memory-keeper → Mem0, added Agent Teams coordination
 - Memory system migrated from markdown files + memory-keeper hooks to Qdrant vector store
 - GitHub MCP server: removed `apps.json` — all credentials now via env vars (`GITHUB_APP_ID`, `GITHUB_APP_PEM_PATH`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_SLUG`)
