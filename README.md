@@ -110,7 +110,7 @@ Ecosystem-only. They build and maintain the foundation for all projects.
 
 | Agent | What it does |
 |-------|-------------|
-| **oracle** | Manages the ecosystem — agents, skills, memory, projects. Creates teams, configures projects. Coordinates multi-Oracle instances via Mem0 shared memory and Agent Teams. |
+| **oracle** | Manages the ecosystem — agents, skills, memory, projects. **Semantic router**: dynamically picks model (haiku/sonnet/opus), thinking depth, and delegates to expert agents based on task complexity. Coordinates multi-Oracle instances via Mem0. |
 | **sentinel** | SRE specialist. Monitors systems, queries traces and metrics, analyzes health and performance, helps with incidents. |
 
 ### Experts — Specialist Agents

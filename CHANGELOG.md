@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - `.mcp.json.example` — template with all MCP server configs and env var placeholders
 - `isolation: worktree` enforced on all 9 agents — every agent runs in an isolated git worktree
+- Semantic Router in founds agents — dynamic model selection (haiku/sonnet/opus), thinking depth, and expert delegation based on task complexity
 
 ### Removed
 - `mcp/github-server/apps.json` — contained hardcoded credentials, replaced by env vars
