@@ -64,16 +64,16 @@ Iniciando...
 
 ### Step 1: Read Context (ou chama Explorer)
 
-**Tente ler `context.md`:**
+**Busque contexto do projeto no Mem0:**
 
 ```bash
 # Context path
-~/.claude/workspace/{nome_projeto}/context.md
+mem0_search(...)
 ```
 
 **Se existe:**
 ```python
-Read(file_path="/Users/nelson.frugeri/.claude/workspace/{nome_projeto}/context.md")
+mem0_search(query="project context architecture dependencies", memory_type="project", project="{nome_projeto}")
 ```
 
 **Se NÃO existe:**
@@ -81,10 +81,10 @@ Read(file_path="/Users/nelson.frugeri/.claude/workspace/{nome_projeto}/context.m
 ```
 ⚠️  Context.md não encontrado!
 
-Para subir o projeto corretamente, preciso do context.md que
+Para subir o projeto corretamente, preciso do contexto que
 documenta a arquitetura, dependências e como subir o projeto.
 
-Posso chamar o agent explorer para gerar o context.md agora?
+Posso chamar o agent explorer para gerar o contexto no Mem0 agora?
 
 (sim/não) → [espera resposta]
 ```
@@ -95,20 +95,20 @@ Posso chamar o agent explorer para gerar o context.md agora?
 Task(
     subagent_type="explorer",
     name="explorer-for-context",
-    prompt=f"Analise o projeto em {absolute_path} e gere context.md completo em ~/.claude/workspace/{nome_projeto}/context.md",
+    prompt=f"Analise o projeto em {absolute_path} e persista o contexto completo no Mem0",
     description="Generate project context"
 )
 ```
 
 **Após explorer terminar:**
-- Leia o `context.md` gerado
+- Leia o contexto gerado no Mem0
 - Continue para Step 2
 
 ---
 
 ### Step 2: Analyze Architecture
 
-**Parse o `context.md` e extraia:**
+**Parse o contexto do Mem0 e extraia:**
 
 1. **Stack tecnológico:**
    - Backend: Python/FastAPI, Node/Express, Go, Rust, etc.
@@ -525,7 +525,7 @@ curl -X GET http://localhost:8000/health
 # Se não tem /health, tenta /
 curl -X GET http://localhost:8000/
 
-# Ou endpoint conhecido do context.md
+# Ou endpoint conhecido do contexto Mem0
 curl -X GET http://localhost:8000/api/users
 ```
 
@@ -606,7 +606,7 @@ curl -I http://localhost:5173
 
 #### 8.5 Test Integration
 
-**Se context.md tem exemplos de requests, teste:**
+**Se o contexto Mem0 tem exemplos de requests, teste:**
 
 ```bash
 # Exemplo: Create user
@@ -948,9 +948,9 @@ docker-compose logs -f
 
 ## Context.md Integration
 
-**O agent sempre respeita o `context.md`:**
+**O agent sempre respeita o contexto do Mem0:**
 
-### Se context.md tem seção "Infrastructure"
+### Se o contexto Mem0 tem seção "Infrastructure"
 
 ```markdown
 ## Infrastructure
@@ -978,7 +978,7 @@ Health check: GET /health
 **Agent segue exatamente essas instruções:**
 - Usa `docker-compose` se especificado
 - Copia `.env.example` se mencionado
-- Usa comandos exatos do context.md
+- Usa comandos exatos do contexto Mem0
 
 ---
 
@@ -1054,8 +1054,8 @@ Bash(command="docker exec redis-dev redis-cli ping")
 ### Read
 
 ```python
-# Read context.md
-Read(file_path="/Users/nelson.frugeri/.claude/workspace/{project}/context.md")
+# Read project context from Mem0
+mem0_search(query="project context architecture infrastructure", memory_type="project", project="{project}")
 
 # Read .env
 Read(file_path="{project_path}/.env")
@@ -1093,11 +1093,11 @@ Grep(pattern="if __name__.*main", path="{project_path}", output_mode="files_with
 ### Task (call explorer)
 
 ```python
-# If context.md missing
+# If Mem0 context missing
 Task(
     subagent_type="explorer",
     name="generate-context",
-    prompt=f"Analyze project at {project_path} and generate complete context.md",
+    prompt=f"Analyze project at {project_path} and generate complete context in Mem0",
     description="Generate project context"
 )
 ```
@@ -1115,7 +1115,7 @@ Builder:
 Projeto: my-fastapi-app
 Path: /Users/user/projects/my-fastapi-app
 
-[Lê context.md]
+[Lê contexto do Mem0]
 
 📊 ARQUITETURA:
   Backend: FastAPI + Python 3.11
@@ -1170,7 +1170,7 @@ Tudo rodando! ✅
 Vou subir toda infraestrutura local do projeto.
 
 [Detecta projeto]
-[Lê context.md ou chama explorer]
+[Lê contexto do Mem0 ou chama explorer]
 [Sobe tudo]
 [Testa tudo]
 [Confirma sucesso]

@@ -108,7 +108,7 @@ Options:
 Use `Glob` para descobrir todas as skills disponíveis:
 
 ```bash
-Glob pattern="*/SKILL.md" path="/Users/nelson.frugeri/.claude/skills/"
+Glob pattern="*/SKILL.md" path="$HOME/.claude/skills/"
 ```
 
 **Liste as skills encontradas:**
@@ -130,7 +130,7 @@ Qual skill você quer debater? (ou 'todas' para overview)
 Após usuário escolher a skill, use `Read` para ler o `SKILL.md`:
 
 ```bash
-Read file_path="/Users/nelson.frugeri/.claude/skills/{skill_name}/SKILL.md"
+Read file_path="$HOME/.claude/skills/{skill_name}/SKILL.md"
 ```
 
 **Analise a estrutura da skill e liste tópicos disponíveis:**
@@ -311,7 +311,7 @@ Aprovar? (sim/não/editar propostas)"
 
 Use `Bash` para criar diretório:
 ```bash
-mkdir -p /Users/nelson.frugeri/.claude/issues/skills/{skill_name}
+mkdir -p $HOME/.claude/issues/skills/{skill_name}
 ```
 
 Use `Write` para criar issue:
@@ -569,28 +569,28 @@ Vamos continuar...
 ### Glob
 ```python
 # Descobrir skills
-Glob(pattern="*/SKILL.md", path="/Users/nelson.frugeri/.claude/skills/")
+Glob(pattern="*/SKILL.md", path="$HOME/.claude/skills/")
 
 # Descobrir references de uma skill
-Glob(pattern="**/*.md", path="/Users/nelson.frugeri/.claude/skills/{skill}/references/")
+Glob(pattern="**/*.md", path="$HOME/.claude/skills/{skill}/references/")
 ```
 
 ### Read
 ```python
 # Ler skill
-Read(file_path="/Users/nelson.frugeri/.claude/skills/{skill}/SKILL.md")
+Read(file_path="$HOME/.claude/skills/{skill}/SKILL.md")
 
 # Ler reference específica
-Read(file_path="/Users/nelson.frugeri/.claude/skills/{skill}/references/{topic}.md")
+Read(file_path="$HOME/.claude/skills/{skill}/references/{topic}.md")
 ```
 
 ### Grep
 ```python
 # Buscar conceito em toda skill
-Grep(pattern="async", path="/Users/nelson.frugeri/.claude/skills/{skill}/", output_mode="files_with_matches")
+Grep(pattern="async", path="$HOME/.claude/skills/{skill}/", output_mode="files_with_matches")
 
 # Buscar com contexto
-Grep(pattern="TaskGroup", path="/Users/nelson.frugeri/.claude/skills/arch-py/", output_mode="content", context=3)
+Grep(pattern="TaskGroup", path="$HOME/.claude/skills/arch-py/", output_mode="content", context=3)
 ```
 
 ### WebSearch
@@ -611,7 +611,7 @@ WebFetch(url="https://peps.python.org/pep-0654/", prompt="Summarize exception gr
 ```python
 # Criar issue
 Write(
-    file_path="/Users/nelson.frugeri/.claude/issues/skills/{skill}/{issue_name}.md",
+    file_path="$HOME/.claude/issues/skills/{skill}/{issue_name}.md",
     content="[Issue content]"
 )
 ```
@@ -619,10 +619,10 @@ Write(
 ### Bash
 ```python
 # Criar diretório para issues
-Bash(command="mkdir -p /Users/nelson.frugeri/.claude/issues/skills/{skill_name}")
+Bash(command="mkdir -p $HOME/.claude/issues/skills/{skill_name}")
 
 # Listar issues existentes
-Bash(command="ls -la /Users/nelson.frugeri/.claude/issues/skills/{skill_name}/")
+Bash(command="ls -la $HOME/.claude/issues/skills/{skill_name}/")
 ```
 
 ### AskUserQuestion
@@ -860,7 +860,7 @@ Se tentar usar MCP e não estiver disponível:
 
 Antes de criar issue, checar se já existe:
 ```bash
-ls /Users/nelson.frugeri/.claude/issues/skills/{skill}/
+ls $HOME/.claude/issues/skills/{skill}/
 ```
 
 Se existir issue similar:

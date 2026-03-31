@@ -7,8 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Workspace → Mem0 migration**: all agents now use Mem0 for project context instead of `.claude/workspace/` files
+  - Explorer persists context reports to Mem0 instead of writing `context.md` files
+  - Builder, dev-py, dev-ts, review-py, review-ts, architect all read context from Mem0
+  - Oracle knowledge base moved from `~/.claude/workspace/oracle/` to Mem0
+  - Removed all `.claude/workspace/` references across 8 agents
+- Debater agent: replaced hardcoded personal paths with `$HOME` env var
+
 ### Added
-- "GitHub Operations" foundational principle in CLAUDE.md — all GitHub writes must use MCP tools
+- Frontend ecosystem: 3 new skills + 2 new expert agents (44 files, ~15,300 lines)
+  - **arch-ts** skill — TypeScript/Frontend architecture: type system, React patterns, RSC, state management, testing, tooling (19 reference files)
+  - **review-ts** skill — Frontend code review: templates, checklist (28 checks), severity criteria, accessibility + styling categories (7 files)
+  - **frontend-design** skill — UI/UX/Visual design: OKLCH colors, fluid typography, modern CSS layout, motion, UX patterns, WCAG 2.2, shadcn/ui ecosystem, 2026 visual trends (16 reference files)
+  - **dev-ts** agent — TypeScript/Frontend developer with 8-step workflow, test-first, accessibility-first, bundle-aware
+  - **review-ts** agent — Systematic frontend code review between git branches with accessibility and bundle impact analysis
+
+### Changed
+- Oracle Semantic Router: experts and skills now discovered dynamically from directories instead of hardcoded lists
+  - `~/.claude/agents/experts/` is the expert registry — adding a new agent makes it available automatically
+  - `~/.claude/skills/` is the skill registry — adding a new skill makes it available automatically
+- Oracle frontmatter: added arch-ts, review-ts, frontend-design skills
 - Multi-Oracle coordination via Agent Teams + Mem0 shared memory
   - Coordination memory types: `task_claim`, `blocker`, `progress`, `conflict`
   - Startup/shutdown protocols for multi-instance coordination
