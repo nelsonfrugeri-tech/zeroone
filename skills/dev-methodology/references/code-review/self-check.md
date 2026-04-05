@@ -2,7 +2,7 @@
 
 ## Before Opening a PR
 
-### Code Quality
+### Qualidade de Código
 - [ ] All tests pass locally
 - [ ] No debug/print statements left
 - [ ] No commented-out code
@@ -16,19 +16,19 @@
 - [ ] No SQL injection vectors
 - [ ] No XSS vectors (if frontend)
 
-### Testing
+### Testes
 - [ ] New code has tests
 - [ ] Edge cases covered (empty, null, boundary)
 - [ ] Error paths tested
 - [ ] Tests are deterministic (no flaky)
 
-### Documentation
+### Documentação
 - [ ] CHANGELOG updated
 - [ ] README updated (if behavior changed)
 - [ ] Complex logic has inline comments
 - [ ] Public API documented
 
-### Git Hygiene
+### Higiene de Git
 - [ ] Commits are logical units (not "fix" or "wip")
 - [ ] Branch is rebased on latest main
 - [ ] No merge commits in feature branch

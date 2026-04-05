@@ -27,7 +27,7 @@ triggers:
   - Grafana
 ---
 
-# SRE-Observability Skill - Site Reliability Engineering & Observability
+# SRE-Observability — Conhecimento de Observabilidade e SRE
 
 ## Proposito
 
@@ -99,9 +99,9 @@ de codigo novo para debugar.
 
 ---
 
-## 1. Observability Pillars
+## 1. Pilares de Observabilidade
 
-### The Three Pillars + Events
+### Os Três Pilares + Eventos
 
 | Pillar | What | When | Tool |
 |--------|------|------|------|
@@ -110,7 +110,7 @@ de codigo novo para debugar.
 | **Traces** | Caminho de uma request across services | Latency analysis, dependency mapping | Jaeger v2, OpenTelemetry Traces |
 | **Events** | Mudancas de estado significativas | Deployments, config changes, incidents | Custom events, annotations |
 
-### OpenTelemetry — The Standard
+### OpenTelemetry — O Padrão
 
 OpenTelemetry (OTel) e o padrao CNCF para telemetria. Um unico SDK para instrumentar tudo.
 
@@ -166,7 +166,7 @@ request_duration = meter.create_histogram(
 )
 ```
 
-### Context Propagation
+### Propagação de Contexto
 
 W3C Trace Context e o padrao. Propaga trace_id e span_id entre servicos.
 
@@ -188,7 +188,7 @@ with tracer.start_as_current_span("process_order") as span:
         raise
 ```
 
-### Structured Logging with OTel
+### Logging Estruturado com OTel
 
 ```python
 # structlog==24.4.0
@@ -227,9 +227,9 @@ logger.info("order_created", order_id="abc-123", total=99.99)
 
 ---
 
-## 2. SLO/SLI Management
+## 2. Gestão de SLO/SLI
 
-### Definitions
+### Definições
 
 | Conceito | O que e | Exemplo |
 |----------|---------|---------|
@@ -238,7 +238,7 @@ logger.info("order_created", order_id="abc-123", total=99.99)
 | **SLA** (Service Level Agreement) | Contrato com consequencias | 99.9% uptime or credits issued |
 | **Error Budget** | 100% - SLO | 0.5% = budget para experimentar/falhar |
 
-### SLI Formula
+### Fórmula de SLI
 
 ```
 SLI = (good events / total events) * 100
@@ -253,7 +253,7 @@ latency = (requests_under_threshold / total_requests) * 100
 correctness = (correct_responses / total_responses) * 100
 ```
 
-### Choosing SLIs
+### Escolhendo SLIs
 
 | Service Type | Primary SLIs |
 |-------------|-------------|
@@ -263,33 +263,33 @@ correctness = (correct_responses / total_responses) * 100
 | **Frontend** | LCP, FID, CLS (Core Web Vitals) |
 | **AI/LLM** | Latency, Correctness (eval score), Token cost, Error rate |
 
-### Error Budget Policy
+### Política de Error Budget
 
 ```markdown
 ## Error Budget Policy for [Service]
 
-### Budget calculation
+### Cálculo do budget
 - SLO: 99.5% availability (28-day rolling window)
 - Error budget: 0.5% = ~201 minutes / 28 days
 
-### When budget is healthy (>50% remaining)
+### Quando o budget está saudável (>50% remaining)
 - Ship features freely
 - Experiment with new deployments
 - Perform maintenance
 
-### When budget is low (10-50% remaining)
+### Quando o budget está baixo (10-50% remaining)
 - Slow down feature releases
 - Prioritize reliability work
 - Increase test coverage
 
-### When budget is exhausted (<10% remaining)
+### Quando o budget está esgotado (<10% remaining)
 - Feature freeze
 - All hands on reliability
 - Mandatory postmortem for any new incident
 - Rollback risky changes
 ```
 
-### SLO Implementation with Prometheus
+### Implementação de SLO com Prometheus
 
 ```yaml
 # Prometheus recording rules for SLO
@@ -326,7 +326,7 @@ groups:
 
 ---
 
-## 3. Incident Response Workflow
+## 3. Resposta a Incidentes Workflow
 
 ### Lifecycle
 
@@ -438,9 +438,9 @@ DETECT -> TRIAGE -> MITIGATE -> RESOLVE -> POSTMORTEM -> IMPROVE
 
 ---
 
-## 4. Alerting Strategies
+## 4. Estratégias de Alerting
 
-### Symptom-Based Alerting
+### Alerting Baseado em Sintomas
 
 ```
 BAD:  Alert on CPU > 80%         (cause, may have no user impact)
@@ -527,9 +527,9 @@ route:
 
 ---
 
-## 5. Dashboard Patterns
+## 5. Padrões de Dashboard
 
-### USE Method (Resources)
+### Método USE (Resources)
 
 For every resource (CPU, memory, disk, network):
 - **U**tilization — % of time the resource is busy
@@ -548,7 +548,7 @@ node_load1 / count(node_cpu_seconds_total{mode="idle"}) by (instance)
 rate(node_disk_io_errors_total[5m])
 ```
 
-### RED Method (Services)
+### Método RED (Services)
 
 For every service:
 - **R**ate — requests per second
@@ -578,7 +578,7 @@ histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by 
 | **Errors** | Rate of failed requests (explicit + implicit) | Correctness |
 | **Saturation** | How "full" the service is (queue depth, memory) | Capacity |
 
-### Dashboard Layout Best Practices
+### Layout de Dashboard Best Practices
 
 ```
 Row 1: SLO Status
@@ -680,7 +680,7 @@ traces_ingested.add(1, {"service.name": "payment-service"})
 
 ---
 
-## 7. Root Cause Analysis
+## 7. Análise de Causa Raiz
 
 ### 5 Whys
 
@@ -727,7 +727,7 @@ traces_ingested.add(1, {"service.name": "payment-service"})
 
 ---
 
-## 8. Disaster Recovery and Runbooks
+## 8. Recuperação de Desastres and Runbooks
 
 ### Recovery Objectives
 
@@ -801,7 +801,7 @@ traces_ingested.add(1, {"service.name": "payment-service"})
 
 ---
 
-## 9. On-Call Best Practices
+## 9. Boas Práticas de On-Call
 
 ### Schedule Design
 

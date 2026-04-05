@@ -11,11 +11,11 @@ description: |
   Triggers: /local-infra, docker, compose, database setup, container, infrastructure, devenv.
 ---
 
-# Local Infrastructure Skill - Development Environment Best Practices
+# Local Infrastructure — Infraestrutura Local de Desenvolvimento
 
-## Purpose
+## Propósito
 
-This skill is the **knowledge base** for local development infrastructure (2026).
+Esta skill é a **knowledge base** for local development infrastructure (2026).
 It covers everything needed to run, debug, and maintain multi-service development environments.
 
 **Who uses this skill:**
@@ -43,7 +43,7 @@ It covers everything needed to run, debug, and maintain multi-service developmen
 
 ---
 
-## Pinned Versions (April 2026)
+## Versões Fixadas (April 2026)
 
 | Tool | Version | Notes |
 |------|---------|-------|
@@ -61,9 +61,9 @@ It covers everything needed to run, debug, and maintain multi-service developmen
 
 ---
 
-## 1. Docker Best Practices
+## 1. Boas Práticas de Docker
 
-### Multi-Stage Builds
+### Builds Multi-Stage
 
 Multi-stage builds reduce image size by up to 97%. Separate build dependencies from runtime.
 
@@ -88,7 +88,7 @@ EXPOSE 8000
 CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-### Layer Caching
+### Cache de Camadas
 
 Order instructions from least to most frequently changing:
 
@@ -114,7 +114,7 @@ COPY src/ ./src/
 RUN pnpm build
 ```
 
-### Security
+### Segurança
 
 ```dockerfile
 # Use minimal base images
@@ -143,7 +143,7 @@ USER appuser
 # .pytest_cache
 ```
 
-### Image Selection Guide
+### Guia de Seleção de Imagens
 
 | Use Case | Base Image | Size |
 |----------|-----------|------|
@@ -158,9 +158,9 @@ USER appuser
 
 ---
 
-## 2. Docker Compose Patterns
+## 2. Padrões de Docker Compose
 
-### Service Dependencies with Health Checks
+### Dependências de Serviços com Health Checks
 
 ```yaml
 # compose.yaml (no `version:` field -- deprecated in Compose v2)
@@ -242,7 +242,7 @@ volumes:
   mongo_data:
 ```
 
-### Compose Profiles
+### Profiles do Compose
 
 Use profiles to group optional services:
 
@@ -282,7 +282,7 @@ docker compose --profile debug up
 docker compose --profile monitoring up
 ```
 
-### Watch Mode (Compose v2.22+)
+### Modo Watch (Compose v2.22+)
 
 ```yaml
 services:
@@ -308,7 +308,7 @@ docker compose watch  # auto-sync files, rebuild on dependency changes
 
 ---
 
-## 3. Database Setup
+## 3. Configuração de Bancos de Dados
 
 ### PostgreSQL
 
@@ -399,7 +399,7 @@ redis:
 
 ---
 
-## 4. .env Management
+## 4. Gestão de .env
 
 ### Template pattern
 
@@ -478,9 +478,9 @@ class Settings(BaseSettings):
 
 ---
 
-## 5. Service Orchestration
+## 5. Orquestração de Serviços
 
-### Startup Order
+### Ordem de Inicialização
 
 ```
 depends_on with condition: service_healthy guarantees:
@@ -545,7 +545,7 @@ healthcheck:
 
 ---
 
-## 6. Port Management
+## 6. Gestão de Portas
 
 ### Default port assignments
 
@@ -599,7 +599,7 @@ API_PORT=8001
 
 ---
 
-## 7. Dependency Installation by Ecosystem
+## 7. Instalação de Dependências by Ecosystem
 
 ### Python (Poetry)
 
@@ -671,7 +671,7 @@ CMD ["myapp"]
 
 ---
 
-## 8. Log Streaming and Debugging
+## 8. Streaming de Logs and Debugging
 
 ### Docker Compose logs
 
@@ -1015,7 +1015,7 @@ docker volume prune               # remove unused volumes
 - [references/docker/compose-patterns.md](references/docker/compose-patterns.md) - Compose advanced patterns
 - [references/docker/dependency-installation.md](references/docker/dependency-installation.md) - Per-ecosystem installation
 
-### Databases
+### Bancos de Dados
 - [references/databases/setup-patterns.md](references/databases/setup-patterns.md) - PostgreSQL, MongoDB, Redis init/seed/migrate
 
 ### Orchestration

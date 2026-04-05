@@ -142,7 +142,7 @@ def truncate(db_engine):
         conn.commit()
 ```
 
-## Rules
+## Regras
 
 1. **Each test creates its own data** -- never rely on state from another test
 2. **Use factories over raw SQL** -- factories respect model validation

@@ -1,6 +1,6 @@
 # Architecture Fitness Functions
 
-## Concept
+## Conceito
 Automated checks that verify architecture decisions are maintained over time.
 
 ## Types

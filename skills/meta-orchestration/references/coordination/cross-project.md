@@ -10,7 +10,7 @@
 - **Pattern transfer**: architectural decisions from project A inform project B
 - **Dependency awareness**: changes in shared libs affect downstream projects
 
-## Rules
+## Regras
 1. Never store project-specific paths in skills (use environment variables)
 2. Cross-project memories are read-only references, not mandates
 3. Each project's context is authoritative for that project

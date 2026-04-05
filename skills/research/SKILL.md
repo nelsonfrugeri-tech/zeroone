@@ -12,11 +12,11 @@ globs:
   - "**/*"
 ---
 
-# Research Skill - Technical Research Methodology
+# Research — Metodologia de Pesquisa Técnica
 
-## Purpose
+## Propósito
 
-This skill is the **knowledge base** for structured technical research.
+Esta skill é a **knowledge base** for structured technical research.
 It provides methodology, not opinions. Every recommendation an agent makes
 should be grounded in current, verified, multi-source research.
 
@@ -43,11 +43,11 @@ should be grounded in current, verified, multi-source research.
 
 ---
 
-## 1. Search Strategies by Platform
+## 1. Estratégias de Busca por Plataforma
 
 Each platform has different strengths. Use the right platform for the right question.
 
-### Decision Tree
+### Árvore de Decisão
 
 ```
 What am I researching?
@@ -67,7 +67,7 @@ What am I researching?
   +-- Breaking changes/migration? --> GitHub releases + changelog + Google
 ```
 
-### Platform Strengths
+### Pontos Fortes por Plataforma
 
 | Platform | Best for | Limitations |
 |----------|----------|-------------|
@@ -90,7 +90,7 @@ What am I researching?
 
 ---
 
-## 2. Advanced Search Operators
+## 2. Operadores Avançados de Busca
 
 ### Google
 
@@ -213,11 +213,11 @@ ti:"RAG" AND cat:cs.CL AND submittedDate:[2025-01-01 TO *]
 
 ---
 
-## 3. Source Taxonomy by Domain
+## 3. Taxonomia de Fontes por Domínio
 
 Different domains require different source strategies.
 
-### Libraries and Frameworks
+### Bibliotecas e Frameworks
 
 | Priority | Source | What to check |
 |----------|--------|---------------|
@@ -234,7 +234,7 @@ Different domains require different source strategies.
 - Many open issues with no maintainer response
 - No type stubs (Python) or no @types (TypeScript)
 
-### AI/ML Models and Techniques
+### Modelos e Técnicas de AI/ML
 
 | Priority | Source | What to check |
 |----------|--------|---------------|
@@ -251,7 +251,7 @@ Different domains require different source strategies.
 - No open weights or API access
 - Paper without code
 
-### Infrastructure and DevOps
+### Infraestrutura e DevOps
 
 | Priority | Source | What to check |
 |----------|--------|---------------|
@@ -282,7 +282,7 @@ Different domains require different source strategies.
 
 ---
 
-## 4. Validation Protocol
+## 4. Protocolo de Validação
 
 Every piece of research must pass validation before being presented as fact.
 
@@ -341,9 +341,9 @@ After validation, assign a confidence level to each claim:
 
 ---
 
-## 5. Synthesis -- Templates and Formats
+## 5. Síntese -- Templates and Formats
 
-### Comparison Table Template
+### Tabela de Comparação Template
 
 Use this format when comparing 2+ alternatives:
 
@@ -475,7 +475,7 @@ Use these when multiple valid approaches exist and a decision must be made.
 **Best when:** ...
 **Worst when:** ...
 
-### Decision Matrix
+### Matriz de Decisão
 
 | Criterion | Weight | Option A | Option B |
 |-----------|--------|----------|----------|
@@ -488,7 +488,7 @@ Use these when multiple valid approaches exist and a decision must be made.
 {Which option and why, acknowledging what we give up}
 ```
 
-### Devil's Advocate Protocol
+### Protocolo do Advogado do Diabo
 
 When evaluating a strong preference or popular choice:
 
@@ -614,7 +614,7 @@ WHY: Research depth should match decision impact.
 
 ---
 
-## 8. When to Stop Researching
+## 8. Quando Parar Researching
 
 Research without bounds is waste. Apply these stopping rules:
 

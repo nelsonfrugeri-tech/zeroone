@@ -1,9 +1,9 @@
 # Consumer-Driven Contract Testing with Pact
 
-## Concept
+## Conceito
 Consumer defines expected interactions → generates contract (pact file) → provider verifies against it.
 
-## Flow
+## Fluxo
 ```
 1. Consumer writes test defining expected request/response
 2. Pact generates contract file (JSON)

@@ -14,7 +14,7 @@ ls ~/.claude/skills/*/SKILL.md
 ```
 Parse frontmatter for: name, description, triggers.
 
-## Rules
+## Regras
 1. **Never hardcode agent or skill lists** — always discover dynamically
 2. **Match by description/triggers** — not by name
 3. **Fallback to general-purpose** if no specialist matches

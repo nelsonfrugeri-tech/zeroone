@@ -1,6 +1,6 @@
 # ATAM — Architecture Tradeoff Analysis Method
 
-## Process
+## Processo
 1. **Present architecture** — stakeholders understand the system
 2. **Identify quality attributes** — performance, security, modifiability, availability
 3. **Build utility tree** — prioritize scenarios by importance and difficulty

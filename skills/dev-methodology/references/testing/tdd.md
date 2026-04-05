@@ -70,7 +70,7 @@ Test 5+: Additional behaviors
 
 ## Common Mistakes
 
-### Testing implementation, not behavior
+### Testes implementation, not behavior
 ```python
 # BAD: tests the internal structure
 def test_cart_stores_items_in_list():

@@ -12,7 +12,7 @@ description: |
   Triggers: /software-architecture, architecture, ADR, C4, trade-off, decomposition, design review.
 ---
 
-# Software Architecture Skill - Architecture Decision & Design Knowledge Base
+# Software Architecture — Arquitetura de Software
 
 ## Proposito
 
@@ -214,7 +214,7 @@ Proposed -> Accepted -> [Active]
                      -> Superseded by ADR-XXX (decisao substituida)
 ```
 
-### Best Practices
+### Boas Práticas
 
 1. **Uma decisao por ADR** — split se necessario
 2. **Escreva DURANTE a decisao** — nao apos
@@ -445,7 +445,7 @@ Quality Attribute
   +-- Stimulus Scenario
   |     Priority: (H,M,L) for business x (H,M,L) for technical risk
   |
-  +-- Example:
+  +-- Exemplo:
         Performance
           |
           +-- "1000 concurrent users, response < 200ms p99" (H,H)
@@ -515,7 +515,7 @@ Consumer-Driven Contracts:
 Testes que verificam regras arquiteturais (fitness functions em codigo):
 
 ```python
-# Example: domain layer must not import infrastructure
+# Exemplo: domain layer must not import infrastructure
 def test_domain_does_not_import_infra():
     """Ensure domain module has no infrastructure dependencies."""
     import ast
@@ -590,7 +590,7 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 
 ## 10. Performance Evaluation
 
-### RED Method (for request-driven services)
+### Método RED (for request-driven services)
 
 | Metric | What | SLO Example |
 |--------|------|-------------|
@@ -598,7 +598,7 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 | **E**rrors | Error rate percentage | < 0.1% 5xx |
 | **D**uration | Latency distribution | p99 < 200ms |
 
-### USE Method (for resources)
+### Método USE (for resources)
 
 | Metric | What | SLO Example |
 |--------|------|-------------|

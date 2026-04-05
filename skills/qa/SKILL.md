@@ -13,11 +13,11 @@ description: |
   Triggers: /qa, QA, quality assurance, testing strategy, test plan, Definition of Done, smoke test.
 ---
 
-# QA Skill - Modern Quality Assurance Best Practices
+# QA — Quality Assurance
 
-## Purpose
+## Propósito
 
-This skill is the **knowledge base** for modern Quality Assurance (2026).
+Esta skill é a **knowledge base** for modern Quality Assurance (2026).
 It complements `arch-py` and `arch-ts` skills with QA-specific patterns and strategies.
 
 **Who uses this skill:**
@@ -47,15 +47,15 @@ It complements `arch-py` and `arch-ts` skills with QA-specific patterns and stra
 
 ---
 
-## Philosophy
+## Filosofia
 
-### Testing is Engineering, Not Afterthought
+### Testes são Engenharia, Não Afterthought
 
 **Quality is built in, not tested in.**
 Tests are first-class artifacts with the same standards as production code:
 typed, reviewed, maintained, and refactored.
 
-### Core Principles
+### Princípios Fundamentais
 
 **1. Test what matters, not what is easy**
 - Focus on user-facing behavior and business-critical paths
@@ -85,9 +85,9 @@ typed, reviewed, maintained, and refactored.
 
 ---
 
-## 1. Test Strategy -- Pyramid vs Trophy
+## 1. Estratégia de Testes -- Pyramid vs Trophy
 
-### The Testing Pyramid (Martin Fowler)
+### A Pirâmide de Testes (Martin Fowler)
 
 ```
         /  E2E  \          Few, slow, expensive
@@ -100,7 +100,7 @@ typed, reviewed, maintained, and refactored.
 
 **When to use:** Backend services, libraries, utilities with clear function boundaries.
 
-### The Testing Trophy (Kent C. Dodds)
+### O Troféu de Testes (Kent C. Dodds)
 
 ```
         ___E2E___          Few, high confidence
@@ -115,7 +115,7 @@ typed, reviewed, maintained, and refactored.
 
 **When to use:** Frontend applications, APIs, systems where integration points are the primary risk.
 
-### Decision Framework
+### Framework de Decisão
 
 | Signal | Prefer Pyramid | Prefer Trophy |
 |--------|---------------|---------------|
@@ -127,7 +127,7 @@ typed, reviewed, maintained, and refactored.
 | Microservices | | Yes |
 | Data pipeline | Yes | |
 
-### What to Test at Each Layer
+### O que Testar em Cada Camada
 
 **Static Analysis (base layer):**
 - Type checking (mypy, TypeScript strict)
@@ -158,16 +158,16 @@ typed, reviewed, maintained, and refactored.
 
 ---
 
-## 2. Environment Setup
+## 2. Configuração de Ambiente
 
-### Principles
+### Princípios
 
 1. **Reproducible** -- same environment every time, no "works on my machine"
 2. **Isolated** -- tests cannot interfere with each other or with production
 3. **Ephemeral** -- created before tests, destroyed after
 4. **Fast** -- environment setup should take seconds, not minutes
 
-### Docker Compose for Test Dependencies
+### Docker Compose para Dependências de Teste
 
 ```yaml
 # docker-compose.test.yml
@@ -214,7 +214,7 @@ def redis():
         yield r.get_connection_url()
 ```
 
-### Environment Teardown Checklist
+### Checklist de Teardown
 
 After every test run:
 - [ ] Database tables truncated or dropped
@@ -246,7 +246,7 @@ def reset_redis(redis_client):
 
 ---
 
-## 3. E2E Testing
+## 3. Testes E2E
 
 ### Tool Selection
 
@@ -336,7 +336,7 @@ def context(browser: Browser) -> BrowserContext:
 
 ---
 
-## 4. Test Data Management
+## 4. Gestão de Dados de Teste
 
 ### Approaches
 
@@ -396,9 +396,9 @@ def sample_order(db_session) -> Order:
 
 ---
 
-## 5. Integration Testing
+## 5. Testes de Integração
 
-### Real Dependencies vs Mocks
+### Dependências Reais vs Mocks
 
 | Use Real Deps | Use Mocks |
 |---------------|-----------|
@@ -459,7 +459,7 @@ Never test the full system in an integration test -- that is E2E.
 
 ---
 
-## 6. API Contract Testing
+## 6. Testes de Contrato de API
 
 ### Consumer-Driven Contracts with Pact
 
@@ -502,7 +502,7 @@ def test_get_user():
         assert result["name"] == "Alice"
 ```
 
-### Best Practices
+### Boas Práticas
 
 1. **Test consumer needs, not provider capabilities** -- only assert fields the consumer uses
 2. **Use matchers, not exact values** -- `Like(42)` instead of `42` for flexibility
@@ -528,7 +528,7 @@ def test_get_user():
 
 ---
 
-## 7. Performance Testing
+## 7. Testes de Performance
 
 ### Test Types
 
@@ -609,7 +609,7 @@ class APIUser(HttpUser):
 
 ---
 
-## 8. Accessibility Testing
+## 8. Testes de Acessibilidade
 
 ### Automated Testing (catches ~57% of WCAG issues)
 
@@ -692,7 +692,7 @@ test("homepage has no a11y violations", async ({ page }) => {
 
 ---
 
-## 9. Visual Regression Testing
+## 9. Testes de Regressão Visual
 
 ### Approaches
 
@@ -715,7 +715,7 @@ async def test_card_component_visual(page: Page) -> None:
     await expect(card).to_have_screenshot("product-card.png")
 ```
 
-### Best Practices
+### Boas Práticas
 
 1. **Mask dynamic content** -- timestamps, avatars, ads
 2. **Use consistent viewport** -- always test at specific resolutions
@@ -900,7 +900,7 @@ A feature is **Done** when ALL of the following are true:
 
 ---
 
-## 13. Production Readiness Checklist
+## 13. Checklist de Production Readiness
 
 Before any service goes to production:
 

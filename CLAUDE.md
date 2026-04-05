@@ -161,6 +161,28 @@ is based on training data which may be outdated.
 - MCP server enforces validations (CHANGELOG required, README warning) at the tool level
 - Personal PAT writes create confusion about who authored what
 
+## Language Rules — Foundational Principle
+
+**Strict language separation by context. This is non-negotiable.**
+
+### Rules
+| Context | Language |
+|---------|----------|
+| Skills (SKILL.md prose/headers) | pt-BR (technical terms, proper names, jargon in English) |
+| Reference files (prose/headers) | pt-BR (technical terms in English) |
+| Code blocks inside skills | English |
+| Code comments | English |
+| Scripts (.sh, .py, etc.) | English (including comments) |
+| README.md, CHANGELOG.md | English |
+| Repository documentation | English |
+| Agent files (personality) | pt-BR with technical terms in English |
+| CLAUDE.md | English |
+
+### Why
+- Instructional content (skills, agents) must be accessible in pt-BR for the team
+- Code and public repo documentation follow international standards in English
+- Never translate code blocks, code comments, or scripts
+
 ## Dependency Pinning — Foundational Principle
 
 **Every dependency must be pinned to an exact stable version (`==`). Never use `>=`, `~=`, `^`, or unpinned versions. This is non-negotiable.**

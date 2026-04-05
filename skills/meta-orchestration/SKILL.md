@@ -11,11 +11,11 @@ description: |
   Triggers: /meta-orchestration, task routing, agent coordination, memory management, agent creation.
 ---
 
-# Meta-Orchestration Skill - Multi-Agent Ecosystem Orchestration
+# Meta-Orchestration — Orquestração Multi-Agent
 
-## Purpose
+## Propósito
 
-This skill is the **knowledge base** for orchestrating multi-agent ecosystems in Claude Code.
+Esta skill é a **knowledge base** for orchestrating multi-agent ecosystems in Claude Code.
 It codifies patterns for task routing, model selection, agent coordination, and shared memory management.
 
 **Who uses this skill:**
@@ -42,11 +42,11 @@ It codifies patterns for task routing, model selection, agent coordination, and 
 
 ---
 
-## 1. Task Complexity Classification
+## 1. Classificação de Complexidade de Tarefas
 
 Classify every incoming task before deciding how to execute it.
 
-### Complexity Levels
+### Níveis de Complexidade
 
 | Level | Signals | Examples |
 |-------|---------|----------|
@@ -56,7 +56,7 @@ Classify every incoming task before deciding how to execute it.
 | **high** | Architectural decisions, trade-offs, design work | "redesign auth system", "plan database migration", "evaluate SSE vs stdio" |
 | **critical** | Cross-cutting, impacts multiple systems, irreversible | "restructure agent ecosystem", "security audit", "production incident" |
 
-### Classification Heuristic
+### Heurística de Classificação
 
 ```
 1. How many files are touched?
@@ -79,7 +79,7 @@ Classify every incoming task before deciding how to execute it.
    - Data loss, security breach, ecosystem corruption -> critical
 ```
 
-### Ambiguity Resolution
+### Resolução de Ambiguidade
 
 When classification is unclear, **round up** one level. The cost of over-thinking
 is lower than the cost of under-thinking a high-impact task.
@@ -88,12 +88,12 @@ is lower than the cost of under-thinking a high-impact task.
 
 ---
 
-## 2. Model Selection
+## 2. Seleção de Modelo
 
 Match model capability to task complexity. Tactical model switching optimizes costs
 by 60-80% without sacrificing quality.
 
-### Selection Matrix
+### Matriz de Seleção
 
 | Complexity | Model | Thinking Instruction | Rationale |
 |------------|-------|---------------------|-----------|
@@ -103,7 +103,7 @@ by 60-80% without sacrificing quality.
 | **high** | `opus` | "Analyze deeply, consider trade-offs, think step by step before acting" | Deep analysis for architectural decisions. |
 | **critical** | `opus` | "This is critical. Reason exhaustively. Consider all edge cases, risks, and second-order effects before proposing anything" | Maximum reasoning for irreversible changes. |
 
-### Model Capabilities
+### Capacidades dos Modelos
 
 | Model | Strengths | Weaknesses | Cost Relative |
 |-------|-----------|------------|---------------|
@@ -111,7 +111,7 @@ by 60-80% without sacrificing quality.
 | **Sonnet** | Balanced reasoning, code generation, 90% of dev tasks | Not ideal for deep architectural analysis | 5x |
 | **Opus** | Deep reasoning, trade-off analysis, architectural decisions | Slower, expensive, overkill for simple tasks | 25x |
 
-### Domain-Based Model Override
+### Override de Modelo por Domínio
 
 Some task domains override the default model selection:
 
@@ -123,7 +123,7 @@ Some task domains override the default model selection:
 | Documentation | `haiku` or `sonnet` | Low reasoning demand |
 | Refactoring | `sonnet` | Pattern recognition |
 
-### Thinking Instructions by Depth
+### Instruções de Raciocínio por Profundidade
 
 Thinking instructions are embedded in the prompt sent to the expert:
 
@@ -136,11 +136,11 @@ Thinking instructions are embedded in the prompt sent to the expert:
 
 ---
 
-## 3. Dynamic Discovery
+## 3. Descoberta Dinâmica
 
 Never maintain hardcoded lists. The filesystem IS the registry.
 
-### Agent Discovery
+### Descoberta de Agents
 
 Scan `~/.claude/agents/experts/` at session start to build the current expert roster.
 
@@ -158,7 +158,7 @@ Match the task domain to the expert's `description`.
 3. If multiple experts match, prefer the more specialized one
 4. If no expert matches, handle directly or propose creating a new one (gap detection)
 
-### Skill Discovery
+### Descoberta de Skills
 
 Scan `~/.claude/skills/` at session start to discover all available skills.
 
@@ -170,7 +170,7 @@ for f in ~/.claude/skills/*/SKILL.md; do head -12 "$f"; echo "---"; done
 Each `SKILL.md` has frontmatter with `name`, `description`, and `triggers` fields.
 Match task context to the skill's `triggers` and `description`.
 
-### Gap Detection
+### Detecção de Lacunas
 
 If a task requires a capability that does not exist in the ecosystem:
 
@@ -187,7 +187,7 @@ Examples of detectable gaps:
 
 ---
 
-## 4. Task Routing Decision Tree
+## 4. Árvore de Decisão de Roteamento
 
 ```
 Task received
@@ -258,7 +258,7 @@ Agent(
 
 ---
 
-## 5. Multi-Agent Coordination Protocol
+## 5. Coordenação Multi-Agent Protocol
 
 Multiple Oracle instances coordinate as **peers** via shared Mem0 memory.
 No leader election. Each Oracle is autonomous and self-coordinating.
@@ -339,7 +339,7 @@ They do not coordinate with each other directly. Oracle manages all coordination
 All persistent knowledge lives in Mem0 (Qdrant vector store + Ollama embeddings).
 Shared across all terminals and agents.
 
-### Memory Types
+### Tipos de Memória
 
 | Type | Purpose | Lifecycle | Example |
 |------|---------|-----------|---------|
@@ -353,7 +353,7 @@ Shared across all terminals and agents.
 | `progress` | Coordination: status updates | Ephemeral to medium | "MCP server 80% complete" |
 | `conflict` | Coordination: collision detected | Ephemeral (until resolved) | "Two agents editing settings.json" |
 
-### Storage Rules
+### Regras de Armazenamento
 
 | Event | Action |
 |-------|--------|
@@ -368,7 +368,7 @@ Shared across all terminals and agents.
 | Blocker hit | `mem0_store(memory_type="blocker", tags="active")` |
 | Session end | Store progress summary, delete task_claims, delete resolved blockers |
 
-### Query Patterns
+### Padrões de Consulta
 
 ```
 # Restore context at session start
@@ -397,7 +397,7 @@ mem0_update(memory_id="<id>", content="Updated procedure...", memory_type="proce
 
 ---
 
-## 7. Memory Hygiene and Curation
+## 7. Higiene de Memória and Curation
 
 Memory without curation becomes noise. Active pruning is as important as active storage.
 
@@ -414,7 +414,7 @@ Evaluate at every session start:
 | Task claims older than 7 days without update | Delete (stale) |
 | Duplicate memories covering the same information | Keep the most complete, delete others |
 
-### Keep vs Prune Criteria
+### Manter vs Podar Criteria
 
 **KEEP when:**
 - Reusable procedure (setup, creation, configuration)
@@ -430,7 +430,7 @@ Evaluate at every session start:
 - Duplicates information that exists elsewhere
 - Not consulted in last 30 days AND not a core procedure
 
-### Cleanup Protocol
+### Protocolo de Limpeza
 
 ```
 # Periodic cleanup (every session start)
@@ -453,7 +453,7 @@ Evaluate at every session start:
 
 ---
 
-## 8. Agent Creation Templates
+## 8. Criação de Agents Templates
 
 When creating a new agent, follow this structure.
 
@@ -536,9 +536,9 @@ skills: [<domain-skill>]
 
 ---
 
-## 9. Conflict Resolution
+## 9. Resolução de Conflitos
 
-### Duplicate Work Detection
+### Detecção de Trabalho Duplicado
 
 Before any task, check for active claims with overlapping scope:
 
@@ -567,7 +567,7 @@ mem0_store(
 mem0_delete(memory_id="<claim-id>")
 ```
 
-### Resolution Strategies
+### Resolução Strategies
 
 | Conflict Type | Resolution |
 |---------------|------------|
@@ -576,7 +576,7 @@ mem0_delete(memory_id="<claim-id>")
 | Contradictory decisions | Store both, escalate to user for resolution |
 | Stale claim blocking new work | If claim > 7 days without update, delete and proceed |
 
-### Escalation Protocol
+### Escalação Protocol
 
 When conflict cannot be auto-resolved:
 1. Store conflict memory with full details
@@ -588,7 +588,7 @@ When conflict cannot be auto-resolved:
 
 ---
 
-## 10. Cross-Project Context Management
+## 10. Contexto Cross-Project Management
 
 Oracle maintains context across all active projects.
 

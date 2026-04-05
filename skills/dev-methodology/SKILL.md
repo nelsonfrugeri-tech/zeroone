@@ -13,11 +13,11 @@ description: |
   walking skeleton, definition of done, technical debt, code review checklist.
 ---
 
-# Dev-Methodology Skill - Software Development Methodology
+# Dev-Methodology — Metodologia de Desenvolvimento
 
-## Purpose
+## Propósito
 
-This skill is the **knowledge base** for systematic software development methodology.
+Esta skill é a **knowledge base** for systematic software development methodology.
 It defines HOW to develop software — the process, discipline, and quality gates that
 turn requirements into production-ready code.
 
@@ -48,14 +48,14 @@ turn requirements into production-ready code.
 
 ---
 
-## Philosophy
+## Filosofia
 
-### Process is not bureaucracy — it is discipline
+### Processo não é burocracia — é disciplina
 
 Good methodology eliminates waste, reduces rework, and builds confidence.
 Bad methodology adds ceremony without value. This skill targets the former.
 
-### Principles
+### Princípios
 
 **1. Understand before you build**
 - Read existing code, contracts, dependencies, and edge cases
@@ -89,7 +89,7 @@ Bad methodology adds ceremony without value. This skill targets the former.
 
 ---
 
-## 1. Development Workflow — 7 Phases
+## 1. Workflow de Desenvolvimento — 7 Phases
 
 ```
 QUESTIONAR > PESQUISAR > PROJETAR > TESTAR > IMPLEMENTAR > VALIDAR > REVISAR
@@ -99,7 +99,7 @@ Every task — feature, bug fix, refactor — follows these phases.
 Phases can be quick (minutes for a trivial fix) or deep (days for a complex feature),
 but none can be skipped.
 
-### Phase 1: QUESTIONAR (Question)
+### Fase 1: QUESTIONAR
 
 **Goal:** Ensure crystal-clear understanding of the task.
 
@@ -125,7 +125,7 @@ but none can be skipped.
 
 ---
 
-### Phase 2: PESQUISAR (Research)
+### Fase 2: PESQUISAR
 
 **Goal:** Ground decisions in current knowledge, not assumptions.
 
@@ -151,7 +151,7 @@ but none can be skipped.
 
 ---
 
-### Phase 3: PROJETAR (Design)
+### Fase 3: PROJETAR
 
 **Goal:** Make design decisions explicit before writing code.
 
@@ -184,7 +184,7 @@ but none can be skipped.
 
 ---
 
-### Phase 4: TESTAR (Test — Write Tests First)
+### Fase 4: TESTAR — Write Tests First)
 
 **Goal:** Encode expected behavior as executable tests BEFORE implementing.
 
@@ -199,7 +199,7 @@ but none can be skipped.
 test_<behavior>_when_<condition>_then_<expected>
 ```
 
-**Examples:**
+**Exemplos:**
 ```python
 def test_create_user_when_email_valid_then_returns_user():
     ...
@@ -228,7 +228,7 @@ def test_calculate_discount_when_premium_user_then_applies_10_percent():
 
 ---
 
-### Phase 5: IMPLEMENTAR (Implement)
+### Fase 5: IMPLEMENTAR
 
 **Goal:** Write the minimum code to make tests pass, then refactor.
 
@@ -263,7 +263,7 @@ REPEAT
 
 ---
 
-### Phase 6: VALIDAR (Validate)
+### Fase 6: VALIDAR
 
 **Goal:** Prove the code works end-to-end, not just in unit tests.
 
@@ -291,7 +291,7 @@ REPEAT
 
 ---
 
-### Phase 7: REVISAR (Review — Self-Check)
+### Fase 7: REVISAR — Self-Check)
 
 **Goal:** Catch issues BEFORE submitting for review.
 
@@ -319,9 +319,9 @@ REPEAT
 
 ---
 
-## 2. Test-First Methodology
+## 2. Metodologia Test-First
 
-### TDD (Test-Driven Development)
+### TDD
 
 Developer-centric. Focus on correct implementation of individual units.
 
@@ -346,7 +346,7 @@ Developer-centric. Focus on correct implementation of individual units.
 
 **Reference:** [references/testing/tdd.md](references/testing/tdd.md)
 
-### BDD (Behavior-Driven Development)
+### BDD
 
 User-centric. Focus on system behavior from the user's perspective.
 Uses natural language (Given-When-Then) to describe behavior.
@@ -422,7 +422,7 @@ AI accelerates TDD without replacing the discipline:
 
 ---
 
-## 3. Bug Fix Workflow
+## 3. Workflow de Bug Fix
 
 Every bug fix follows a systematic 6-step process.
 
@@ -487,7 +487,7 @@ git bisect reset
 
 ---
 
-## 4. Refactoring Methodology
+## 4. Metodologia de Refactoring
 
 Refactoring changes code structure without changing behavior.
 Always refactor with safety nets (tests). Never refactor without tests.
@@ -555,7 +555,7 @@ Always refactor with safety nets (tests). Never refactor without tests.
 3. CONTRACT — Remove the old interface once all consumers migrated
 ```
 
-**Example:**
+**Exemplo:**
 ```python
 # Phase 1: EXPAND — add new method, keep old
 class UserService:
@@ -593,7 +593,7 @@ Produces a dependency graph (Mikado Graph) of changes needed.
 
 ---
 
-## 5. Large Feature Breakdown
+## 5. Decomposição de Features Grandes
 
 ### Vertical Slicing
 
@@ -682,7 +682,7 @@ Then flesh out incrementally: add product catalog, cart, payment, etc.
 
 ---
 
-## 6. Code Review Self-Check
+## 6. Self-Check de Code Review
 
 **Before submitting code for review, run this checklist yourself.**
 
@@ -697,7 +697,7 @@ The goal is to catch obvious issues before wasting a reviewer's time.
 - [ ] No off-by-one errors
 - [ ] No null/undefined access without guards
 
-### Testing
+### Testes
 
 - [ ] All new code has tests
 - [ ] Tests are meaningful (not just coverage padding)
@@ -731,7 +731,7 @@ The goal is to catch obvious issues before wasting a reviewer's time.
 - [ ] Resources properly managed (connections, files, locks)
 - [ ] Appropriate caching considered
 
-### Documentation
+### Documentação
 
 - [ ] CHANGELOG.md updated
 - [ ] README.md updated (if user-facing changes)
@@ -763,7 +763,7 @@ Non-negotiable. No exceptions.
 - [ ] Type checker clean
 - [ ] No new technical debt introduced without tracking
 
-### Documentation
+### Documentação
 
 - [ ] CHANGELOG.md updated
 - [ ] README.md updated (if applicable)
@@ -791,7 +791,7 @@ Non-negotiable. No exceptions.
 
 ---
 
-## 8. Technical Debt Management
+## 8. Gestão de Débito Técnico
 
 ### The Technical Debt Quadrant
 
@@ -845,7 +845,7 @@ Inadvertent | "Now we know how we       | "What's a design pattern?"|
 
 ---
 
-## 9. Pair and Mob Programming
+## 9. Pair e Mob Programming
 
 ### Pair Programming
 
@@ -896,7 +896,7 @@ Whole team, one computer. One driver, everyone else navigates.
 
 ---
 
-## 10. CI Discipline
+## 10. Disciplina de CI
 
 ### Commit discipline
 
@@ -988,7 +988,7 @@ This skill defines the PROCESS. Other skills define the TOOLS and PATTERNS.
 - [references/workflow/bug-fix.md](references/workflow/bug-fix.md) - Bug fix systematic process
 - [references/workflow/pairing.md](references/workflow/pairing.md) - Pair and mob programming
 
-### Testing
+### Testes
 - [references/testing/test-first.md](references/testing/test-first.md) - Test-first principles
 - [references/testing/tdd.md](references/testing/tdd.md) - TDD deep dive
 - [references/testing/bdd.md](references/testing/bdd.md) - BDD with Given-When-Then

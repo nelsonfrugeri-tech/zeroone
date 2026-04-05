@@ -1,6 +1,6 @@
 # Multi-Window Burn Rate Alerting
 
-## Concept
+## Conceito
 Instead of static thresholds, alert based on how fast the error budget is being consumed.
 
 ## Formula

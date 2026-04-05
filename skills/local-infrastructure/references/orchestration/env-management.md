@@ -1,6 +1,6 @@
 # .env Management
 
-## Structure
+## Estrutura
 ```
 .env.example    — committed, all keys with placeholder values
 .env            — gitignored, actual values
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env"}
 ```
 
-## Rules
+## Regras
 1. **Never commit .env** — add to .gitignore
 2. **Always commit .env.example** — documents required vars
 3. **Validate on startup** — fail fast if missing required vars

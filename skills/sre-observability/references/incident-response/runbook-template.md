@@ -1,6 +1,6 @@
 # Runbook Template
 
-## Structure
+## Estrutura
 
 ```markdown
 # [Service] — [Scenario]

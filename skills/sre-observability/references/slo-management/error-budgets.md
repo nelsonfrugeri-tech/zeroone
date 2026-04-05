@@ -1,6 +1,6 @@
 # Error Budgets
 
-## Concept
+## Conceito
 Error budget = allowed unreliability. If SLO is 99.9%, you can afford 0.1% failures.
 
 ## Burn Rate
