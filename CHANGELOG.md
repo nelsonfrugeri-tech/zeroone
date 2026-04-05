@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **7 new state-of-the-art skills** (#24)
+  - `sre-observability` — OpenTelemetry, SLOs, incident response, dashboards
+  - `local-infrastructure` — Docker, compose, databases, service orchestration
+  - `software-architecture` — SOLID, ADR, C4, trade-offs, API design
+  - `dev-methodology` — full dev workflow, TDD, refactoring, vertical slicing
+  - `research` — search strategies, source validation, synthesis, debate frameworks
+  - `meta-orchestration` — task routing, agent coordination, Mem0 management
+  - `qa` — E2E testing, Definition of Done, environment setup/teardown
+
 ### Changed
 - **Agent architecture: Matrix Personas** — replaced founds/experts model with 6 persona-only agents
   - Deleted all 11 old agents (2 founds + 9 experts)
@@ -22,6 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - github: removed enforcer persona
   - frontend-design: removed philosophical framing
 - **CLAUDE.md** updated to document new Matrix agent architecture
+- **Skills are now global** — all skills loaded automatically by ALL agents, no per-agent declaration
+- **Agents are persona-only** — zero technical knowledge in agent files, personality + tools only
+- Agent directory flattened — removed `founds/` and `experts/` subdirectories
+- Existing skills cleaned of persona/personality content (review-py, review-ts, arch-py, arch-ts, etc.)
+- CLAUDE.md rewritten for Matrix Agent Architecture
+
+### Removed
+- `agents/founds/` directory — oracle and sentinel replaced by new agents
+- `agents/experts/` directory — all 9 experts replaced by new agents + skills
+- Persona/tone content from all existing skills
 
 ## [0.2.0] - 2026-03-31
 
@@ -87,11 +107,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - Reorganized agents into `founds/` (oracle, sentinel) and `experts/` (architect, dev-py, review-py, debater, tech-pm, explorer, builder)
 - CLAUDE.md rewritten with founds/experts architecture, autonomy rules, and PR checklist
-- README rewritten — project-agnostic, with autonomy and PR standards docs
-
-### Removed
-- `agents/slack-monitor.md` — unused
-- `agents/memory-agent.md` — concept replaced by Mem0 MCP (planned)
-- `agents/executor.md` — pipeline never used
-- `agents/adapters/slack.md` — procedural doc with hardcoded paths
-- `skills/sre-observability.md` — inlined into sentinel
