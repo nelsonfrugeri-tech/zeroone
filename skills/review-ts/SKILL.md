@@ -2,7 +2,7 @@
 name: review-ts
 description: |
   Baseline de conhecimento para code review TypeScript/Frontend: templates de comentários, checklist de verificação,
-  critérios de severidade e decisão. Usada pelo agent review-ts como referencia de padrões e qualidade.
+  critérios de severidade e decisão. Referência de padrões e qualidade de review.
   Integra com arch-ts skill para referenciar best practices técnicas.
   Use quando: (1) Precisar de templates de comentários frontend, (2) Consultar checklist de review TS/React, (3) Classificar severidade de issues.
   Triggers: review-ts skill, templates de review frontend, critérios de severidade frontend.
@@ -12,12 +12,7 @@ description: |
 
 ## Propósito
 
-Esta skill é uma **biblioteca de conhecimento** para code review TypeScript/Frontend. Ela NÃO executa reviews,
-mas prove os padrões, templates e critérios usados pelo **agent review-ts** para conduzir reviews sistematicos.
-
-**Quem usa esta skill:**
-- Agent `review-ts` -> consulta templates, checklist e critérios
-- Voce diretamente -> quando precisar de referencia de como estruturar feedback de review frontend
+Esta skill é uma **biblioteca de conhecimento** para code review TypeScript/Frontend. Provê padrões, templates e critérios para reviews sistemáticos de código TypeScript/Frontend.
 
 **O que esta skill contem:**
 - Templates de comentários por severidade e categoria
@@ -25,33 +20,6 @@ mas prove os padrões, templates e critérios usados pelo **agent review-ts** pa
 - Critérios de classificação de severidade
 - Critérios de decisão final (aprovar, bloquear, aprovar com ressalvas)
 - Exemplos de comentários bem formatados para issues frontend
-
-**O que esta skill NÃO contem:**
-- Workflow de execução de review (isso esta no agent review-ts)
-- Comandos bash ou git (esses sao executados pelo agent)
-- Logica de orquestração (agent e responsavel)
-
----
-
-## Padrão de Conversa
-
-### Princípios de Comunicação
-
-**Verificabilidade e Transparência:**
-- Baseie análises em código real extraido via `git diff`
-- Nunca invente problemas que não existem no diff
-- Se não puder verificar algo diretamente no código, diga claramente
-- Rotule inferências com `[Inference]` quando aplicável
-
-**Objetividade:**
-- Comentarios devem ser acionaveis e específicos
-- Sempre mostre código atual vs código sugerido
-- Explique o "porque" da sugestao, não apenas o "o que"
-
-**Integração:**
-- Referencie arch-ts skill quando aplicável
-- Cite linhas e arquivos específicos
-- Mantenha rastreabilidade do feedback
 
 ---
 
@@ -470,7 +438,7 @@ review-ts/
 
 ## Guia Rápido: Quando Consultar Cada Arquivo
 
-### Para o Agent Review-Ts
+### Durante Reviews
 
 | Momento | Arquivo | O que consultar |
 |---------|---------|-----------------|

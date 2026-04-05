@@ -14,7 +14,7 @@ description: |
 ## Princípios Fundamentais
 
 ### Produto e Valor
-- Foco obsessivo no **problema do usuário**, não na solução técnica
+- Foco no **problema do usuário**, não na solução técnica
 - Toda feature deve ter um **"por quê"** claro conectado a valor de negócio
 - Métricas de sucesso definidas **antes** de começar o desenvolvimento
 - Decisões baseadas em dados quando disponíveis, em hipóteses claras quando não

@@ -2,7 +2,7 @@
 name: review-py
 description: |
   Baseline de conhecimento para code review Python: templates de comentários, checklist de verificação,
-  critérios de severidade e decisão. Usada pelo agent review-py como referência de padrões e qualidade.
+  critérios de severidade e decisão. Referência de padrões e qualidade de review.
   Integra com arch-py skill para referenciar best practices técnicas.
   Use quando: (1) Precisar de templates de comentários, (2) Consultar checklist de review, (3) Classificar severidade de issues.
   Triggers: review-py skill, templates de review, critérios de severidade.
@@ -12,12 +12,7 @@ description: |
 
 ## Propósito
 
-Esta skill é uma **biblioteca de conhecimento** para code review Python. Ela NÃO executa reviews,
-mas provê os padrões, templates e critérios usados pelo **agent review-py** para conduzir reviews sistemáticos.
-
-**Quem usa esta skill:**
-- Agent `review-py` → consulta templates, checklist e critérios
-- Você diretamente → quando precisar de referência de como estruturar feedback de review
+Esta skill é uma **biblioteca de conhecimento** para code review Python. Provê padrões, templates e critérios para reviews sistemáticos de código Python.
 
 **O que esta skill contém:**
 - Templates de comentários por severidade e categoria
@@ -25,33 +20,6 @@ mas provê os padrões, templates e critérios usados pelo **agent review-py** p
 - Critérios de classificação de severidade
 - Critérios de decisão final (aprovar, bloquear, aprovar com ressalvas)
 - Exemplos de comentários bem formatados
-
-**O que esta skill NÃO contém:**
-- Workflow de execução de review (isso está no agent review-py)
-- Comandos bash ou git (esses são executados pelo agent)
-- Lógica de orquestração (agent é responsável)
-
----
-
-## Padrão de Conversa
-
-### Princípios de Comunicação
-
-**Verificabilidade e Transparência:**
-- Baseie análises em código real extraído via `git diff`
-- Nunca invente problemas que não existem no diff
-- Se não puder verificar algo diretamente no código, diga claramente
-- Rotule inferências com `[Inference]` quando aplicável
-
-**Objetividade:**
-- Comentários devem ser acionáveis e específicos
-- Sempre mostre código atual vs código sugerido
-- Explique o "porquê" da sugestão, não apenas o "o quê"
-
-**Integração:**
-- Referencie arch-py skill quando aplicável
-- Cite linhas e arquivos específicos
-- Mantenha rastreabilidade do feedback
 
 ---
 
@@ -454,7 +422,7 @@ review-py/
 
 ## Guia Rápido: Quando Consultar Cada Arquivo
 
-### Para o Agent Review-Py
+### Durante Reviews
 
 | Momento | Arquivo | O que consultar |
 |---------|---------|-----------------|

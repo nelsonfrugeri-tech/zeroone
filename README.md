@@ -5,13 +5,13 @@
 ### Your AI agents never forget. They research, they collaborate, they ship.
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-CLI-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
-[![Agents](https://img.shields.io/badge/11_Agents-Ready-blue?style=for-the-badge)](#-agents)
+[![Agents](https://img.shields.io/badge/6_Agents-Ready-blue?style=for-the-badge)](#-agents)
 [![Skills](https://img.shields.io/badge/8_Skills-Loaded-purple?style=for-the-badge)](#-skills)
 [![Memory](https://img.shields.io/badge/Mem0-Shared_Memory-green?style=for-the-badge)](#-shared-memory-mem0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 **Turn `~/.claude` into a fully autonomous development environment.**
-**11 specialized agents, 8 knowledge bases, shared semantic memory, and zero configuration.**
+**6 persona-based agents, 8 knowledge bases, shared semantic memory, and zero configuration.**
 
 [Features](#-features) · [Quick Start](#-quick-start) · [Agents](#-agents) · [Memory](#-shared-memory-mem0) · [Autonomy](#-autonomy--permissions) · [Hooks](#-hooks)
 
@@ -23,7 +23,7 @@
 
 **claude-code** is the foundation layer that makes [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) intelligent. Install it once, and every project you work on gets:
 
-- **11 specialized AI agents** covering the full dev lifecycle (Python + TypeScript/Frontend)
+- **6 persona-based AI agents** with distinct personalities covering the full dev lifecycle
 - **Shared semantic memory** that persists across sessions and terminals (Mem0 + Qdrant)
 - **Auto mode permissions** — agents work autonomously, only stop for critical decisions
 - **PR quality hooks** — CHANGELOG and docs enforced programmatically
@@ -35,9 +35,7 @@ Any project built on this foundation inherits all capabilities automatically.
 
 ## Features
 
-**Foundational Agents** — Oracle manages the ecosystem, Sentinel monitors health. They build teams, configure projects, and keep everything running.
-
-**Expert Specialists** — 9 domain experts (architect, dev-py, dev-ts, review-py, review-ts, debater, tech-pm, explorer, builder) available to any project. Agnostic, reusable, provider-independent.
+**Matrix Persona Agents** — 6 agents with distinct personalities (the_architect, neo, trinity, morpheus, oracle, cypher). Same skills, different lenses. Adversarial review flow: neo (draft) -> the_architect (judge) -> morpheus (debate).
 
 **Shared Semantic Memory** — Mem0 MCP server backed by Qdrant + Ollama. Store decisions, procedures, context. Search semantically. Persists across terminal restarts. Multiple agents share the same memory pool.
 
@@ -59,10 +57,10 @@ git clone https://github.com/nelsonfrugeri-tech/claude-code.git ~/.claude
 cp ~/.claude/.mcp.json.example ~/.claude/.mcp.json
 # Edit .mcp.json with your credentials
 
-# Use any expert
-claude --agent architect    # System design mode
-claude --agent dev-py       # Python development mode
-claude --agent review-py    # Code review mode
+# Use any agent
+claude --agent neo             # Fast, pragmatic, MVP-first
+claude --agent the_architect   # Perfectionist, quality gate
+claude --agent trinity         # Surgical executor, closer
 ```
 
 ### Prerequisites
@@ -102,45 +100,41 @@ docker exec ollama ollama pull qwen3:4b
 
 ## Agents
 
-### Founds — Foundational Agents
+### Matrix Personas
 
-Ecosystem-only. They build and maintain the foundation for all projects.
+6 agents with distinct personalities. All share the same skills (loaded globally). Differentiation is personality only.
 
-| Agent | What it does |
-|-------|-------------|
-| **oracle** | Manages the ecosystem — agents, skills, memory, projects. **Semantic router**: dynamically picks model (haiku/sonnet/opus), thinking depth, and delegates to expert agents based on task complexity. Coordinates multi-Oracle instances via Mem0. |
-| **sentinel** | SRE specialist. Monitors systems, queries traces and metrics, analyzes health and performance, helps with incidents. |
+| Agent | Personality | Use case |
+|-------|------------|----------|
+| **the_architect** | Perfectionist, visionary, 5-year horizon. No shortcuts. | Final design, critical decisions, quality gate, judge |
+| **neo** | Pragmatic, fast, MVP-first. YAGNI. | First draft, MVPs, rapid iteration, discovery |
+| **trinity** | Executor, surgical, closer. | Precise execution, finalize work, delivery |
+| **morpheus** | Socratic, questioner, mentor. | Debates, exploration, questioning, mentoring |
+| **oracle** | Holistic, cross-project vision. Living memory. | Coordination, context, memory, ecosystem management |
+| **cypher** | Pure SRE. Numbers and tables, not essays. | Infra ops, monitoring, incident response, health checks |
 
-### Experts — Specialist Agents
+### Adversarial Review Flow
 
-Pure expertise. Any project built on this foundation can invoke them.
+```
+neo (draft) -> the_architect (judge) -> morpheus (debate) -> decision
+```
 
-| Agent | What it does |
-|-------|-------------|
-| **architect** | Designs systems, identifies flaws, evaluates trade-offs, creates diagrams. Critical and constructive. |
-| **dev-py** | Python developer with 8-step workflow: question → research → design → test → implement → validate → review → document. Test-first always. |
-| **dev-ts** | TypeScript/Frontend developer. Same 8-step workflow adapted for React/Next.js. Accessibility-first, bundle-aware, uses arch-ts + frontend-design skills. |
-| **review-py** | Systematic Python code review between git branches. Impact analysis, per-file review, formatted PR comments. |
-| **review-ts** | Systematic frontend code review. Adds accessibility, styling, bundle impact, and server/client boundary analysis. |
-| **debater** | Debates approaches, researches state of the art, analyzes trade-offs. Configurable personality (Socratic, Expert, Collaborative). |
-| **tech-pm** | Defines what to build, prioritizes backlog, writes user stories with acceptance criteria, plans roadmap. |
-| **explorer** | Analyzes repositories deeply. Generates structured context reports covering architecture, contracts, infra, deps, quality. |
-| **builder** | Spins up local infrastructure automatically. Docker, deps, env setup, validation with tests. |
+### Skills — Knowledge Bases (Global)
 
-### Skills — Knowledge Bases
+All skills are loaded by every agent automatically.
 
-Agents consult these for domain-specific expertise.
+| Skill | Domain |
+|-------|--------|
+| **arch-py** | Python architecture, patterns, type system, async, Pydantic v2 |
+| **arch-ts** | TypeScript/Frontend architecture: React patterns, RSC, state management, testing, tooling |
+| **review-py** | Python code review templates, checklists, severity criteria |
+| **review-ts** | Frontend code review: accessibility, styling, bundle impact, 28 checks |
+| **frontend-design** | UI/UX/Visual design: OKLCH colors, typography, layout, motion, WCAG 2.2, shadcn/ui, 2026 trends |
+| **ai-engineer** | LLM engineering, RAG, agents, vector DBs, MLOps |
+| **product-manager** | Discovery, delivery, OKRs, user stories, roadmap |
+| **github** | GitHub operations via MCP — enforced bot-identity PRs, issues, comments |
 
-| Skill | Domain | Used by |
-|-------|--------|---------|
-| **arch-py** | Python architecture, patterns, type system, async, Pydantic v2 | architect, dev-py, review-py, explorer |
-| **arch-ts** | TypeScript/Frontend architecture: React patterns, RSC, state management, testing, tooling | dev-ts, review-ts, architect |
-| **review-py** | Python code review templates, checklists, severity criteria | review-py |
-| **review-ts** | Frontend code review: accessibility, styling, bundle impact, 28 checks | review-ts |
-| **frontend-design** | UI/UX/Visual design: OKLCH colors, typography, layout, motion, WCAG 2.2, shadcn/ui, 2026 trends | dev-ts |
-| **ai-engineer** | LLM engineering, RAG, agents, vector DBs, MLOps | dev-py, debater |
-| **product-manager** | Discovery, delivery, OKRs, user stories, roadmap | tech-pm |
-| **github** | GitHub operations via MCP — enforced bot-identity PRs, issues, comments | oracle, dev-py, dev-ts, architect, review-py, review-ts |
+All skills are **global** — loaded automatically by every agent. No per-agent skill declaration.
 
 ---
 
@@ -209,7 +203,7 @@ Terminal 1 (Oracle)          Terminal 2 (Oracle)          Terminal 3 (dev-py)
 All GitHub write operations go through a dedicated MCP server with bot identity — PRs, issues, and comments are created as the agent's GitHub App, never the user's personal account.
 
 ```
-Agent (oracle, dev-py, ...)
+Agent (oracle, neo, trinity, ...)
         │
         ▼
 ┌────────────────────────┐

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Agent architecture: Matrix Personas** — replaced founds/experts model with 6 persona-only agents
+  - Deleted all 11 old agents (2 founds + 9 experts)
+  - Created 6 new agents: the_architect, neo, trinity, morpheus, oracle, cypher
+  - Agents now define only personality and behavior — zero technical knowledge
+  - Skills are global: loaded automatically by ALL agents, no per-agent declaration
+  - Adversarial review flow: neo (draft) -> the_architect (judge) -> morpheus (debate)
+- **Skills cleaned of persona content** — removed personality/tone sections from 8 skills
+  - arch-py, arch-ts: removed "Verificabilidade" persona sections
+  - ai-engineer: removed philosophical framing
+  - review-py, review-ts: removed persona communication sections
+  - product-manager: removed opinionated tone
+  - github: removed enforcer persona
+  - frontend-design: removed philosophical framing
+- **CLAUDE.md** updated to document new Matrix agent architecture
+
 ## [0.2.0] - 2026-03-31
 
 ### Added

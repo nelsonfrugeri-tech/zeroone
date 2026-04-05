@@ -1,43 +1,39 @@
 # Claude Code - Global Instructions
 
-## Agent Architecture: Founds & Experts
+## Agent Architecture: Matrix Personas
 
-Agents are organized in two namespaces under `~/.claude/agents/`:
+Agents live in `~/.claude/agents/` (flat directory, no subdirectories).
 
-### founds/ — Foundational Agents
-Agents that build the foundation for projects. They manage the Claude Code ecosystem,
-build teams, configure projects, maintain memory, and monitor health.
+### Design Principles
+1. **Skills are global** -- all skills are loaded automatically by ALL agents. No per-agent skill declaration.
+2. **Agents are persona only** -- same knowledge (skills), different lenses (personality).
+3. **No technical knowledge in agent files** -- agents define personality, behavior, tools, and MCP access. Technical knowledge lives in skills.
 
-- **oracle** — Ecosystem manager, knowledge keeper
-- **sentinel** — SRE, observability, monitoring
+### Agents
 
-**Rule:** Founds agents are ecosystem-only. They work within the claude-code
-foundation and are not directly consumed by downstream projects.
+| Agent | Personality | Use case |
+|-------|------------|----------|
+| **the_architect** | Perfectionist, visionary, 5-year horizon. No shortcuts. | Final design, critical decisions, quality gate, judge |
+| **neo** | Pragmatic, fast, MVP-first. YAGNI. | First draft, MVPs, rapid iteration, discovery |
+| **trinity** | Executor, surgical, closer. | Precise execution, finalize work, delivery |
+| **morpheus** | Socratic, questioner, mentor. | Debates, exploration, questioning, mentoring |
+| **oracle** | Holistic, cross-project vision. Living memory. | Coordination, context, memory, ecosystem management |
+| **cypher** | Pure SRE. Numbers and tables, not essays. | Infra ops, monitoring, incident response, health checks |
 
-### experts/ — Expert Specialists
-Pure specialists with reusable expertise. Available to any project built on this foundation.
-
-- **architect** — System design, trade-offs, diagrams
-- **dev-py** — Python development
-- **review-py** — Code review Python
-- **debater** — Approach comparison & trade-offs
-- **tech-pm** — Product management
-- **explorer** — Codebase exploration
-- **builder** — Infrastructure / Docker
-
-**Rule:** Experts are agnostic — they carry no knowledge of specific projects,
-platforms, or integrations. Context comes from the project that uses them.
+### Adversarial Review Flow
+```
+neo (draft) -> the_architect (judge) -> morpheus (debate) -> decision
+```
 
 ### Isolation Rules
-1. **Experts** = agnostic, reusable by any project built on this foundation
-2. **Founds** = ecosystem-only, not consumed by downstream projects
-3. **Tools/MCP** = never global in settings.json, always per-project via `mcp.json`
+1. **Tools/MCP** = never global in settings.json, always per-project via `mcp.json`
+2. **Every agent runs in a worktree** -- enforced by SessionStart hook
 
 ## Research First — Foundational Principle
 
 **Every technical decision must be backed by current web research. This is non-negotiable.**
 
-All agents (founds and experts) MUST follow this principle:
+All agents MUST follow this principle:
 
 ### When to research
 - Choosing a technology, library, framework, model, or tool
@@ -121,8 +117,8 @@ is based on training data which may be outdated.
 1. **Always start sessions with `-w`** — `claude -w <name>`. The `enforce-worktree.sh` hook blocks sessions not in a worktree
 2. **Always use `isolation: "worktree"`** when spawning agents via the Agent tool
 3. **Never edit files in a branch you didn't create** — if the branch belongs to another session/agent, create your own
-4. **This applies to all agent types** — founds, experts, Oracle itself, any subagent
-5. **The only exception is read-only agents** — agents that exclusively read/search (e.g. Explore, Plan) may skip worktree since they don't write files
+4. **This applies to all agents** — the_architect, neo, trinity, morpheus, oracle, cypher, any subagent
+5. **The only exception is read-only tasks** — tasks that exclusively read/search may skip worktree since they don't write files
 
 ### Enforcement
 - `hooks/enforce-worktree.sh` runs on SessionStart — deterministic, no prompt can bypass it
@@ -159,7 +155,6 @@ is based on training data which may be outdated.
 2. **Never use `gh` CLI, `curl`, or `urllib` for write operations** — MCP is the single gateway for GitHub writes
 3. **Each agent authenticates via its own GitHub App** — registered in `mcp/github-server/apps.json`
 4. **PRs must be authored by the bot identity** — never by the user's personal account
-5. **The `github` skill is mandatory** — any agent that interacts with GitHub must declare `github` in its skills frontmatter
 
 ### Why
 - Centralized auth with bot identity ensures auditability and clear authorship

@@ -14,7 +14,7 @@ description: |
 
 **TODA operação de escrita no GitHub DEVE usar as tools `mcp__github__*`.**
 
-Isso é **inegociável**. As tools MCP:
+As tools MCP:
 - Autenticam via GitHub App do agent (identidade do bot, não do usuário)
 - Validam documentação antes de criar PRs
 - Garantem rastreabilidade
