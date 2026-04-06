@@ -311,27 +311,57 @@ Add to your `settings.json` (not versioned — configure after cloning):
 
 Programmatic enforcement — agents can't skip these even if they wanted to.
 
-### PR Docs Check
+### PR Enforcement Gates
 
-Every PR is blocked unless CHANGELOG is updated. README and API collection warnings are also shown.
+Every PR creation attempt — via `gh pr create` (Bash) or `mcp__github__github_create_pr` (MCP) — passes through three independent gates before it is allowed.
 
 ```
-Agent tries to open PR
+Agent tries to open PR (Bash or MCP)
         │
         ▼
-┌─────────────────────┐
-│  pr-docs-check.sh   │  ← PreToolUse hook on Bash
-│                     │
-│  CHANGELOG updated? │──── No → ❌ PR BLOCKED
-│        │            │
-│       Yes           │
-│        │            │
-│  README updated?    │──── No → ⚠️ Warning (not blocked)
-│        │            │
-│  API collections?   │──── Changed but not updated → ⚠️ Warning
-│        │            │
-│       ✅ PR allowed  │
-└─────────────────────┘
+┌───────────────────────────┐
+│    pr-docs-check.sh       │  PreToolUse / Bash only
+│                           │
+│  CHANGELOG updated?       │──── No → PR BLOCKED
+│       Yes                 │
+│  README updated?          │──── No → Warning (not blocked)
+│  API collections updated? │──── Changed but not updated → Warning
+└───────────────────────────┘
+        │
+        ▼
+┌───────────────────────────┐
+│  require-qa-evidence.sh   │  PreToolUse / Bash + MCP
+│                           │
+│  qa-report.md or          │
+│  test-results.* present?  │──── No → PR BLOCKED
+└───────────────────────────┘
+        │
+        ▼
+┌───────────────────────────┐
+│  require-self-judge.sh    │  PreToolUse / Bash + MCP
+│                           │
+│  self-judge.md exists     │
+│  and >= 50 bytes?         │──── No → PR BLOCKED
+└───────────────────────────┘
+        │
+        ▼
+     PR allowed
+```
+
+**Note:** `pr-docs-check.sh` only triggers on actual `gh pr create` invocations (anchored regex). Prose mentions of "gh pr create" in issue bodies or echo commands are not matched.
+
+#### self-judge.md
+
+Create this file at the repo root before opening any PR. Minimum content example:
+
+```markdown
+## Self-Judge
+
+- [x] All tests pass
+- [x] CHANGELOG updated
+- [x] README updated
+- [x] No debug code left
+- [x] Edge cases considered
 ```
 
 ---
@@ -439,8 +469,11 @@ Enable in `settings.json`:
 │       └── server.py              #   JWT → installation token (env var auth)
 │
 ├── hooks/                         # Programmatic enforcement
-│   ├── pr-docs-check.sh           #   Blocks PR without CHANGELOG
-│   └── enforce-worktree.sh        #   Blocks sessions not in a worktree
+│   ├── pr-docs-check.sh           #   Blocks PR without CHANGELOG (Bash, anchored regex)
+│   ├── require-qa-evidence.sh     #   Blocks PR without QA evidence (Bash + MCP)
+│   ├── require-self-judge.sh      #   Blocks PR without self-judge.md (Bash + MCP)
+│   ├── enforce-worktree.sh        #   Blocks sessions not in a worktree
+│   └── tests/                     #   Hook test suites (29 cases total)
 │
 ├── CLAUDE.md                      # Global agent instructions
 ├── CHANGELOG.md                   # Version history

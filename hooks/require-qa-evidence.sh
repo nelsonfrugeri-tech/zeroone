@@ -1,13 +1,27 @@
 #!/usr/bin/env bash
-# Hook: PreToolUse on mcp__github__github_create_pr
+# Hook: PreToolUse on mcp__github__github_create_pr AND Bash
 # Blocks PR creation if no QA evidence file exists in the current branch.
 # QA evidence: qa-report.md, test-results.*, qa-evidence.*, *.test-output.*
+
+set -euo pipefail
 
 INPUT=$(cat)
 TOOL=$(echo "$INPUT" | jq -r '.tool_name // ""')
 
-# Only check PR creation
-if [ "$TOOL" != "mcp__github__github_create_pr" ]; then
+# Determine if this event is a PR creation we should check.
+IS_PR_EVENT=0
+
+if [ "$TOOL" = "mcp__github__github_create_pr" ]; then
+  IS_PR_EVENT=1
+elif [ "$TOOL" = "Bash" ]; then
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+  GH_PR_CREATE_RE='(^\s*gh\s+pr\s+create\b|[;|]\s*gh\s+pr\s+create\b|&&\s*gh\s+pr\s+create\b)'
+  if echo "$COMMAND" | grep -qE "$GH_PR_CREATE_RE"; then
+    IS_PR_EVENT=1
+  fi
+fi
+
+if [ "$IS_PR_EVENT" -eq 0 ]; then
   exit 0
 fi
 

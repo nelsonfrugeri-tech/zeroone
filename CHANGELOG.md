@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Fixed
+- **pr-docs-check.sh false positive on prose and echo** (#3) — `grep -qE '(gh pr create|/repos/.*/pulls)'` matched substrings anywhere in the command, causing false positives when `gh issue create` body text mentioned "gh pr create", or when commands like `echo "gh pr create"` were used. The regex now anchors to actual command invocation positions: start of command, after `;`, `|`, or `&&`. The `/repos/.*/pulls` pattern is similarly constrained to match only when preceded by `curl` or `gh api`.
+
+### Added
+- **require-qa-evidence.sh Bash matcher** (#1) — The QA evidence hook previously only triggered on `mcp__github__github_create_pr` tool calls. Agents using `gh pr create` via the Bash tool bypassed the check entirely. The hook now detects both: MCP tool calls (existing behavior) and Bash `gh pr create` invocations using the same robust regex. Registered as a second Bash PreToolUse matcher in `settings.json`.
+- **require-self-judge.sh hook** (#2) — New hook that blocks all PR creation (both MCP and CLI paths) unless `self-judge.md` exists in the repo root with at least 50 bytes of content. Agents must create a filled self-review checklist before opening any PR. Registered for both `Bash` and `mcp__github__github_create_pr` matchers in `settings.json`.
+- **Test suite for all three hooks** — `hooks/tests/test-pr-docs-check.sh` (15 cases), `hooks/tests/test-require-qa-evidence.sh` (6 cases), `hooks/tests/test-require-self-judge.sh` (8 cases). All tests are executable and self-reporting.
+
+### Fixed
 - **Hook JSON schema for Stop and TaskCompleted events** (#50) — `verify-tests-passed.sh` and `validate-task-completion.sh` were using the PreToolUse schema (`hookSpecificOutput.permissionDecision`), which is invalid for Stop/TaskCompleted events and caused "JSON validation failed" in the Claude Code runtime. Both hooks now use the correct schema: `{"decision": "approve|block", "reason": "..."}`.
 - **qa-report.md in hooks/ bypassing enforcement** (#50) — `verify-tests-passed.sh`, `validate-task-completion.sh`, and `require-qa-evidence.sh` all used `find` without excluding the `hooks/` directory. The `hooks/qa-report.md` historical file always satisfied the check, making it a no-op. All three hooks now add `-not -path "*/hooks/*"` to the find command. The stale `hooks/qa-report.md` file is deleted.
 - **pr-docs-check.sh diff against wrong HEAD** (#52) — The hook used `git diff --name-only "$BASE"...HEAD`, which evaluates HEAD of the running branch (e.g., main), producing an empty diff. The hook now extracts the `--head` branch from the `gh pr create` command and diffs `"$BASE"..origin/$HEAD_BRANCH`. Falls back to the previous behavior if `--head` is not present.
