@@ -19,7 +19,7 @@ Esta skill é a **knowledge base** for orchestrating multi-agent ecosystems in C
 It codifies patterns for task routing, model selection, agent coordination, and shared memory management.
 
 **Who uses this skill:**
-- Agent `oracle` -> task routing, ecosystem management, memory curation
+
 - Agent `sentinel` -> health monitoring, coordination checks
 - Any foundational agent that manages the ecosystem
 
@@ -142,11 +142,11 @@ Never maintain hardcoded lists. The filesystem IS the registry.
 
 ### Descoberta de Agents
 
-Scan `~/.claude/agents/experts/` at session start to build the current expert roster.
+Scan `~/.claude/agents/` at session start to build the current expert roster.
 
 ```bash
 # Discover all available experts
-for f in ~/.claude/agents/experts/*.md; do head -10 "$f"; echo "---"; done
+for f in ~/.claude/agents/*.md; do head -10 "$f"; echo "---"; done
 ```
 
 Each expert `.md` file has frontmatter with `name` and `description` fields.
@@ -324,7 +324,7 @@ Any Oracle can spawn experts as subagents. Experts always run in isolated worktr
 
 ```bash
 # Discover experts dynamically
-ls ~/.claude/agents/experts/*.md | xargs -I{} head -3 {}
+ls ~/.claude/agents/*.md | xargs -I{} head -3 {}
 ```
 
 Experts are stateless -- they receive context in the prompt, do their work, and return results.

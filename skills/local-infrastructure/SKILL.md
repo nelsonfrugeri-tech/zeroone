@@ -19,7 +19,7 @@ Esta skill é a **knowledge base** for local development infrastructure (2026).
 It covers everything needed to run, debug, and maintain multi-service development environments.
 
 **Who uses this skill:**
-- Agent `builder` -> when setting up Docker environments
+
 - Agent `dev-py` / `dev-ts` -> when running local services
 - You directly -> when troubleshooting infrastructure issues
 
@@ -435,8 +435,6 @@ API_LOG_LEVEL=debug
 
 ```python
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

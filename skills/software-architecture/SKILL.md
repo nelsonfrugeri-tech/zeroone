@@ -20,9 +20,9 @@ Esta skill e a **biblioteca de conhecimento** para arquitetura de software (2026
 Ela e **language-agnostic** — complementa skills como `arch-py` e `arch-ts` com a camada de design e decisao arquitetural.
 
 **Quem usa esta skill:**
-- Agent `architect` -> ao projetar sistemas, avaliar trade-offs, criar ADRs
+
 - Agent `dev-py` / `dev-ts` -> ao tomar decisoes de design que impactam arquitetura
-- Agent `review-py` / `review-ts` -> ao revisar decisoes arquiteturais em PRs
+
 - Voce diretamente -> quando precisar de referencia de patterns arquiteturais
 
 **O que esta skill contem:**

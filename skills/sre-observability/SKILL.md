@@ -35,7 +35,7 @@ Esta skill e a **biblioteca de conhecimento** para SRE e observabilidade moderna
 Ela complementa `arch-py` (fundacao Python) e `ai-engineer` (AI layer) com a camada operacional.
 
 **Quem usa esta skill:**
-- Agent `sentinel` -> ao monitorar, alertar e responder a incidentes
+
 - Agent `dev-py` -> ao instrumentar aplicacoes com telemetria
 - Voce diretamente -> quando precisar de referencia de observabilidade
 

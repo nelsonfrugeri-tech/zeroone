@@ -22,9 +22,9 @@ It defines HOW to develop software — the process, discipline, and quality gate
 turn requirements into production-ready code.
 
 **Who uses this skill:**
-- Agent `dev-py` -> development workflow and test discipline
+
 - Agent `dev-ts` -> development workflow and test discipline
-- Agent `review-py` / `review-ts` -> self-check criteria before submitting
+
 - Agent `architect` -> feature breakdown and design methodology
 - Any agent that writes code
 

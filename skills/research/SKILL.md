@@ -22,9 +22,9 @@ should be grounded in current, verified, multi-source research.
 
 **Who uses this skill:**
 - Any agent that needs to make a technology choice
-- Agent `architect` for design decisions
+
 - Agent `dev-py` / `dev-ts` for library selection
-- Agent `debater` for structured comparisons
+
 - Oracle for ecosystem decisions
 
 **What this skill contains:**
