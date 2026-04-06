@@ -18,9 +18,7 @@ description: |
 Esta skill é a **base de conhecimento** para orquestrar ecossistemas multi-agent no Claude Code.
 Ela codifica padrões para roteamento de tarefas, seleção de modelo, coordenação de agents e gestão de memória compartilhada.
 
-**Quem usa esta skill:**
-- Agent `oracle` -> roteamento de tarefas, gestão do ecossistema, curadoria de memória
-- Agent `sentinel` -> monitoramento de saúde, verificações de coordenação
+**Skill global** — carregada automaticamente por todos os agents.
 - Qualquer agent fundacional que gerencia o ecossistema
 
 **O que esta skill contém:**
@@ -36,7 +34,7 @@ Ela codifica padrões para roteamento de tarefas, seleção de modelo, coordena�
 - Gestão de contexto cross-project
 
 **O que esta skill NÃO contém:**
-- Expertise de domínio específico (isso vive nos agents/skills experts)
+- Especialização por domínio (vive nas skills globais)
 - Código de implementação para servidores MCP ou ferramentas
 - Configuração específica de projetos
 
@@ -71,7 +69,7 @@ Classifique toda tarefa recebida antes de decidir como executá-la.
 
 3. Does it require domain expertise?
    - General knowledge -> handle directly
-   - Specialized domain -> delegate to expert
+   - Specialized domain -> delegate to agent
 
 4. What is the blast radius if done wrong?
    - Cosmetic -> trivial/low
@@ -125,7 +123,7 @@ Alguns domínios de tarefa sobrescrevem a seleção padrão de modelo:
 
 ### Thinking Instructions por Profundidade
 
-Thinking instructions são embutidas no prompt enviado ao expert:
+Thinking instructions são embutidas no prompt enviado ao agent:
 
 - **Nenhuma** (trivial/low): Apenas a descrição da tarefa
 - **Step-by-step** (medium): "Think step by step before implementing."
@@ -142,21 +140,21 @@ Nunca mantenha listas hardcoded. O filesystem É o registro.
 
 ### Discovery de Agents
 
-Escaneie `~/.claude/agents/experts/` no início da sessão para construir o roster atual de experts.
+Escaneie `~/.claude/agents/` no início da sessão para construir o roster atual de agents.
 
 ```bash
-# Discover all available experts
-for f in ~/.claude/agents/experts/*.md; do head -10 "$f"; echo "---"; done
+# Discover all available agents
+for f in ~/.claude/agents/*.md; do head -10 "$f"; echo "---"; done
 ```
 
-Cada arquivo `.md` de expert tem frontmatter com campos `name` e `description`.
-Combine o domínio da tarefa com a `description` do expert.
+Cada arquivo `.md` de agent tem frontmatter com campos `name` e `description`.
+Combine o domínio da tarefa com a `description` do agent.
 
 **Heurística de matching:**
-1. Faça parse do campo `description` do frontmatter de cada expert
-2. Combine palavras-chave da tarefa com as descrições dos experts
-3. Se múltiplos experts combinam, prefira o mais especializado
-4. Se nenhum expert combina, trate diretamente ou proponha criar um novo (detecção de gap)
+1. Faça parse do campo `description` do frontmatter de cada agent
+2. Combine palavras-chave da tarefa com as descrições dos agents
+3. Se múltiplos agents combinam, prefira o mais especializado
+4. Se nenhum agent combina, trate diretamente ou proponha criar um novo (detecção de gap)
 
 ### Discovery de Skills
 
@@ -181,7 +179,7 @@ Se uma tarefa requer uma capacidade que não existe no ecossistema:
 Exemplos de gaps detectáveis:
 - Tarefa precisa de integração com Jira mas nenhum MCP de Jira existe
 - Tarefa precisa de deploy mas nenhuma skill de deploy existe
-- Tarefa precisa de um expert de linguagem (ex: Rust) mas nenhum `dev-rust` expert existe
+- Tarefa precisa de um agent de linguagem (ex: Rust) mas nenhum `dev-rust` agent existe
 
 **Referência:** [references/routing/dynamic-discovery.md](references/routing/dynamic-discovery.md)
 
@@ -208,19 +206,19 @@ Task received
   |
   +-- Select model (Section 2)
   |
-  +-- Discover matching expert (Section 3)
+  +-- Discover matching agent (Section 3)
   |     |
-  |     +-- Expert found --> Delegate with isolation: "worktree"
+  |     +-- Agent found --> Delegate with isolation: "worktree"
   |     |
-  |     +-- No expert found --> Gap detection (Section 3)
+  |     +-- No agent found --> Gap detection (Section 3)
   |           |
-  |           +-- Propose new expert to user
+  |           +-- Propose new agent to user
   |           +-- Or handle directly if within Oracle's capability
   |
   +-- Execute delegation
         |
         Agent(
-          subagent_type="<expert-name>",
+          subagent_type="<agent-name>",
           model="<chosen-model>",
           prompt="<thinking instruction> + <task> + <context>",
           isolation="worktree"
@@ -229,7 +227,7 @@ Task received
 
 ### Template de Delegação
 
-Ao delegar para um expert, o prompt deve incluir:
+Ao delegar para um agent, o prompt deve incluir:
 1. **Thinking instruction** (baseada no nível de complexidade)
 2. **Descrição da tarefa** (clara, específica, acionável)
 3. **Contexto** (arquivos relevantes, decisões, restrições)
@@ -237,7 +235,7 @@ Ao delegar para um expert, o prompt deve incluir:
 
 ```
 Agent(
-  subagent_type="dev-py",
+  subagent_type="neo",
   model="sonnet",
   prompt="Think step by step before implementing.\n\nTask: Add a DELETE endpoint for issues in the GitHub MCP server.\n\nContext:\n- Server file: mcp/github-server/server.py\n- Follow existing endpoint patterns\n- Must validate agent_name parameter\n\nAcceptance criteria:\n- Endpoint handles DELETE /issues/{id}\n- Returns 204 on success\n- Tests pass",
   isolation="worktree"
@@ -267,23 +265,23 @@ Sem eleição de líder. Cada Oracle é autônomo e auto-coordenado.
 
 ```
 Phase 1: CLAIM
-  - mem0_search(memory_type="task_claim") -> see what others are doing
+  - mem0_search(metadata={"type": "coordination", "subtype": "claim"}) -> see what others are doing
   - Check for scope overlap with existing claims
   - If overlap -> store conflict memory, alert user
-  - If clear -> mem0_store(content="Working on X", memory_type="task_claim")
+  - If clear -> mem0_store(content="Working on X", metadata={"type": "coordination", "subtype": "claim"})
 
 Phase 2: WORK
   - Execute the task
-  - Store decisions: mem0_store(memory_type="decision")
-  - Store blockers: mem0_store(memory_type="blocker")
-  - Update progress on long tasks: mem0_store(memory_type="progress")
+  - Store decisions: mem0_store(metadata={"type": "decision"})
+  - Store blockers: mem0_store(metadata={"type": "coordination", "subtype": "blocker"})
+  - Update progress on long tasks: mem0_store(metadata={"type": "coordination", "subtype": "progress"})
 
 Phase 3: REPORT
-  - Store completion summary: mem0_store(memory_type="progress")
-  - Store reusable knowledge: mem0_store(memory_type="procedural")
+  - Store completion summary: mem0_store(metadata={"type": "coordination", "subtype": "progress"})
+  - Store reusable knowledge: mem0_store(metadata={"type": "decision"})
 
 Phase 4: RELEASE
-  - Delete task_claim memory
+  - Delete coordination claim memories
   - Delete resolved blocker memories
   - Update/archive completed progress memories
 ```
@@ -293,7 +291,7 @@ Phase 4: RELEASE
 Antes de reivindicar qualquer tarefa:
 
 ```
-results = mem0_search(query="<task description>", memory_type="task_claim")
+results = mem0_search(query="<task description>", metadata={"type": "coordination", "subtype": "claim"})
 ```
 
 Se um claim ativo existe para o mesmo escopo ou escopo sobreposto:
@@ -312,22 +310,22 @@ Resposta a conflito:
 ```
 mem0_store(
   content="Conflict: Agent A editing settings.json while Agent B also modifying it",
-  memory_type="conflict",
+  metadata={"type": "coordination", "subtype": "conflict"},
   tags="active"
 )
 ```
 Então alerte o usuário imediatamente.
 
-### Spawning de Experts
+### Spawning de Agents
 
-Qualquer Oracle pode spawnar experts como subagents. Experts sempre rodam em worktrees isoladas.
+Qualquer Oracle pode spawnar agents como subagents. Agents sempre rodam em worktrees isoladas.
 
 ```bash
 # Discover agents dynamically
-ls ~/.claude/agents/experts/*.md | xargs -I{} head -3 {}
+ls ~/.claude/agents/*.md | xargs -I{} head -3 {}
 ```
 
-Experts são stateless -- eles recebem contexto no prompt, fazem seu trabalho e retornam resultados.
+Agents são stateless -- eles recebem contexto no prompt, fazem seu trabalho e retornam resultados.
 Eles não coordenam diretamente entre si. O Oracle gerencia toda coordenação.
 
 **Referência:** [references/coordination/peer-protocol.md](references/coordination/peer-protocol.md)
@@ -357,15 +355,15 @@ Compartilhado entre todos os terminais e agents.
 
 | Evento | Ação |
 |--------|------|
-| Início de sessão | `mem0_search(memory_type="task_claim")` -- verificar peers |
+| Início de sessão | `mem0_search(metadata={"type": "coordination", "subtype": "claim"})` -- verificar peers |
 | Início de sessão | `mem0_recall("pending work, recent decisions")` -- restaurar contexto |
-| Tarefa reivindicada | `mem0_store(memory_type="task_claim")` |
-| Decisão tomada | `mem0_store(memory_type="decision")` |
-| Procedimento aprendido | `mem0_store(memory_type="procedural")` |
-| Problema resolvido | `mem0_store(memory_type="procedural", tags="troubleshooting")` |
-| Projeto configurado | `mem0_store(memory_type="project", project="X")` |
-| Agent criado/modificado | `mem0_store(memory_type="procedural")` |
-| Blocker encontrado | `mem0_store(memory_type="blocker", tags="active")` |
+| Tarefa reivindicada | `mem0_store(metadata={"type": "coordination", "subtype": "claim"})` |
+| Decisão tomada | `mem0_store(metadata={"type": "decision"})` |
+| Procedimento aprendido | `mem0_store(metadata={"type": "decision"})` |
+| Problema resolvido | `mem0_store(metadata={"type": "decision"}, tags="troubleshooting")` |
+| Projeto configurado | `mem0_store(metadata={"type": "project"}, project="X")` |
+| Agent criado/modificado | `mem0_store(metadata={"type": "decision"})` |
+| Blocker encontrado | `mem0_store(metadata={"type": "coordination", "subtype": "blocker"}, tags="active")` |
 | Fim de sessão | Armazenar resumo de progresso, deletar task_claims, deletar blockers resolvidos |
 
 ### Padrões de Query
@@ -375,22 +373,22 @@ Compartilhado entre todos os terminais e agents.
 mem0_recall(query="pending work, recent changes", limit=10)
 
 # Check what other agents are doing
-mem0_search(query="active tasks", memory_type="task_claim", limit=20)
+mem0_search(query="active tasks", metadata={"type": "coordination", "subtype": "claim"}, limit=20)
 
 # Find how-to knowledge
-mem0_search(query="how to create GitHub App", memory_type="procedural")
+mem0_search(query="how to create GitHub App", metadata={"type": "decision"})
 
 # Find project context
-mem0_search(query="architecture decisions", memory_type="decision", project="bike-shop")
+mem0_search(query="architecture decisions", metadata={"type": "decision"}, project="bike-shop")
 
 # List all claims for cleanup
-mem0_list(memory_type="task_claim", limit=50)
+mem0_list(metadata={"type": "coordination", "subtype": "claim"}, limit=50)
 
 # Clean up stale memories
 mem0_delete(memory_id="<id>")
 
 # Update outdated memory
-mem0_update(memory_id="<id>", content="Updated procedure...", memory_type="procedural")
+mem0_update(memory_id="<id>", content="Updated procedure...", metadata={"type": "decision"})
 ```
 
 **Referência:** [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md)
@@ -434,14 +432,14 @@ Avalie a cada início de sessão:
 
 ```
 # Periodic cleanup (every session start)
-1. mem0_list(memory_type="task_claim") -> delete completed/abandoned claims
-2. mem0_list(memory_type="blocker") -> delete resolved blockers
+1. mem0_list(metadata={"type": "coordination", "subtype": "claim"}) -> delete completed/abandoned claims
+2. mem0_list(metadata={"type": "coordination", "subtype": "blocker"}) -> delete resolved blockers
 3. mem0_search(query="outdated, old, deprecated") -> review and prune
 
 # Deep cleanup (weekly or on demand)
-4. mem0_list(memory_type="procedural") -> verify procedures still accurate
-5. mem0_list(memory_type="decision") -> check for superseded decisions
-6. mem0_list(memory_type="project") -> archive dead projects
+4. mem0_list(metadata={"type": "decision"}) -> verify procedures still accurate
+5. mem0_list(metadata={"type": "decision"}) -> check for superseded decisions
+6. mem0_list(metadata={"type": "project"}) -> archive dead projects
 ```
 
 ### Regra de Ouro
@@ -457,80 +455,49 @@ Avalie a cada início de sessão:
 
 Ao criar um novo agent, siga esta estrutura.
 
-### Template de Agent Fundacional (founds/)
+### Template de Agent
+
+Agents vivem em `~/.claude/agents/` (diretório flat, sem subdirs).
 
 ```markdown
 ---
 name: <agent-name>
-description: <what this agent does, 1-2 sentences>
-skills: [<skill-1>, <skill-2>]
-tools: [<tool-1>, <tool-2>]
-mcp: [<mcp-server-1>]
+description: >
+  <personalidade e caso de uso, 1-2 frases>
+tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch
+model: sonnet
+permissionMode: bypassPermissions
+isolation: worktree
 ---
 
 # <Agent Name>
 
-## Identity
-- **Name**: <name>
-- **Role**: <role description>
-- **Scope**: <what this agent manages>
+## Personalidade
+- <traço de personalidade 1>
+- <traço de personalidade 2>
 
-## Responsibilities
-1. <responsibility 1>
-2. <responsibility 2>
+## Comportamento
+- <o que faz>
+- <como entrega>
 
-## Workflow
-### On session start:
-1. <step>
-
-### During execution:
-1. <step>
-
-### On session end:
-1. <step>
-
-## Principles
-1. <principle>
+## Quando usar
+- <caso de uso 1>
+- <caso de uso 2>
 ```
 
-### Template de Agent Expert (experts/)
+**Regras críticas:**
+- **Zero conhecimento técnico** no arquivo — conhecimento vive nas skills (globais)
+- **Sem `skills:` no frontmatter** — skills são carregadas automaticamente por todos os agents
+- **Personalidade apenas** — define como o agent pensa, não o que sabe
 
-```markdown
----
-name: <expert-name>
-description: <pure specialist description, domain-only>
-skills: [<domain-skill>]
----
+### Checklist de Criação
 
-# <Expert Name>
-
-## Identity
-- **Name**: <name>
-- **Role**: <specialist role>
-- **Scope**: <domain scope>
-
-## Expertise
-- <capability 1>
-- <capability 2>
-
-## Workflow
-1. Receive task with context from orchestrator
-2. Execute within domain expertise
-3. Return results
-
-## Principles
-1. <domain principle>
-```
-
-### Checklist para Novos Agents
-
-- [ ] Arquivo do agent criado no namespace correto (`founds/` ou `experts/`)
-- [ ] Frontmatter inclui `name`, `description`, `skills`
-- [ ] Descrição é precisa e ajuda no discovery dinâmico
-- [ ] Skills referenciadas realmente existem em `~/.claude/skills/`
-- [ ] Servidores MCP referenciados (se houver) estão configurados
-- [ ] Agent tem limites de escopo claros (não sobrepõe agents existentes)
-- [ ] Armazenado no Mem0: `mem0_store(memory_type="procedural", content="Created agent X: ...")`
+- [ ] Arquivo criado em `~/.claude/agents/<name>.md`
+- [ ] Frontmatter inclui `name`, `description`, `tools`, `model`, `isolation: worktree`
+- [ ] **Sem `skills:` no frontmatter**
+- [ ] Descrição clara para dynamic discovery
+- [ ] Personalidade não sobrepõe agents existentes
+- [ ] Armazenado no Mem0: `mem0_store(metadata={"type": "decision"}, content="Created agent X: ...")`
 
 **Referência:** [references/agents/creation-templates.md](references/agents/creation-templates.md)
 
@@ -543,7 +510,7 @@ skills: [<domain-skill>]
 Antes de qualquer tarefa, verifique se há claims ativos com escopo sobreposto:
 
 ```
-results = mem0_search(query="<task description>", memory_type="task_claim")
+results = mem0_search(query="<task description>", metadata={"type": "coordination", "subtype": "claim"})
 ```
 
 **Heurísticas de sobreposição:**
@@ -559,7 +526,7 @@ Task_claims do Mem0 atuam como advisory locks (não impostos pela infraestrutura
 # Acquire lock
 mem0_store(
   content="LOCK: Editing mcp/github-server/server.py - adding delete endpoint",
-  memory_type="task_claim",
+  metadata={"type": "coordination", "subtype": "claim"},
   tags="active,lock"
 )
 
@@ -599,7 +566,7 @@ Cada projeto ativo deve ter memórias armazenadas com tag `project`:
 ```
 mem0_store(
   content="Project bike-shop: Slack bot team (Mr. Robot, Elliot, Tyrell). Stack: Python, Claude CLI.",
-  memory_type="project",
+  metadata={"type": "project"},
   project="bike-shop"
 )
 ```
@@ -610,20 +577,20 @@ Quando uma tarefa pode abranger projetos:
 
 ```
 # Find related decisions across projects
-mem0_search(query="authentication approach", memory_type="decision")
+mem0_search(query="authentication approach", metadata={"type": "decision"})
 
 # Find shared procedures
-mem0_search(query="MCP server setup", memory_type="procedural")
+mem0_search(query="MCP server setup", metadata={"type": "decision"})
 ```
 
-### Transferência de Contexto para Experts
+### Transferência de Contexto para Agents
 
-Ao delegar para um expert, forneça apenas o contexto relevante do projeto:
+Ao delegar para um agent, forneça apenas o contexto relevante do projeto:
 
 1. Consulte o Mem0 para decisões e restrições específicas do projeto
-2. Inclua apenas o que o expert precisa (não o histórico completo do projeto)
+2. Inclua apenas o que o agent precisa (não o histórico completo do projeto)
 3. Inclua paths de arquivo relevantes e decisões arquiteturais
-4. Nunca inclua credenciais, tokens ou dados sensíveis em prompts de experts
+4. Nunca inclua credenciais, tokens ou dados sensíveis em prompts de agents
 
 ### Ciclo de Vida do Projeto
 
@@ -640,16 +607,16 @@ Ao delegar para um expert, forneça apenas o contexto relevante do projeto:
 
 ## Referência Rápida: Exemplos de Roteamento
 
-| Pedido do Usuário | Complexidade | Modelo | Expert | Ação |
+| Pedido do Usuário | Complexidade | Modelo | Agent | Ação |
 |-------------------|--------------|--------|--------|------|
 | "corrigir typo no README linha 42" | trivial | (self) | (nenhum) | Tratar diretamente |
-| "renomear variável foo para bar" | low | sonnet | dev-py | Delegar |
-| "adicionar endpoint delete ao servidor MCP" | medium | sonnet | dev-py | Delegar com step-by-step |
-| "devemos usar SSE ou stdio para MCP?" | high | opus | architect | Delegar com análise profunda |
-| "reestruturar agents para multi-tenancy" | critical | opus | architect | Delegar com reasoning exaustivo, revisar output |
+| "renomear variável foo para bar" | low | sonnet | neo | Delegar |
+| "adicionar endpoint delete ao servidor MCP" | medium | sonnet | neo/trinity | Delegar com step-by-step |
+| "devemos usar SSE ou stdio para MCP?" | high | opus | the_architect | Delegar com análise profunda |
+| "reestruturar agents para multi-tenancy" | critical | opus | the_architect | Delegar com reasoning exaustivo, revisar output |
 | "listar todos os servidores MCP" | trivial | (self) | (nenhum) | Tratar diretamente |
-| "criar novo expert agent para Go" | medium | (self) | (nenhum) | Tratar diretamente (tarefa do ecossistema) |
-| "revisar PR #42" | medium | sonnet | review-py | Delegar |
+| "criar novo agent para Go" | medium | (self) | (nenhum) | Tratar diretamente (tarefa do ecossistema) |
+| "revisar PR #42" | medium | sonnet | trinity | Delegar |
 
 ---
 

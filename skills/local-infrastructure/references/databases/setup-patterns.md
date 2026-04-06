@@ -6,7 +6,7 @@
 
 ```yaml
 postgres:
-  image: postgres:18.4
+  image: postgres:18
   environment:
     POSTGRES_DB: ${DB_NAME}
     POSTGRES_USER: ${DB_USER}
