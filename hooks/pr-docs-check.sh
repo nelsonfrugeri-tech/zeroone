@@ -16,8 +16,20 @@ fi
 # Get the base branch (usually main)
 BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
 
+# Try to extract --head branch from the gh pr create command
+# e.g.: gh pr create --head feat/my-feature --base main ...
+HEAD_BRANCH=$(echo "$COMMAND" | grep -oE '\-\-head\s+\S+' | awk '{print $2}' || true)
+
 # Get files changed in this branch vs base
-CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+# If HEAD_BRANCH is known, compare base..origin/HEAD_BRANCH so it works from any worktree/branch context
+# Fallback to HEAD-based diff if branch not extractable
+if [ -n "$HEAD_BRANCH" ]; then
+  # Fetch to ensure remote ref is up-to-date, then diff
+  git fetch origin "$HEAD_BRANCH" 2>/dev/null || true
+  CHANGED=$(git diff --name-only "$BASE"..origin/"$HEAD_BRANCH" 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+else
+  CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+fi
 
 MISSING=""
 

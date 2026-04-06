@@ -76,6 +76,15 @@ def _get_installation_token(agent_name: str) -> tuple[str, str]:
             f"Set them in your .mcp.json env block."
         )
 
+    # Detect unexpanded shell variable — .mcp.json ${VAR} was not resolved
+    if pem_path.startswith("${") or pem_path.startswith("$"):
+        raise ValueError(
+            f"PEM path env var was not expanded (got literal '{pem_path}'). "
+            "Ensure the GITHUB_APP_*_PEM_PATH variables are set in your shell "
+            "environment before starting Claude Code, or in the 'env' block of "
+            "settings.json so they are available when .mcp.json is loaded."
+        )
+
     if not os.path.isfile(pem_path):
         raise ValueError(f"PEM file not found: {pem_path}")
 
