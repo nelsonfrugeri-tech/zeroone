@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **3 enforcement hooks** (#39, #40, #41) — deterministic quality gates for the dev pipeline
+  - `hooks/require-qa-evidence.sh` — PreToolUse: blocks `mcp__github__github_create_pr` if no QA evidence file (qa-report.md, test-results.*, etc.) exists
+  - `hooks/verify-tests-passed.sh` — Stop: blocks agent from stopping without test evidence (output files or test refs in git log); supports pytest, npm test, cargo test, go test, jest, rspec, phpunit
+  - `hooks/validate-task-completion.sh` — TaskCompleted: blocks task completion if no commits ahead of base branch or no test evidence file found
+- **`reviewer` agent** (#43) — dedicated read-only code reviewer with `disallowedTools: [Write, Edit]` enforcement. Reviews code quality, security (OWASP Top 10), patterns; posts findings via GitHub MCP comments with severity classification (`[BLOCKER]`, `[MAJOR]`, `[MINOR]`, `[NIT]`). Memory scoping consistent with all other agents.
+
 ### Changed
 - **Oracle as entry point** (#27) — oracle.md rewritten as single entry point for all feature work: 6-phase orchestration flow (discovery, planning, distribution, monitoring, review orchestration, merge), communication protocol with SendMessage patterns, delegation template, explicit boundaries (no code, no review, no merge without user confirmation). README updated with orchestration flow diagram.
 
