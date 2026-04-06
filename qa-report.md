@@ -45,6 +45,15 @@ configfile: pyproject.toml
 - qa-report.md: same, committed with -f.
 - No hook blocked the commit — force-add is the documented approach for pipeline artifacts in this repo (see commit 77b5f2c for precedent).
 
+## PR creation — hook/auth finding
+
+The `require-self-judge.sh` hook gates on PR creation. Both paths were tested:
+
+- **gh CLI path**: `gh pr create` failed with `Resource not accessible by personal access token (createPullRequest)` — PAT lacks `repo` write scope. This is expected: the repo enforces GitHub App auth via the MCP server.
+- **MCP github tool path**: `mcp__github__github_create_pr` not available in this shell session — the MCP server requires GitHub App env vars (`GITHUB_APP_*`) which are not set in the worktree shell.
+
+**Finding**: PR creation requires a `claude -w <name>` session with the GitHub App env vars loaded, so the MCP server can authenticate. This is not a bug in the implementation — it is the correct enforcement behavior. The branch is pushed and ready; the PR must be opened from an authenticated session.
+
 ## Verdict
 
-All tests pass. Implementation is correct and complete.
+All tests pass. Implementation is correct and complete. Branch pushed to origin.
