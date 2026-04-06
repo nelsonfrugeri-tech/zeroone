@@ -1,9 +1,9 @@
-# Infrastructure Search
+# Busca de Infraestrutura
 
 ## CNCF Landscape
-- https://landscape.cncf.io/ — comprehensive map of cloud-native tools
-- Filter by: category, maturity (graduated, incubating, sandbox)
-- Graduated = production-ready, battle-tested
+- https://landscape.cncf.io/ — mapa abrangente de ferramentas cloud-native
+- Filtre por: categoria, maturidade (graduated, incubating, sandbox)
+- Graduated = pronto para produção, battle-tested
 
 ## Docker Hub
 ```
@@ -18,14 +18,14 @@
 # Check: verified badge, download count, documentation quality
 ```
 
-## Cloud Documentation
+## Documentação de Cloud
 - AWS: docs.aws.amazon.com
 - GCP: cloud.google.com/docs
 - Azure: learn.microsoft.com/azure
 
-## Key Signals for Infrastructure Tools
-- CNCF maturity level
-- Production users listed on website
-- Active GitHub repo (recent commits, issues addressed)
-- Documentation quality
-- Community size (Slack/Discord members)
+## Sinais Chave para Ferramentas de Infraestrutura
+- Nível de maturidade CNCF
+- Usuários em produção listados no site
+- Repo GitHub ativo (commits recentes, issues atendidas)
+- Qualidade da documentação
+- Tamanho da comunidade (membros Slack/Discord)

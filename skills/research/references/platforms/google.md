@@ -1,18 +1,18 @@
-# Google Search Advanced Operators
+# Operadores Avançados de Busca do Google
 
-## Essential Operators
-| Operator | Example | Purpose |
-|----------|---------|---------|
-| `site:` | `site:github.com fastapi middleware` | Search within a specific site |
-| `filetype:` | `filetype:pdf "system design"` | Find specific file types |
-| `intitle:` | `intitle:"migration guide" django` | Search page titles |
-| `after:` | `after:2025-01-01 "opentelemetry python"` | Recent results only |
-| `before:` | `before:2026-01-01` | Upper date bound |
-| `"exact"` | `"error budget burn rate"` | Exact phrase match |
-| `-` | `python framework -django -flask` | Exclude terms |
-| `OR` | `k6 OR locust load testing` | Either term |
+## Operadores Essenciais
+| Operador | Exemplo | Propósito |
+|----------|---------|-----------|
+| `site:` | `site:github.com fastapi middleware` | Buscar dentro de um site específico |
+| `filetype:` | `filetype:pdf "system design"` | Encontrar tipos específicos de arquivo |
+| `intitle:` | `intitle:"migration guide" django` | Buscar títulos de páginas |
+| `after:` | `after:2025-01-01 "opentelemetry python"` | Apenas resultados recentes |
+| `before:` | `before:2026-01-01` | Limite superior de data |
+| `"exact"` | `"error budget burn rate"` | Correspondência exata de frase |
+| `-` | `python framework -django -flask` | Excluir termos |
+| `OR` | `k6 OR locust load testing` | Qualquer um dos termos |
 
-## Effective Query Patterns
+## Padrões de Query Eficazes
 ```
 # Find latest stable version
 "release notes" site:github.com <project> after:2025-06

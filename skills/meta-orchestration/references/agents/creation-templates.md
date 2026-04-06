@@ -1,35 +1,49 @@
-# Agent Creation Templates
+# Templates de Criação de Agents
 
-## Agent File Structure
+## Estrutura do Arquivo
+
 ```markdown
 ---
-name: agent-name
-description: One-line description of the agent's purpose
-model: sonnet (or opus, haiku)
-tools: [Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch]
-mcp_servers: [github, mem0]  # optional
+name: <agent-name>
+description: >
+  <personalidade e caso de uso, 1-2 frases>
+tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch
+model: sonnet
+permissionMode: bypassPermissions
+isolation: worktree
 ---
 
-[Agent personality and behavior instructions]
-[What this agent does and doesn't do]
-[How it approaches problems]
-[Output format expectations]
+# <Agent Name>
+
+## Personalidade
+- <traço 1>
+- <traço 2>
+
+## Comportamento
+- <o que faz>
+- <como entrega>
+
+## Quando usar
+- <caso de uso 1>
+- <caso de uso 2>
 ```
 
-## Creation Checklist
-- [ ] Clear, non-overlapping purpose (no duplicate agents)
-- [ ] Personality defined (how it thinks, not what it knows)
-- [ ] Tools are minimal (only what's needed)
-- [ ] MCP servers listed if needed
-- [ ] Model appropriate for complexity level
-- [ ] Description is searchable (for dynamic discovery)
+## Checklist de Criação
+- [ ] Arquivo em `~/.claude/agents/<name>.md`
+- [ ] Frontmatter com `name`, `description`, `tools`, `model`, `isolation: worktree`
+- [ ] **Sem `skills:`** no frontmatter (skills são globais)
+- [ ] **Zero conhecimento técnico** — apenas personalidade e comportamento
+- [ ] Descrição clara para dynamic discovery
+- [ ] Não sobrepõe agents existentes
+- [ ] Model adequado: `haiku` (trivial), `sonnet` (maioria), `opus` (crítico)
 
-## Naming Convention
-- Lowercase, hyphenated: `dev-py`, `review-ts`
-- Name reflects role, not implementation
-- Avoid generic names: `helper`, `assistant`, `worker`
+## Convenção de Nomes
+- Lowercase, com underscore se necessário: `neo`, `trinity`, `the_architect`
+- Nome reflete a persona, não a implementação
+- Evitar nomes genéricos: `helper`, `assistant`, `worker`
 
 ## Anti-patterns
-- Embedding technical knowledge in agent file (use skills)
-- Giving all tools to every agent (principle of least privilege)
-- Creating agents for one-off tasks (use inline prompts)
+- Embutir conhecimento técnico no arquivo do agent (use skills)
+- Dar todas as tools a todos os agents (princípio do mínimo privilégio)
+- Criar agents para tarefas únicas (use inline prompts)
+- Duplicar personalidade entre agents

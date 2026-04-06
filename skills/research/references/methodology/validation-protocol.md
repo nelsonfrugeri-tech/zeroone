@@ -1,30 +1,30 @@
-# Validation Protocol
+# Protocolo de Validação
 
-## N-Source Rule
-- Minimum 3 independent sources for any technical claim
-- "Independent" = different authors/organizations
-- Vendor blogs count as ONE source (biased)
+## Regra de N Fontes
+- Mínimo 3 fontes independentes para qualquer afirmação técnica
+- "Independente" = autores/organizações diferentes
+- Blogs de vendors contam como UMA fonte (enviesada)
 
-## Date Check
-| Domain | Max age |
-|--------|---------|
-| AI/ML models | 3 months |
-| Frameworks/libs | 6 months |
-| Architecture patterns | 2 years |
-| CS fundamentals | Timeless |
+## Verificação de Data
+| Domínio | Idade máxima |
+|---------|-------------|
+| Modelos AI/ML | 3 meses |
+| Frameworks/libs | 6 meses |
+| Padrões de arquitetura | 2 anos |
+| Fundamentos de CS | Atemporal |
 
-## Bias Detection
-| Source type | Bias risk | How to compensate |
-|-------------|-----------|-------------------|
-| Vendor blog | High (selling product) | Cross-check with independent benchmarks |
-| Conference talk | Medium (promoting approach) | Check if approach has independent adopters |
-| GitHub README | Medium (selling project) | Check issues, real-world usage |
-| Academic paper | Low-medium (may overfit benchmarks) | Check reproducibility, code availability |
-| Independent benchmark | Low | Verify methodology is sound |
+## Detecção de Viés
+| Tipo de fonte | Risco de viés | Como compensar |
+|---------------|--------------|----------------|
+| Blog de vendor | Alto (vendendo produto) | Cruzar com benchmarks independentes |
+| Palestra de conferência | Médio (promovendo abordagem) | Verificar se a abordagem tem adotantes independentes |
+| GitHub README | Médio (vendendo projeto) | Verificar issues, uso no mundo real |
+| Paper acadêmico | Baixo-médio (pode overfittar benchmarks) | Verificar reprodutibilidade, disponibilidade de código |
+| Benchmark independente | Baixo | Verificar se a metodologia é sólida |
 
-## Validation Checklist
-- [ ] Claim backed by ≥3 sources
-- [ ] Sources are recent enough for the domain
-- [ ] At least 1 source is independent (non-vendor)
-- [ ] Methodology of benchmarks is disclosed
-- [ ] Counter-arguments considered
+## Checklist de Validação
+- [ ] Afirmação respaldada por ≥3 fontes
+- [ ] Fontes são recentes o suficiente para o domínio
+- [ ] Pelo menos 1 fonte é independente (não vendor)
+- [ ] Metodologia de benchmarks é divulgada
+- [ ] Contra-argumentos considerados

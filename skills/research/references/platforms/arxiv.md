@@ -1,6 +1,6 @@
-# arxiv & Academic Search
+# arXiv e Busca Acadêmica
 
-## arxiv Search
+## Busca no arXiv
 ```
 # https://arxiv.org/search/?query=<terms>&searchtype=all
 # Filter by: cs.AI, cs.CL, cs.LG, cs.SE
@@ -8,21 +8,21 @@
 ```
 
 ## Connected Papers
-- https://www.connectedpapers.com/ — visual graph of related papers
-- Great for understanding a research area quickly
+- https://www.connectedpapers.com/ — grafo visual de papers relacionados
+- Ótimo para entender uma área de pesquisa rapidamente
 
 ## Semantic Scholar
-- https://www.semanticscholar.org/ — AI-powered academic search
-- Shows citation count, influential citations, TLDR summaries
+- https://www.semanticscholar.org/ — busca acadêmica alimentada por AI
+- Mostra contagem de citações, citações influentes, resumos TLDR
 
 ## Papers with Code
-- https://paperswithcode.com/ — papers + implementations
-- Leaderboards by task
-- Code links to GitHub repos
+- https://paperswithcode.com/ — papers + implementações
+- Leaderboards por tarefa
+- Links de código para repos GitHub
 
-## Reading Strategy
-1. Read abstract + conclusion first
-2. Check figures/tables for key results
-3. Read methodology only if results are relevant
-4. Check "Related Work" for alternatives
-5. Follow citations for deeper understanding
+## Estratégia de Leitura
+1. Leia abstract + conclusão primeiro
+2. Verifique figuras/tabelas para resultados chave
+3. Leia a metodologia apenas se os resultados forem relevantes
+4. Verifique "Related Work" para alternativas
+5. Siga as citações para entendimento mais profundo

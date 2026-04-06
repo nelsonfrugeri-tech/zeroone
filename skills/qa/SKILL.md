@@ -22,7 +22,6 @@ It complements `arch-py` and `arch-ts` skills with QA-specific patterns and stra
 
 **Global skill** — loaded automatically by all agents.
 
-- Agent `review-py` / `review-ts` -> when evaluating test coverage and quality
 - You directly -> when defining test strategy or validating readiness
 
 **What this skill contains:**

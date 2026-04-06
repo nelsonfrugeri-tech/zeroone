@@ -3,7 +3,7 @@ name: meta-orchestration
 description: |
   Baseline de conhecimento para meta-orquestracao de agents em ecossistemas Claude Code. Cobre classificacao
   de complexidade de tarefas, selecao dinamica de modelo (Haiku/Sonnet/Opus), roteamento inteligente para
-  experts, discovery dinamico de agents e skills, coordenacao multi-agent peer-to-peer via Mem0,
+  agents, discovery dinamico de agents e skills, coordenacao multi-agent peer-to-peer via Mem0,
   protocolos de claim/release, gestao de memoria semantica (tipos, curadoria, poda), criacao de agents,
   resolucao de conflitos, e gestao de contexto cross-project. Use quando: (1) Rotear tarefas para o agent/modelo
   certo, (2) Coordenar multiplos agents em paralelo, (3) Gerenciar memoria persistente compartilhada,
@@ -11,50 +11,50 @@ description: |
   Triggers: /meta-orchestration, task routing, agent coordination, memory management, agent creation.
 ---
 
-# Meta-Orchestration — Orquestração Multi-Agent
+# Skill de Meta-Orquestração - Orquestração de Ecossistema Multi-Agent
 
 ## Propósito
 
-Esta skill é a **knowledge base** for orchestrating multi-agent ecosystems in Claude Code.
-It codifies patterns for task routing, model selection, agent coordination, and shared memory management.
+Esta skill é a **base de conhecimento** para orquestrar ecossistemas multi-agent no Claude Code.
+Ela codifica padrões para roteamento de tarefas, seleção de modelo, coordenação de agents e gestão de memória compartilhada.
 
-**Global skill** — loaded automatically by all agents.
+**Quem usa esta skill:**
+- Agent `oracle` -> roteamento de tarefas, gestão do ecossistema, curadoria de memória
+- Agent `sentinel` -> monitoramento de saúde, verificações de coordenação
+- Qualquer agent fundacional que gerencia o ecossistema
 
-- Agent `sentinel` -> health monitoring, coordination checks
-- Any foundational agent that manages the ecosystem
+**O que esta skill contém:**
+- Classificação de complexidade de tarefas com sinais e heurísticas
+- Matriz de seleção de modelo (Haiku, Sonnet, Opus) por complexidade e tipo de tarefa
+- Padrões de discovery dinâmico de agents e skills
+- Árvore de decisão de roteamento de tarefas
+- Protocolo de coordenação multi-agent (claim, work, report, release)
+- Estrutura de conhecimento Mem0 (tipos de memória, ciclo de vida, queries)
+- Higiene e curadoria de memória (critérios manter vs podar)
+- Templates de criação de agents
+- Resolução de conflitos e detecção de trabalho duplicado
+- Gestão de contexto cross-project
 
-**What this skill contains:**
-- Task complexity classification with signals and heuristics
-- Model selection matrix (Haiku, Sonnet, Opus) by complexity and task type
-- Dynamic agent and skill discovery patterns
-- Task routing decision tree
-- Multi-agent coordination protocol (claim, work, report, release)
-- Mem0 knowledge structure (memory types, lifecycle, queries)
-- Memory hygiene and curation (keep vs prune criteria)
-- Agent creation templates
-- Conflict resolution and duplicate work detection
-- Cross-project context management
-
-**What this skill does NOT contain:**
-- Domain-specific expertise (that lives in specialist agents/skills)
-- Implementation code for MCP servers or tools
-- Project-specific configuration
+**O que esta skill NÃO contém:**
+- Expertise de domínio específico (isso vive nos agents/skills experts)
+- Código de implementação para servidores MCP ou ferramentas
+- Configuração específica de projetos
 
 ---
 
 ## 1. Classificação de Complexidade de Tarefas
 
-Classify every incoming task before deciding how to execute it.
+Classifique toda tarefa recebida antes de decidir como executá-la.
 
 ### Níveis de Complexidade
 
-| Level | Signals | Examples |
-|-------|---------|----------|
-| **trivial** | Single lookup, status check, one-liner edit | "what branch am I on?", "list MCP servers", "show git log" |
-| **low** | Straightforward change, clear scope, single file | "rename variable X to Y", "update CHANGELOG", "fix typo in line 42" |
-| **medium** | Multi-step, requires reading context, multiple files | "add a new API endpoint", "fix this bug", "implement feature X" |
-| **high** | Architectural decisions, trade-offs, design work | "redesign auth system", "plan database migration", "evaluate SSE vs stdio" |
-| **critical** | Cross-cutting, impacts multiple systems, irreversible | "restructure agent ecosystem", "security audit", "production incident" |
+| Nível | Sinais | Exemplos |
+|-------|--------|----------|
+| **trivial** | Busca simples, checagem de status, edição de uma linha | "em que branch estou?", "listar servidores MCP", "mostrar git log" |
+| **low** | Mudança direta, escopo claro, arquivo único | "renomear variável X para Y", "atualizar CHANGELOG", "corrigir typo na linha 42" |
+| **medium** | Multi-etapa, requer leitura de contexto, múltiplos arquivos | "adicionar novo endpoint de API", "corrigir este bug", "implementar feature X" |
+| **high** | Decisões arquiteturais, trade-offs, trabalho de design | "redesenhar sistema de auth", "planejar migração de banco", "avaliar SSE vs stdio" |
+| **critical** | Transversal, impacta múltiplos sistemas, irreversível | "reestruturar ecossistema de agents", "auditoria de segurança", "incidente de produção" |
 
 ### Heurística de Classificação
 
@@ -69,9 +69,9 @@ Classify every incoming task before deciding how to execute it.
    - Trade-offs to evaluate -> high
    - Irreversible system-wide impact -> critical
 
-3. Does it require domain specialization?
+3. Does it require domain expertise?
    - General knowledge -> handle directly
-   - Specialized domain -> delegate to agent
+   - Specialized domain -> delegate to expert
 
 4. What is the blast radius if done wrong?
    - Cosmetic -> trivial/low
@@ -81,113 +81,113 @@ Classify every incoming task before deciding how to execute it.
 
 ### Resolução de Ambiguidade
 
-When classification is unclear, **round up** one level. The cost of over-thinking
-is lower than the cost of under-thinking a high-impact task.
+Quando a classificação não é clara, **arredonde para cima** um nível. O custo de pensar demais
+é menor do que o custo de pensar de menos numa tarefa de alto impacto.
 
-**Reference:** [references/routing/complexity-classification.md](references/routing/complexity-classification.md)
+**Referência:** [references/routing/complexity-classification.md](references/routing/complexity-classification.md)
 
 ---
 
 ## 2. Seleção de Modelo
 
-Match model capability to task complexity. Tactical model switching optimizes costs
-by 60-80% without sacrificing quality.
+Combine a capacidade do modelo com a complexidade da tarefa. Troca tática de modelo otimiza custos
+em 60-80% sem sacrificar qualidade.
 
 ### Matriz de Seleção
 
-| Complexity | Model | Thinking Instruction | Rationale |
-|------------|-------|---------------------|-----------|
-| **trivial** | `haiku` | (none) | Fast, cheap. No reasoning needed. |
-| **low** | `sonnet` | (none) | Balanced. Good for straightforward changes. |
-| **medium** | `sonnet` | "Think step by step" | Guided reasoning for multi-step tasks. |
-| **high** | `opus` | "Analyze deeply, consider trade-offs, think step by step before acting" | Deep analysis for architectural decisions. |
-| **critical** | `opus` | "This is critical. Reason exhaustively. Consider all edge cases, risks, and second-order effects before proposing anything" | Maximum reasoning for irreversible changes. |
+| Complexidade | Modelo | Thinking Instruction | Justificativa |
+|--------------|--------|---------------------|---------------|
+| **trivial** | `haiku` | (nenhuma) | Rápido, barato. Sem necessidade de reasoning. |
+| **low** | `sonnet` | (nenhuma) | Equilibrado. Bom para mudanças diretas. |
+| **medium** | `sonnet` | "Think step by step" | Reasoning guiado para tarefas multi-etapa. |
+| **high** | `opus` | "Analyze deeply, consider trade-offs, think step by step before acting" | Análise profunda para decisões arquiteturais. |
+| **critical** | `opus` | "This is critical. Reason exhaustively. Consider all edge cases, risks, and second-order effects before proposing anything" | Reasoning máximo para mudanças irreversíveis. |
 
 ### Capacidades dos Modelos
 
-| Model | Strengths | Weaknesses | Cost Relative |
-|-------|-----------|------------|---------------|
-| **Haiku** | Speed, simple tasks, status checks | Limited reasoning depth | Lowest |
-| **Sonnet** | Balanced reasoning, code generation, 90% of dev tasks | Not ideal for deep architectural analysis | Medium |
-| **Opus** | Deep reasoning, trade-off analysis, architectural decisions | Slower, expensive, overkill for simple tasks | Highest |
+| Modelo | Forças | Fraquezas | Custo Relativo |
+|--------|--------|-----------|----------------|
+| **Haiku** | Velocidade, tarefas simples, checagens de status | Profundidade de reasoning limitada | 1x (baseline) |
+| **Sonnet** | Reasoning equilibrado, geração de código, 90% das tarefas de dev | Não ideal para análise arquitetural profunda | 5x |
+| **Opus** | Reasoning profundo, análise de trade-off, decisões arquiteturais | Mais lento, caro, exagero para tarefas simples | 25x |
 
 ### Override de Modelo por Domínio
 
-Some task domains override the default model selection:
+Alguns domínios de tarefa sobrescrevem a seleção padrão de modelo:
 
-| Domain | Override | Reason |
-|--------|----------|--------|
-| Security analysis | Minimum `sonnet` | Security requires careful reasoning |
-| Code review | `sonnet` (default) | Balanced analysis |
-| Architecture design | `opus` | Trade-off evaluation |
-| Documentation | `haiku` or `sonnet` | Low reasoning demand |
-| Refactoring | `sonnet` | Pattern recognition |
+| Domínio | Override | Motivo |
+|---------|----------|--------|
+| Análise de segurança | Mínimo `sonnet` | Segurança requer reasoning cuidadoso |
+| Code review | `sonnet` (padrão) | Análise equilibrada |
+| Design de arquitetura | `opus` | Avaliação de trade-offs |
+| Documentação | `haiku` ou `sonnet` | Baixa demanda de reasoning |
+| Refactoring | `sonnet` | Reconhecimento de padrões |
 
-### Instruções de Raciocínio por Profundidade
+### Thinking Instructions por Profundidade
 
-Thinking instructions are embedded in the prompt sent to the agent:
+Thinking instructions são embutidas no prompt enviado ao expert:
 
-- **None** (trivial/low): Just the task description
+- **Nenhuma** (trivial/low): Apenas a descrição da tarefa
 - **Step-by-step** (medium): "Think step by step before implementing."
-- **Deep analysis** (high): "Analyze deeply. Consider trade-offs, edge cases, and risks. Think step by step before proposing a solution."
-- **Exhaustive** (critical): "This is critical. Reason exhaustively about all implications, second-order effects, and failure modes before acting. Show your reasoning."
+- **Análise profunda** (high): "Analyze deeply. Consider trade-offs, edge cases, and risks. Think step by step before proposing a solution."
+- **Exaustiva** (critical): "This is critical. Reason exhaustively about all implications, second-order effects, and failure modes before acting. Show your reasoning."
 
-**Reference:** [references/routing/model-selection.md](references/routing/model-selection.md)
+**Referência:** [references/routing/model-selection.md](references/routing/model-selection.md)
 
 ---
 
-## 3. Descoberta Dinâmica
+## 3. Discovery Dinâmico
 
-Never maintain hardcoded lists. The filesystem IS the registry.
+Nunca mantenha listas hardcoded. O filesystem É o registro.
 
-### Descoberta de Agents
+### Discovery de Agents
 
-Scan `~/.claude/agents/` at session start to build the current agent roster.
+Escaneie `~/.claude/agents/experts/` no início da sessão para construir o roster atual de experts.
 
 ```bash
-# Discover all available agents
-for f in ~/.claude/agents/*.md; do head -10 "$f"; echo "---"; done
+# Discover all available experts
+for f in ~/.claude/agents/experts/*.md; do head -10 "$f"; echo "---"; done
 ```
 
-Each agent `.md` file has frontmatter with `name` and `description` fields.
-Match the task domain to the agent's `description`.
+Cada arquivo `.md` de expert tem frontmatter com campos `name` e `description`.
+Combine o domínio da tarefa com a `description` do expert.
 
-**Matching heuristic:**
-1. Parse `description` field from each agent's frontmatter
-2. Match task keywords against agent descriptions
-3. If multiple experts match, prefer the more specialized one
-4. If no agent matches, handle directly or propose creating a new one (gap detection)
+**Heurística de matching:**
+1. Faça parse do campo `description` do frontmatter de cada expert
+2. Combine palavras-chave da tarefa com as descrições dos experts
+3. Se múltiplos experts combinam, prefira o mais especializado
+4. Se nenhum expert combina, trate diretamente ou proponha criar um novo (detecção de gap)
 
-### Descoberta de Skills
+### Discovery de Skills
 
-Scan `~/.claude/skills/` at session start to discover all available skills.
+Escaneie `~/.claude/skills/` no início da sessão para descobrir todas as skills disponíveis.
 
 ```bash
 # Discover all skills and their descriptions
 for f in ~/.claude/skills/*/SKILL.md; do head -12 "$f"; echo "---"; done
 ```
 
-Each `SKILL.md` has frontmatter with `name`, `description`, and `triggers` fields.
-Match task context to the skill's `triggers` and `description`.
+Cada `SKILL.md` tem frontmatter com campos `name`, `description` e `triggers`.
+Combine o contexto da tarefa com os `triggers` e `description` da skill.
 
-### Detecção de Lacunas
+### Detecção de Gaps
 
-If a task requires a capability that does not exist in the ecosystem:
+Se uma tarefa requer uma capacidade que não existe no ecossistema:
 
-1. **Identify the gap**: "This task needs X, but no agent/skill/MCP provides it"
-2. **Propose creation**: Suggest creating the missing component to the user
-3. **Never improvise**: Do not use workarounds when the ecosystem should have the capability built-in
+1. **Identifique o gap**: "Esta tarefa precisa de X, mas nenhum agent/skill/MCP fornece isso"
+2. **Proponha a criação**: Sugira criar o componente faltante para o usuário
+3. **Nunca improvise**: Não use workarounds quando o ecossistema deveria ter a capacidade built-in
 
-Examples of detectable gaps:
-- Task needs Jira integration but no Jira MCP exists
-- Task needs deployment but no deploy skill exists
-- Task needs a language specialist (e.g., Rust) but no `dev-rust` agent exists
+Exemplos de gaps detectáveis:
+- Tarefa precisa de integração com Jira mas nenhum MCP de Jira existe
+- Tarefa precisa de deploy mas nenhuma skill de deploy existe
+- Tarefa precisa de um expert de linguagem (ex: Rust) mas nenhum `dev-rust` expert existe
 
-**Reference:** [references/routing/dynamic-discovery.md](references/routing/dynamic-discovery.md)
+**Referência:** [references/routing/dynamic-discovery.md](references/routing/dynamic-discovery.md)
 
 ---
 
-## 4. Árvore de Decisão de Roteamento
+## 4. Árvore de Decisão de Roteamento de Tarefas
 
 ```
 Task received
@@ -208,32 +208,32 @@ Task received
   |
   +-- Select model (Section 2)
   |
-  +-- Discover matching agent (Section 3)
+  +-- Discover matching expert (Section 3)
   |     |
   |     +-- Expert found --> Delegate with isolation: "worktree"
   |     |
-  |     +-- No agent found --> Gap detection (Section 3)
+  |     +-- No expert found --> Gap detection (Section 3)
   |           |
-  |           +-- Propose new agent to user
+  |           +-- Propose new expert to user
   |           +-- Or handle directly if within Oracle's capability
   |
   +-- Execute delegation
         |
         Agent(
-          subagent_type="<agent-name>",
+          subagent_type="<expert-name>",
           model="<chosen-model>",
           prompt="<thinking instruction> + <task> + <context>",
           isolation="worktree"
         )
 ```
 
-### Delegation Template
+### Template de Delegação
 
-When delegating to an agent, the prompt must include:
-1. **Thinking instruction** (based on complexity level)
-2. **Task description** (clear, specific, actionable)
-3. **Context** (relevant files, decisions, constraints)
-4. **Acceptance criteria** (what "done" looks like)
+Ao delegar para um expert, o prompt deve incluir:
+1. **Thinking instruction** (baseada no nível de complexidade)
+2. **Descrição da tarefa** (clara, específica, acionável)
+3. **Contexto** (arquivos relevantes, decisões, restrições)
+4. **Critérios de aceitação** (como "feito" se parece)
 
 ```
 Agent(
@@ -244,220 +244,220 @@ Agent(
 )
 ```
 
-### When NOT to Delegate
+### Quando NÃO Delegar
 
-| Condition | Action |
-|-----------|--------|
-| Ecosystem management task | Handle directly |
-| Trivial task (grep, status) | Handle directly |
-| Cross-project context needed | Handle directly |
-| User explicitly asked Oracle | Handle directly |
-| Read-only exploration | May skip worktree isolation |
+| Condição | Ação |
+|----------|------|
+| Tarefa de gestão do ecossistema | Tratar diretamente |
+| Tarefa trivial (grep, status) | Tratar diretamente |
+| Contexto cross-project necessário | Tratar diretamente |
+| Usuário pediu explicitamente ao Oracle | Tratar diretamente |
+| Exploração somente leitura | Pode pular isolamento por worktree |
 
-**Reference:** [references/routing/decision-tree.md](references/routing/decision-tree.md)
+**Referência:** [references/routing/decision-tree.md](references/routing/decision-tree.md)
 
 ---
 
-## 5. Coordenação Multi-Agent Protocol
+## 5. Protocolo de Coordenação Multi-Agent
 
-Multiple Oracle instances coordinate as **peers** via shared Mem0 memory.
-No leader election. Each Oracle is autonomous and self-coordinating.
+Múltiplas instâncias de Oracle coordenam como **peers** via memória compartilhada Mem0.
+Sem eleição de líder. Cada Oracle é autônomo e auto-coordenado.
 
-### Protocol: Claim, Work, Report, Release
+### Protocolo: Claim, Work, Report, Release
 
 ```
 Phase 1: CLAIM
-  - mem0_search(metadata={"type": "coordination", "subtype": "claim"}) -> see what others are doing
+  - mem0_search(memory_type="task_claim") -> see what others are doing
   - Check for scope overlap with existing claims
   - If overlap -> store conflict memory, alert user
-  - If clear -> mem0_store(content="Working on X", metadata={"type": "coordination", "subtype": "claim"})
+  - If clear -> mem0_store(content="Working on X", memory_type="task_claim")
 
 Phase 2: WORK
   - Execute the task
   - Store decisions: mem0_store(memory_type="decision")
-  - Store blockers: mem0_store(metadata={"type": "coordination", "subtype": "blocker"})
-  - Update progress on long tasks: mem0_store(metadata={"type": "coordination", "subtype": "progress"})
+  - Store blockers: mem0_store(memory_type="blocker")
+  - Update progress on long tasks: mem0_store(memory_type="progress")
 
 Phase 3: REPORT
-  - Store completion summary: mem0_store(metadata={"type": "coordination", "subtype": "progress"})
-  - Store reusable knowledge: mem0_store(metadata={"type": "decision"})
+  - Store completion summary: mem0_store(memory_type="progress")
+  - Store reusable knowledge: mem0_store(memory_type="procedural")
 
 Phase 4: RELEASE
-  - Delete coordination claim memories
+  - Delete task_claim memory
   - Delete resolved blocker memories
   - Update/archive completed progress memories
 ```
 
-### Deduplication Rule
+### Regra de Deduplicação
 
-Before claiming any task:
+Antes de reivindicar qualquer tarefa:
 
 ```
-results = mem0_search(query="<task description>", metadata={"type": "coordination", "subtype": "claim"})
+results = mem0_search(query="<task description>", memory_type="task_claim")
 ```
 
-If an active claim exists for the same or overlapping scope:
-- Do NOT start the task
-- Alert the user about the existing claim
-- Offer to wait or work on a different task
+Se um claim ativo existe para o mesmo escopo ou escopo sobreposto:
+- NÃO inicie a tarefa
+- Alerte o usuário sobre o claim existente
+- Ofereça esperar ou trabalhar em uma tarefa diferente
 
-### Conflict Detection
+### Detecção de Conflitos
 
-A conflict occurs when:
-1. Two agents claim overlapping file scopes
-2. Two agents make contradictory decisions about the same system
-3. An agent's work invalidates another agent's in-progress work
+Um conflito ocorre quando:
+1. Dois agents reivindicam escopos de arquivo sobrepostos
+2. Dois agents tomam decisões contraditórias sobre o mesmo sistema
+3. O trabalho de um agent invalida o trabalho em andamento de outro agent
 
-Response to conflict:
+Resposta a conflito:
 ```
 mem0_store(
   content="Conflict: Agent A editing settings.json while Agent B also modifying it",
-  metadata={"type": "coordination", "subtype": "conflict"},
+  memory_type="conflict",
   tags="active"
 )
 ```
-Then alert the user immediately.
+Então alerte o usuário imediatamente.
 
-### Spawning Agents
+### Spawning de Experts
 
-Any Oracle can spawn agents as subagents. Agents always run in isolated worktrees.
+Qualquer Oracle pode spawnar experts como subagents. Experts sempre rodam em worktrees isoladas.
 
 ```bash
-# Discover experts dynamically
-ls ~/.claude/agents/*.md | xargs -I{} head -3 {}
+# Discover agents dynamically
+ls ~/.claude/agents/experts/*.md | xargs -I{} head -3 {}
 ```
 
-Experts are stateless -- they receive context in the prompt, do their work, and return results.
-They do not coordinate with each other directly. Oracle manages all coordination.
+Experts são stateless -- eles recebem contexto no prompt, fazem seu trabalho e retornam resultados.
+Eles não coordenam diretamente entre si. O Oracle gerencia toda coordenação.
 
-**Reference:** [references/coordination/peer-protocol.md](references/coordination/peer-protocol.md)
+**Referência:** [references/coordination/peer-protocol.md](references/coordination/peer-protocol.md)
 
 ---
 
-## 6. Mem0 Knowledge Structure
+## 6. Estrutura de Conhecimento Mem0
 
-All persistent knowledge lives in Mem0 (Qdrant vector store + Ollama embeddings).
-Shared across all terminals and agents.
+Todo conhecimento persistente vive no Mem0 (Qdrant vector store + Ollama embeddings).
+Compartilhado entre todos os terminais e agents.
 
 ### Tipos de Memória
 
-| Type | Purpose | Lifecycle | Example |
-|------|---------|-----------|---------|
-| `feedback` | User corrections and preferences | Long-lived, rarely pruned | "Never push to main" |
-| `project` | Project state, decisions, context | Lives with project | "Project X uses event-driven arch" |
-| `reference` | External system pointers | Long-lived | "Bugs tracked in Linear INGEST" |
-| `decision` | Architectural/technical decisions | Long-lived unless superseded | "Chose stdio over SSE for MCP" |
-| `procedural` | How-to knowledge, reusable procedures | Long-lived, updated | "Steps to create a GitHub App" |
-| `task_claim` | Coordination: who's working on what | Ephemeral (session lifetime) | "Oracle-A working on MCP isolation" |
-| `blocker` | Coordination: signal blockers | Ephemeral (until resolved) | "Blocked on Qdrant timeout" |
-| `progress` | Coordination: status updates | Ephemeral to medium | "MCP server 80% complete" |
-| `conflict` | Coordination: collision detected | Ephemeral (until resolved) | "Two agents editing settings.json" |
+| Tipo | Propósito | Ciclo de Vida | Exemplo |
+|------|-----------|---------------|---------|
+| `feedback` | Correções e preferências do usuário | Longa duração, raramente podado | "Never push to main" |
+| `project` | Estado do projeto, decisões, contexto | Vive com o projeto | "Project X uses event-driven arch" |
+| `reference` | Ponteiros para sistemas externos | Longa duração | "Bugs tracked in Linear INGEST" |
+| `decision` | Decisões arquiteturais/técnicas | Longa duração até substituída | "Chose stdio over SSE for MCP" |
+| `procedural` | Conhecimento how-to, procedimentos reutilizáveis | Longa duração, atualizado | "Steps to create a GitHub App" |
+| `task_claim` | Coordenação: quem está trabalhando em quê | Efêmero (tempo de sessão) | "Oracle-A working on MCP isolation" |
+| `blocker` | Coordenação: sinalizar blockers | Efêmero (até resolvido) | "Blocked on Qdrant timeout" |
+| `progress` | Coordenação: atualizações de status | Efêmero a médio | "MCP server 80% complete" |
+| `conflict` | Coordenação: colisão detectada | Efêmero (até resolvido) | "Two agents editing settings.json" |
 
 ### Regras de Armazenamento
 
-| Event | Action |
-|-------|--------|
-| Session start | `mem0_search(metadata={"type": "coordination", "subtype": "claim"})` -- check peers |
-| Session start | `mem0_recall("pending work, recent decisions")` -- restore context |
-| Task claimed | `mem0_store(metadata={"type": "coordination", "subtype": "claim"})` |
-| Decision made | `mem0_store(memory_type="decision")` |
-| Procedure learned | `mem0_store(metadata={"type": "decision"})` |
-| Problem solved | `mem0_store(metadata={"type": "decision"}, tags="troubleshooting")` |
-| Project configured | `mem0_store(memory_type="project", project="X")` |
-| Agent created/modified | `mem0_store(metadata={"type": "decision"})` |
-| Blocker hit | `mem0_store(metadata={"type": "coordination", "subtype": "blocker"}, tags="active")` |
-| Session end | Store progress summary, delete task_claims, delete resolved blockers |
+| Evento | Ação |
+|--------|------|
+| Início de sessão | `mem0_search(memory_type="task_claim")` -- verificar peers |
+| Início de sessão | `mem0_recall("pending work, recent decisions")` -- restaurar contexto |
+| Tarefa reivindicada | `mem0_store(memory_type="task_claim")` |
+| Decisão tomada | `mem0_store(memory_type="decision")` |
+| Procedimento aprendido | `mem0_store(memory_type="procedural")` |
+| Problema resolvido | `mem0_store(memory_type="procedural", tags="troubleshooting")` |
+| Projeto configurado | `mem0_store(memory_type="project", project="X")` |
+| Agent criado/modificado | `mem0_store(memory_type="procedural")` |
+| Blocker encontrado | `mem0_store(memory_type="blocker", tags="active")` |
+| Fim de sessão | Armazenar resumo de progresso, deletar task_claims, deletar blockers resolvidos |
 
-### Padrões de Consulta
+### Padrões de Query
 
 ```
 # Restore context at session start
 mem0_recall(query="pending work, recent changes", limit=10)
 
 # Check what other agents are doing
-mem0_search(query="active tasks", metadata={"type": "coordination", "subtype": "claim"}, limit=20)
+mem0_search(query="active tasks", memory_type="task_claim", limit=20)
 
 # Find how-to knowledge
-mem0_search(query="how to create GitHub App", metadata={"type": "decision"})
+mem0_search(query="how to create GitHub App", memory_type="procedural")
 
 # Find project context
 mem0_search(query="architecture decisions", memory_type="decision", project="bike-shop")
 
 # List all claims for cleanup
-mem0_list(metadata={"type": "coordination", "subtype": "claim"}, limit=50)
+mem0_list(memory_type="task_claim", limit=50)
 
 # Clean up stale memories
 mem0_delete(memory_id="<id>")
 
 # Update outdated memory
-mem0_update(memory_id="<id>", content="Updated procedure...", metadata={"type": "decision"})
+mem0_update(memory_id="<id>", content="Updated procedure...", memory_type="procedural")
 ```
 
-**Reference:** [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md)
+**Referência:** [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md)
 
 ---
 
-## 7. Higiene de Memória and Curation
+## 7. Higiene e Curadoria de Memória
 
-Memory without curation becomes noise. Active pruning is as important as active storage.
+Memória sem curadoria se torna ruído. Poda ativa é tão importante quanto armazenamento ativo.
 
-### When to Prune
+### Quando Podar
 
-Evaluate at every session start:
+Avalie a cada início de sessão:
 
-| Signal | Action |
-|--------|--------|
-| Project not mentioned in weeks, user confirmed abandonment | Archive project memories |
-| Decision superseded by a newer decision | Delete old, or mark `[SUPERSEDED]` |
-| Troubleshooting for a bug that was permanently fixed | Remove the workaround |
-| Procedure references versions/paths/configs that no longer exist | Update or remove |
-| Task claims older than 7 days without update | Delete (stale) |
-| Duplicate memories covering the same information | Keep the most complete, delete others |
+| Sinal | Ação |
+|-------|------|
+| Projeto não mencionado em semanas, usuário confirmou abandono | Arquivar memórias do projeto |
+| Decisão substituída por uma decisão mais recente | Deletar antiga, ou marcar `[SUPERSEDED]` |
+| Troubleshooting de bug que foi corrigido permanentemente | Remover o workaround |
+| Procedimento referencia versões/paths/configs que não existem mais | Atualizar ou remover |
+| Task claims com mais de 7 dias sem atualização | Deletar (stale) |
+| Memórias duplicadas cobrindo a mesma informação | Manter a mais completa, deletar as outras |
 
-### Manter vs Podar Criteria
+### Critérios Manter vs Podar
 
-**KEEP when:**
-- Reusable procedure (setup, creation, configuration)
-- Architectural decision with documented trade-offs (the "why")
-- Referenced by other memories or documents
-- Contains information that would be hard to reconstruct (tokens, IDs, configs)
-- Actively consulted in recent sessions
+**MANTER quando:**
+- Procedimento reutilizável (setup, criação, configuração)
+- Decisão arquitetural com trade-offs documentados (o "porquê")
+- Referenciado por outras memórias ou documentos
+- Contém informação que seria difícil reconstruir (tokens, IDs, configs)
+- Consultado ativamente em sessões recentes
 
-**PRUNE when:**
-- References versions/paths/configs that no longer exist
-- Describes workaround for a problem solved at the root
-- Documents a decision explicitly reverted
-- Duplicates information that exists elsewhere
-- Not consulted in last 30 days AND not a core procedure
+**PODAR quando:**
+- Referencia versões/paths/configs que não existem mais
+- Descreve workaround para problema resolvido na raiz
+- Documenta decisão explicitamente revertida
+- Duplica informação que existe em outro lugar
+- Não consultado nos últimos 30 dias E não é procedimento core
 
 ### Protocolo de Limpeza
 
 ```
 # Periodic cleanup (every session start)
-1. mem0_list(metadata={"type": "coordination", "subtype": "claim"}) -> delete completed/abandoned claims
-2. mem0_list(metadata={"type": "coordination", "subtype": "blocker"}) -> delete resolved blockers
+1. mem0_list(memory_type="task_claim") -> delete completed/abandoned claims
+2. mem0_list(memory_type="blocker") -> delete resolved blockers
 3. mem0_search(query="outdated, old, deprecated") -> review and prune
 
 # Deep cleanup (weekly or on demand)
-4. mem0_list(metadata={"type": "decision"}) -> verify procedures still accurate
+4. mem0_list(memory_type="procedural") -> verify procedures still accurate
 5. mem0_list(memory_type="decision") -> check for superseded decisions
 6. mem0_list(memory_type="project") -> archive dead projects
 ```
 
-### Golden Rule
+### Regra de Ouro
 
-> Prefer a knowledge base with 20 precise, current documents over 100 where half are outdated.
-> Wrong information is worse than missing information.
+> Prefira uma base de conhecimento com 20 documentos precisos e atuais a 100 onde metade está desatualizada.
+> Informação errada é pior que informação ausente.
 
-**Reference:** [references/memory/hygiene.md](references/memory/hygiene.md)
+**Referência:** [references/memory/hygiene.md](references/memory/hygiene.md)
 
 ---
 
-## 8. Criação de Agents Templates
+## 8. Templates de Criação de Agents
 
-When creating a new agent, follow this structure.
+Ao criar um novo agent, siga esta estrutura.
 
-### Foundational Agent Template (founds/)
+### Template de Agent Fundacional (founds/)
 
 ```markdown
 ---
@@ -493,7 +493,7 @@ mcp: [<mcp-server-1>]
 1. <principle>
 ```
 
-### Expert Agent Template (experts/)
+### Template de Agent Expert (experts/)
 
 ```markdown
 ---
@@ -515,24 +515,24 @@ skills: [<domain-skill>]
 
 ## Workflow
 1. Receive task with context from orchestrator
-2. Execute within domain specialization
+2. Execute within domain expertise
 3. Return results
 
 ## Principles
 1. <domain principle>
 ```
 
-### Checklist for New Agents
+### Checklist para Novos Agents
 
-- [ ] Agent file created in correct namespace (`founds/` or `experts/`)
-- [ ] Frontmatter includes `name`, `description`, `skills`
-- [ ] Description is accurate and helps with dynamic discovery
-- [ ] Skills referenced actually exist in `~/.claude/skills/`
-- [ ] MCP servers referenced (if any) are configured
-- [ ] Agent has clear scope boundaries (does not overlap with existing agents)
-- [ ] Stored in Mem0: `mem0_store(metadata={"type": "decision"}, content="Created agent X: ...")`
+- [ ] Arquivo do agent criado no namespace correto (`founds/` ou `experts/`)
+- [ ] Frontmatter inclui `name`, `description`, `skills`
+- [ ] Descrição é precisa e ajuda no discovery dinâmico
+- [ ] Skills referenciadas realmente existem em `~/.claude/skills/`
+- [ ] Servidores MCP referenciados (se houver) estão configurados
+- [ ] Agent tem limites de escopo claros (não sobrepõe agents existentes)
+- [ ] Armazenado no Mem0: `mem0_store(memory_type="procedural", content="Created agent X: ...")`
 
-**Reference:** [references/agents/creation-templates.md](references/agents/creation-templates.md)
+**Referência:** [references/agents/creation-templates.md](references/agents/creation-templates.md)
 
 ---
 
@@ -540,26 +540,26 @@ skills: [<domain-skill>]
 
 ### Detecção de Trabalho Duplicado
 
-Before any task, check for active claims with overlapping scope:
+Antes de qualquer tarefa, verifique se há claims ativos com escopo sobreposto:
 
 ```
-results = mem0_search(query="<task description>", metadata={"type": "coordination", "subtype": "claim"})
+results = mem0_search(query="<task description>", memory_type="task_claim")
 ```
 
-**Overlap heuristics:**
-- Same file paths mentioned in claim and new task
-- Same feature/system being modified
-- Same project and same subsystem
+**Heurísticas de sobreposição:**
+- Mesmos paths de arquivo mencionados no claim e na nova tarefa
+- Mesma feature/sistema sendo modificado
+- Mesmo projeto e mesmo subsistema
 
-### Lock Patterns
+### Padrões de Lock
 
-Mem0 task_claims act as advisory locks (not enforced by infrastructure):
+Task_claims do Mem0 atuam como advisory locks (não impostos pela infraestrutura):
 
 ```
 # Acquire lock
 mem0_store(
   content="LOCK: Editing mcp/github-server/server.py - adding delete endpoint",
-  metadata={"type": "coordination", "subtype": "claim"},
+  memory_type="task_claim",
   tags="active,lock"
 )
 
@@ -567,34 +567,34 @@ mem0_store(
 mem0_delete(memory_id="<claim-id>")
 ```
 
-### Resolução Strategies
+### Estratégias de Resolução
 
-| Conflict Type | Resolution |
-|---------------|------------|
-| Same file, different sections | Coordinate: one agent waits for the other |
-| Same file, same section | Alert user, let them decide priority |
-| Contradictory decisions | Store both, escalate to user for resolution |
-| Stale claim blocking new work | If claim > 7 days without update, delete and proceed |
+| Tipo de Conflito | Resolução |
+|------------------|-----------|
+| Mesmo arquivo, seções diferentes | Coordenar: um agent espera o outro |
+| Mesmo arquivo, mesma seção | Alertar usuário, deixar ele decidir prioridade |
+| Decisões contraditórias | Armazenar ambas, escalar para o usuário para resolução |
+| Claim stale bloqueando novo trabalho | Se claim > 7 dias sem atualização, deletar e prosseguir |
 
-### Escalação Protocol
+### Protocolo de Escalação
 
-When conflict cannot be auto-resolved:
-1. Store conflict memory with full details
-2. Present both sides to the user
-3. Wait for user decision
-4. Update memories based on resolution
+Quando o conflito não pode ser auto-resolvido:
+1. Armazenar memória de conflito com detalhes completos
+2. Apresentar ambos os lados ao usuário
+3. Esperar decisão do usuário
+4. Atualizar memórias com base na resolução
 
-**Reference:** [references/coordination/conflict-resolution.md](references/coordination/conflict-resolution.md)
+**Referência:** [references/coordination/conflict-resolution.md](references/coordination/conflict-resolution.md)
 
 ---
 
-## 10. Contexto Cross-Project Management
+## 10. Gestão de Contexto Cross-Project
 
-Oracle maintains context across all active projects.
+Oracle mantém contexto entre todos os projetos ativos.
 
-### Project Registry
+### Registro de Projetos
 
-Each active project should have memories stored with `project` tag:
+Cada projeto ativo deve ter memórias armazenadas com tag `project`:
 
 ```
 mem0_store(
@@ -604,80 +604,80 @@ mem0_store(
 )
 ```
 
-### Cross-Project Queries
+### Queries Cross-Project
 
-When a task might span projects:
+Quando uma tarefa pode abranger projetos:
 
 ```
 # Find related decisions across projects
 mem0_search(query="authentication approach", memory_type="decision")
 
 # Find shared procedures
-mem0_search(query="MCP server setup", metadata={"type": "decision"})
+mem0_search(query="MCP server setup", memory_type="procedural")
 ```
 
-### Context Transfer to Experts
+### Transferência de Contexto para Experts
 
-When delegating to an agent, provide only the relevant project context:
+Ao delegar para um expert, forneça apenas o contexto relevante do projeto:
 
-1. Query Mem0 for project-specific decisions and constraints
-2. Include only what the expert needs (not full project history)
-3. Include relevant file paths and architectural decisions
-4. Never include credentials, tokens, or sensitive data in expert prompts
+1. Consulte o Mem0 para decisões e restrições específicas do projeto
+2. Inclua apenas o que o expert precisa (não o histórico completo do projeto)
+3. Inclua paths de arquivo relevantes e decisões arquiteturais
+4. Nunca inclua credenciais, tokens ou dados sensíveis em prompts de experts
 
-### Project Lifecycle
+### Ciclo de Vida do Projeto
 
-| Phase | Actions |
-|-------|---------|
-| **Onboarding** | Store setup, configs, architecture decisions, team structure |
-| **Active development** | Update decisions, progress, blockers as they occur |
-| **Maintenance** | Reduce update frequency, keep core decisions and procedures |
-| **Archival** | Mark project memories as archived, keep only reusable procedures |
+| Fase | Ações |
+|------|-------|
+| **Onboarding** | Armazenar setup, configs, decisões de arquitetura, estrutura do time |
+| **Desenvolvimento ativo** | Atualizar decisões, progresso, blockers conforme ocorrem |
+| **Manutenção** | Reduzir frequência de atualização, manter decisões e procedimentos core |
+| **Arquivamento** | Marcar memórias do projeto como arquivadas, manter apenas procedimentos reutilizáveis |
 
-**Reference:** [references/coordination/cross-project.md](references/coordination/cross-project.md)
-
----
-
-## Quick Reference: Routing Examples
-
-| User Request | Complexity | Model | Expert | Action |
-|-------------|------------|-------|--------|--------|
-| "fix typo in README line 42" | trivial | (self) | (none) | Handle directly |
-| "rename variable foo to bar" | low | sonnet | dev-py | Delegate |
-| "add delete endpoint to MCP server" | medium | sonnet | dev-py | Delegate with step-by-step |
-| "should we use SSE or stdio for MCP?" | high | opus | architect | Delegate with deep analysis |
-| "restructure agents for multi-tenancy" | critical | opus | architect | Delegate with exhaustive reasoning, review output |
-| "list all MCP servers" | trivial | (self) | (none) | Handle directly |
-| "create new expert agent for Go" | medium | (self) | (none) | Handle directly (ecosystem task) |
-| "review PR #42" | medium | sonnet | review-py | Delegate |
+**Referência:** [references/coordination/cross-project.md](references/coordination/cross-project.md)
 
 ---
 
-## References
+## Referência Rápida: Exemplos de Roteamento
 
-### Routing
-- [references/routing/complexity-classification.md](references/routing/complexity-classification.md) - Extended classification signals and examples
-- [references/routing/model-selection.md](references/routing/model-selection.md) - Model comparison and cost optimization
-- [references/routing/dynamic-discovery.md](references/routing/dynamic-discovery.md) - Agent and skill discovery patterns
-- [references/routing/decision-tree.md](references/routing/decision-tree.md) - Full routing decision tree with edge cases
+| Pedido do Usuário | Complexidade | Modelo | Expert | Ação |
+|-------------------|--------------|--------|--------|------|
+| "corrigir typo no README linha 42" | trivial | (self) | (nenhum) | Tratar diretamente |
+| "renomear variável foo para bar" | low | sonnet | dev-py | Delegar |
+| "adicionar endpoint delete ao servidor MCP" | medium | sonnet | dev-py | Delegar com step-by-step |
+| "devemos usar SSE ou stdio para MCP?" | high | opus | architect | Delegar com análise profunda |
+| "reestruturar agents para multi-tenancy" | critical | opus | architect | Delegar com reasoning exaustivo, revisar output |
+| "listar todos os servidores MCP" | trivial | (self) | (nenhum) | Tratar diretamente |
+| "criar novo expert agent para Go" | medium | (self) | (nenhum) | Tratar diretamente (tarefa do ecossistema) |
+| "revisar PR #42" | medium | sonnet | review-py | Delegar |
 
-### Coordination
-- [references/coordination/peer-protocol.md](references/coordination/peer-protocol.md) - Multi-Oracle peer coordination
-- [references/coordination/conflict-resolution.md](references/coordination/conflict-resolution.md) - Conflict detection and resolution
-- [references/coordination/cross-project.md](references/coordination/cross-project.md) - Cross-project context management
+---
 
-### Memory
-- [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md) - Mem0 memory types and query patterns
-- [references/memory/hygiene.md](references/memory/hygiene.md) - Memory curation and pruning rules
+## Referências
+
+### Roteamento
+- [references/routing/complexity-classification.md](references/routing/complexity-classification.md) - Sinais e exemplos estendidos de classificação
+- [references/routing/model-selection.md](references/routing/model-selection.md) - Comparação de modelos e otimização de custos
+- [references/routing/dynamic-discovery.md](references/routing/dynamic-discovery.md) - Padrões de discovery de agents e skills
+- [references/routing/decision-tree.md](references/routing/decision-tree.md) - Árvore de decisão completa de roteamento com edge cases
+
+### Coordenação
+- [references/coordination/peer-protocol.md](references/coordination/peer-protocol.md) - Coordenação peer multi-Oracle
+- [references/coordination/conflict-resolution.md](references/coordination/conflict-resolution.md) - Detecção e resolução de conflitos
+- [references/coordination/cross-project.md](references/coordination/cross-project.md) - Gestão de contexto cross-project
+
+### Memória
+- [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md) - Tipos de memória e padrões de query do Mem0
+- [references/memory/hygiene.md](references/memory/hygiene.md) - Regras de curadoria e poda de memória
 
 ### Agents
-- [references/agents/creation-templates.md](references/agents/creation-templates.md) - Agent creation templates and checklist
+- [references/agents/creation-templates.md](references/agents/creation-templates.md) - Templates e checklist de criação de agents
 
-### External Sources
-- [LLM Orchestration Frameworks 2026](https://aimultiple.com/llm-orchestration) - Framework comparison
-- [Multi-Agent Memory Systems](https://mem0.ai/blog/multi-agent-memory-systems) - Production memory patterns
-- [State of AI Agent Memory 2026](https://mem0.ai/blog/state-of-ai-agent-memory-2026) - Memory architecture trends
-- [Claude Code Sub-Agents](https://code.claude.com/docs/en/sub-agents) - Official subagent documentation
-- [Claude Code Model Selection](https://claudefa.st/blog/models/model-selection) - Model routing patterns
-- [OpenAI Agent Orchestration](https://openai.github.io/openai-agents-python/multi_agent/) - Orchestration patterns
-- [Multi-Agent Orchestration Architectures](https://arxiv.org/html/2601.13671v1) - Academic survey of protocols
+### Fontes Externas
+- [LLM Orchestration Frameworks 2026](https://aimultiple.com/llm-orchestration) - Comparação de frameworks
+- [Multi-Agent Memory Systems](https://mem0.ai/blog/multi-agent-memory-systems) - Padrões de memória em produção
+- [State of AI Agent Memory 2026](https://mem0.ai/blog/state-of-ai-agent-memory-2026) - Tendências de arquitetura de memória
+- [Claude Code Sub-Agents](https://code.claude.com/docs/en/sub-agents) - Documentação oficial de subagents
+- [Claude Code Model Selection](https://claudefa.st/blog/models/model-selection) - Padrões de roteamento de modelos
+- [OpenAI Agent Orchestration](https://openai.github.io/openai-agents-python/multi_agent/) - Padrões de orquestração
+- [Multi-Agent Orchestration Architectures](https://arxiv.org/html/2601.13671v1) - Survey acadêmico de protocolos

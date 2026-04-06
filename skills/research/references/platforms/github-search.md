@@ -1,6 +1,6 @@
-# GitHub Search
+# Busca no GitHub
 
-## Code Search
+## Busca de Código
 ```
 # Search code across repos
 language:python "from pydantic import" path:src
@@ -12,7 +12,7 @@ filename:docker-compose.yml redis postgres
 path:src/api "rate_limit" language:python
 ```
 
-## Issue/PR Search
+## Busca de Issues/PRs
 ```
 # Open issues with label
 repo:owner/repo is:issue is:open label:bug
@@ -22,7 +22,7 @@ repo:owner/repo is:pr is:merged merged:>2025-01-01
 repo:owner/repo type:discussions "performance"
 ```
 
-## Release Search
-- Check /releases page for changelogs
+## Busca de Releases
+- Verifique a página /releases para changelogs
 - Compare releases: `/compare/v1.0...v2.0`
-- Stars/forks as popularity signals (but not quality)
+- Stars/forks como sinais de popularidade (mas não de qualidade)

@@ -36,7 +36,6 @@ Ela complementa `arch-py` (fundacao Python) e `ai-engineer` (AI layer) com a cam
 
 **Skill global** — carregada automaticamente por todos os agents.
 
-- Agent `dev-py` -> ao instrumentar aplicacoes com telemetria
 - Voce diretamente -> quando precisar de referencia de observabilidade
 
 **O que esta skill contem:**

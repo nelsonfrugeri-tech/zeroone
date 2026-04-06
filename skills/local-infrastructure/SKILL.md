@@ -20,7 +20,6 @@ It covers everything needed to run, debug, and maintain multi-service developmen
 
 **Global skill** — loaded automatically by all agents.
 
-- Agent `dev-py` / `dev-ts` -> when running local services
 - You directly -> when troubleshooting infrastructure issues
 
 **What this skill contains:**
@@ -51,12 +50,12 @@ It covers everything needed to run, debug, and maintain multi-service developmen
 |------|---------|-------|
 | Docker Engine | 29.3.1 | Latest stable |
 | Docker Compose | v2.40+ | CLI plugin, no `version:` field needed |
-| Docker Desktop | 4.66 | Bundles Engine v28.5.1 |
-| PostgreSQL | 17.4 | Latest stable |
+| Docker Desktop | 4.66 | Bundles Engine v29.x |
+| PostgreSQL | 18.3 | Latest stable |
 | MongoDB | 8.2.3 | Latest stable |
 | Redis | 8.4.2 | Latest stable |
 | Python | 3.14.3 | Latest stable |
-| Node.js | 24.14.0 | LTS |
+| Node.js | 24.14.1 | LTS |
 | Rust | 1.94.1 | Latest stable |
 | Poetry | 2.3.3 | Latest stable |
 | pnpm | 10.33.0 | Latest stable |
@@ -96,7 +95,7 @@ Order instructions from least to most frequently changing:
 
 ```dockerfile
 # 1. Base image (rarely changes)
-FROM node:24.14.0-slim
+FROM node:24.14.1-slim
 
 # 2. System deps (rarely changes)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -121,7 +120,7 @@ RUN pnpm build
 ```dockerfile
 # Use minimal base images
 FROM python:3.14.3-slim          # NOT python:3.14.3
-FROM node:24.14.0-slim           # NOT node:24.14.0
+FROM node:24.14.1-slim           # NOT node:24.14.1
 FROM rust:1.94.1-slim            # NOT rust:1.94.1
 
 # Run as non-root
@@ -151,7 +150,7 @@ USER appuser
 |----------|-----------|------|
 | Python production | `python:3.14.3-slim` | ~150MB |
 | Python minimal | `python:3.14.3-alpine` | ~50MB (watch for musl issues) |
-| Node.js production | `node:24.14.0-slim` | ~200MB |
+| Node.js production | `node:24.14.1-slim` | ~200MB |
 | Rust production | Multi-stage with `debian:bookworm-slim` runtime | ~80MB |
 | Maximum security | `gcr.io/distroless/python3` | ~30MB |
 | Scratch (static binaries) | `scratch` | ~5MB |
@@ -168,7 +167,7 @@ USER appuser
 # compose.yaml (no `version:` field -- deprecated in Compose v2)
 services:
   postgres:
-    image: postgres:17.4
+    image: postgres:18.4
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -631,7 +630,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ### Node.js (pnpm)
 
 ```dockerfile
-FROM node:24.14.0-slim
+FROM node:24.14.1-slim
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./

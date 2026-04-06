@@ -16,5 +16,5 @@
 3. **Consolidation branch**: Oracle merges all agent branches into one PR
 
 ## Escalation
-- If agents produce conflicting recommendations → spawn debater agent
+- If agents produce conflicting recommendations → spawn morpheus (debate agent)
 - If merge conflict is non-trivial → flag to user with both versions

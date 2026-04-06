@@ -4,7 +4,7 @@
 ```yaml
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

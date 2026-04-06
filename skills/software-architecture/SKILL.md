@@ -3,25 +3,24 @@ name: software-architecture
 description: |
   Baseline de conhecimento para arquitetura de software estado da arte. Cobre SOLID com trade-offs reais,
   Architecture Decision Records (ADR), C4 Model, diagramas, design review com fitness functions,
-  decomposicao de sistemas, analise de trade-offs (ATAM/ATRAF), estrategia de testes por camada,
+  decomposição de sistemas, analise de trade-offs (ATAM/ATRAF), estrategia de testes por camada,
   seguranca (zero trust, defense in depth), performance, observabilidade, API design (REST/GraphQL/gRPC),
-  event-driven architecture (CQRS, event sourcing), e framework de decisao microservices vs monolith vs
-  modular monolith. Use quando: (1) Tomar decisoes arquiteturais, (2) Documentar ADRs, (3) Criar diagramas
-  C4, (4) Avaliar trade-offs, (5) Planejar decomposicao de sistemas, (6) Definir estrategia de testes,
+  event-driven architecture (CQRS, event sourcing), e framework de decisão microservices vs monolith vs
+  modular monolith. Use quando: (1) Tomar decisões arquiteturais, (2) Documentar ADRs, (3) Criar diagramas
+  C4, (4) Avaliar trade-offs, (5) Planejar decomposição de sistemas, (6) Definir estrategia de testes,
   (7) Projetar APIs, (8) Escolher entre monolith/microservices.
   Triggers: /software-architecture, architecture, ADR, C4, trade-off, decomposition, design review.
 ---
 
 # Software Architecture — Arquitetura de Software
 
-## Proposito
+## Propósito
 
-Esta skill e a **biblioteca de conhecimento** para arquitetura de software (2026).
-Ela e **language-agnostic** — complementa skills como `arch-py` e `arch-ts` com a camada de design e decisao arquitetural.
+Esta skillé a **biblioteca de conhecimento** para arquitetura de software (2026).
+Ela é **language-agnostic** — complementa skills como `arch-py` e `arch-ts` com a camada de design e decisão arquitetural.
 
 **Skill global** — carregada automaticamente por todos os agents.
 
-- Agent `dev-py` / `dev-ts` -> ao tomar decisoes de design que impactam arquitetura
 
 - Voce diretamente -> quando precisar de referencia de patterns arquiteturais
 
@@ -35,37 +34,37 @@ Ela e **language-agnostic** — complementa skills como `arch-py` e `arch-ts` co
 - Trade-off analysis (ATAM, ATRAF, utility trees)
 - Estrategia de testes por camada arquitetural
 - Seguranca (zero trust, defense in depth)
-- Performance e avaliacao de capacidade
+- Performance e avaliação de capacidade
 - Observabilidade by design
 - API design (REST, GraphQL, gRPC)
 - Event-driven architecture (CQRS, event sourcing)
 - Microservices vs monolith vs modular monolith
 
 **O que esta skill NAO contem:**
-- Implementacao em linguagem especifica (isso esta em `arch-py`, `arch-ts`)
+- Implementacao em linguagem especifica (isso está em `arch-py`, `arch-ts`)
 - Workflow de execucao — isso esta nos agents
-- Infraestrutura/DevOps — isso esta em `builder`
+- Infraestrutura/DevOps — isso está em `local-infrastructure` skill
 
 ---
 
 ## Filosofia
 
-### Arquitetura e sobre decisoes, nao diagramas
+### Arquitetura e sobre decisões, não diagramas
 
-**Arquitetura de software e o conjunto de decisoes que sao caras de mudar.**
-Diagramas sao apenas a representacao visual dessas decisoes.
+**Arquitetura de software é o conjunto de decisões que são caras de mudar.**
+Diagramas são apenas a representação visual dessas decisões.
 
 ### Principios Fundamentais
 
-**1. Decisoes explicitas e documentadas**
-- Toda decisao arquitetural significativa merece um ADR
-- O "porque" e mais importante que o "o que"
-- Decisoes nao documentadas sao decisoes perdidas
+**1. Decisoes explícitas e documentadas**
+- Toda decisão arquitetural significativa merece um ADR
+- O "porquê" e mais importante que o "o que"
+- Decisoes não documentadas são decisões perdidas
 
 **2. Trade-offs, nunca silver bullets**
-- Toda decisao tem custo e beneficio
+- Toda decisão tem custo e beneficio
 - Quantifique trade-offs (latencia, throughput, custo, complexidade)
-- "Depende" e a resposta certa — o que importa e do que depende
+- "Depende"é a resposta certa — o que importa e do que depende
 
 **3. Simplicidade primeiro**
 - Comece com a solucao mais simples que resolve o problema
@@ -73,20 +72,20 @@ Diagramas sao apenas a representacao visual dessas decisoes.
 - Modular monolith > microservices ate provar o contrario
 
 **4. Fitness functions como guardrails**
-- Defina metricas automatizadas para proteger decisoes arquiteturais
-- Se nao pode medir, nao pode garantir
-- Fitness functions > documentacao (documentacao mente, metricas nao)
+- Defina metricas automatizadas para proteger decisões arquiteturais
+- Se não pode medir, não pode garantir
+- Fitness functions > documentação (documentação mente, metricas nao)
 
-**5. Evolucao, nao big bang**
+**5. Evolucao, não big bang**
 - Arquitetura evolui incrementalmente
-- Decisoes sao reversiveis ate certo ponto — minimize o custo de reversao
-- Prefira decisoes que manteem opcoes abertas (last responsible moment)
+- Decisoes são reversiveis ate certo ponto — minimize o custo de reversao
+- Prefira decisões que manteem opcoes abertas (last responsible moment)
 
 ---
 
 ## 1. SOLID Principles — Com Trade-offs Reais
 
-SOLID nao e dogma. E um toolkit. Cada principio tem custo e contexto onde faz sentido.
+SOLID não e dogma. E um toolkit. Cada principio tem custo e contexto onde faz sentido.
 
 ### Single Responsibility Principle (SRP)
 
@@ -95,7 +94,7 @@ SOLID nao e dogma. E um toolkit. Cada principio tem custo e contexto onde faz se
 **Trade-off real:**
 - SRP excessivo = explosion de classes/modulos com 10 linhas cada
 - SRP insuficiente = god classes que mudam por 5 razoes diferentes
-- **Heuristica:** se voce nao consegue nomear a responsabilidade em uma frase, esta grande demais; se precisa de 3 classes para ler um fluxo, esta granular demais
+- **Heuristica:** se voce não consegue nomear a responsabilidade em uma frase, esta grande demais; se precisa de 3 classes para ler um fluxo, esta granular demais
 
 ### Open/Closed Principle (OCP)
 
@@ -104,7 +103,7 @@ SOLID nao e dogma. E um toolkit. Cada principio tem custo e contexto onde faz se
 **Trade-off real:**
 - OCP prematuro = abstractions desnecessarias, Strategy pattern para algo que muda uma vez
 - OCP ignorado = shotgun surgery em cada mudanca de requisito
-- **Heuristica:** aplique OCP quando o ponto de variacao JA apareceu 2+ vezes, nao na primeira vez
+- **Heuristica:** aplique OCP quando o ponto de variacao JA apareceu 2+ vezes, não na primeira vez
 
 ### Liskov Substitution Principle (LSP)
 
@@ -116,21 +115,21 @@ SOLID nao e dogma. E um toolkit. Cada principio tem custo e contexto onde faz se
 
 ### Interface Segregation Principle (ISP)
 
-**O que realmente significa:** Clientes nao devem depender de interfaces que nao usam.
+**O que realmente significa:** Clientes não devem depender de interfaces que não usam.
 
 **Trade-off real:**
 - ISP excessivo = 20 interfaces de um metodo cada, impossivel navegar
 - ISP ignorado = fat interfaces que forcam implementacoes vazias
-- **Heuristica:** agrupe por coesao de uso, nao por granularidade maxima
+- **Heuristica:** agrupe por coesao de uso, não por granularidade maxima
 
 ### Dependency Inversion Principle (DIP)
 
-**O que realmente significa:** Modulos de alto nivel nao devem depender de modulos de baixo nivel; ambos devem depender de abstracoes.
+**O que realmente significa:** Modulos de alto nivel não devem depender de modulos de baixo nivel; ambos devem depender de abstracoes.
 
 **Trade-off real:**
 - DIP e essencial em boundaries arquiteturais (domain vs infra)
 - DIP em TUDO = indirection hell, cada classe tem uma interface
-- **Heuristica:** aplique em boundaries; dentro do mesmo modulo, dependencias diretas sao ok
+- **Heuristica:** aplique em boundaries; dentro do mesmo modulo, dependencias diretas são ok
 
 ### Quando NAO aplicar SOLID
 
@@ -142,7 +141,7 @@ SOLID nao e dogma. E um toolkit. Cada principio tem custo e contexto onde faz se
 
 ## 2. Architecture Decision Records (ADR)
 
-ADRs capturam decisoes arquiteturais significativas com contexto, alternativas e consequencias.
+ADRs capturam decisões arquiteturais significativas com contexto, alternativas e consequencias.
 
 ### MADR Template (Markdown Any Decision Record)
 
@@ -155,8 +154,8 @@ ADRs capturam decisoes arquiteturais significativas com contexto, alternativas e
 
 ## Context
 
-{Qual problema estamos resolvendo? Qual e o contexto tecnico e de negocio?
-Quais constraints existem? O que motivou essa decisao?}
+{Qual problema estamos resolvendo? Qual é o contexto tecnico e de negocio?
+Quais constraints existem? O que motivou essa decisão?}
 
 ## Decision Drivers
 
@@ -198,11 +197,11 @@ Quais constraints existem? O que motivou essa decisao?}
 
 ## Related Decisions
 
-- {ADR-XXX: decisao relacionada}
+- {ADR-XXX: decisão relacionada}
 
 ## Notes
 
-- {data da decisao}
+- {data da decisão}
 - {participantes}
 ```
 
@@ -211,19 +210,19 @@ Quais constraints existem? O que motivou essa decisao?}
 ```
 Proposed -> Accepted -> [Active]
                      -> Deprecated (tecnologia/contexto mudou)
-                     -> Superseded by ADR-XXX (decisao substituida)
+                     -> Superseded by ADR-XXX (decisão substituida)
 ```
 
 ### Boas Práticas
 
-1. **Uma decisao por ADR** — split se necessario
-2. **Escreva DURANTE a decisao** — nao apos
+1. **Uma decisão por ADR** — split se necessario
+2. **Escreva DURANTE a decisão** — não apos
 3. **5-10 minutos para ler** — conciso, focado
 4. **Armazene em `/docs/adr/`** — versionado com o codigo
-5. **ADRs aceitos sao imutaveis** — nova decisao = novo ADR que supersede
-6. **Review a cada 6-12 meses** — deprecie o que nao se aplica mais
+5. **ADRs aceitos são imutaveis** — nova decisão = novo ADR que supersede
+6. **Review a cada 6-12 meses** — deprecie o que não se aplica mais
 
-**Referencia:** [references/adr/templates.md](references/adr/templates.md)
+**Referência:** [references/adr/templates.md](references/adr/templates.md)
 
 ---
 
@@ -299,13 +298,13 @@ workspace {
 | Component | Containers complexos | Refactors grandes | Talvez |
 | Code | Nunca (use IDE) | — | Nao |
 
-**Referencia:** [references/c4-model/guide.md](references/c4-model/guide.md)
+**Referência:** [references/c4-model/guide.md](references/c4-model/guide.md)
 
 ---
 
 ## 4. Diagram Types — Quando Usar Cada Um
 
-| Diagrama | Proposito | Ferramenta |
+| Diagrama | Propósito | Ferramenta |
 |----------|-----------|------------|
 | C4 Context | Visao de alto nivel, stakeholders | Structurizr, draw.io |
 | C4 Container | Arquitetura de deployment | Structurizr, draw.io |
@@ -322,7 +321,7 @@ workspace {
 2. **Legenda** — cores, formas, protocolos
 3. **Direcao dos fluxos** — setas indicam direcao da chamada/dados
 4. **Maximo 15-20 elementos** — se tiver mais, quebre em sub-diagramas
-5. **Versione com o codigo** — diagramas desatualizados sao piores que nenhum
+5. **Versione com o codigo** — diagramas desatualizados são piores que nenhum
 
 ---
 
@@ -330,7 +329,7 @@ workspace {
 
 ### Fitness Functions
 
-Fitness functions sao metricas automatizadas que protegem decisoes arquiteturais.
+Fitness functions são metricas automatizadas que protegem decisões arquiteturais.
 
 ```
 Fitness Function = metrica + baseline + target + threshold + automacao
@@ -350,7 +349,7 @@ Fitness Function = metrica + baseline + target + threshold + automacao
 
 ```markdown
 ## Pre-Review
-- [ ] ADR escrito para decisoes significativas
+- [ ] ADR escrito para decisões significativas
 - [ ] C4 diagrams atualizados (Context + Container)
 - [ ] Fitness functions definidas para quality attributes
 
@@ -379,7 +378,7 @@ Fitness Function = metrica + baseline + target + threshold + automacao
 - [ ] Backward compatibility verificada
 ```
 
-**Referencia:** [references/trade-off-analysis/fitness-functions.md](references/trade-off-analysis/fitness-functions.md)
+**Referência:** [references/trade-off-analysis/fitness-functions.md](references/trade-off-analysis/fitness-functions.md)
 
 ---
 
@@ -392,7 +391,7 @@ Fitness Function = metrica + baseline + target + threshold + automacao
 ```
 Decomposition Heuristics:
 1. Linguistic boundary  — termos mudam de significado? (ex: "Order" em Sales vs Shipping)
-2. Data ownership       — quem e o source of truth para esta entidade?
+2. Data ownership       — quem é o source of truth para esta entidade?
 3. Rate of change       — partes do sistema mudam em velocidades diferentes?
 4. Team boundary        — equipes diferentes? Considere bounded contexts separados
 5. Compliance boundary  — requisitos regulatorios isolam componentes?
@@ -408,14 +407,14 @@ Decomposition Heuristics:
 | By data ownership | Cada service owns seus dados | Distributed transactions |
 | Strangler fig | Migracao gradual de legado | Longo, requer disciplina |
 
-### Anti-patterns de decomposicao
+### Anti-patterns de decomposição
 
 1. **Distributed monolith** — microservices que precisam deploy juntos
 2. **Shared database** — multiplos services lendo/escrevendo a mesma tabela
 3. **Chatty services** — 10 chamadas entre services para uma operacao
 4. **Nano-services** — services tao pequenos que a overhead > valor
 
-**Referencia:** [references/decomposition/strategies.md](references/decomposition/strategies.md)
+**Referência:** [references/decomposition/strategies.md](references/decomposition/strategies.md)
 
 ---
 
@@ -423,7 +422,7 @@ Decomposition Heuristics:
 
 ### ATAM (Architecture Tradeoff Analysis Method)
 
-Processo estruturado do SEI/CMU para avaliar como decisoes impactam quality attributes.
+Processo estruturado do SEI/CMU para avaliar como decisões impactam quality attributes.
 
 ```
 1. Present business drivers
@@ -474,7 +473,7 @@ Nao basta listar trade-offs — quantifique.
 
 **Decisao:** Se o sistema precisa escalar alem de 5K users no proximo ano, Option B. Caso contrario, Option A com menor custo e complexidade.
 
-**Referencia:** [references/trade-off-analysis/atam.md](references/trade-off-analysis/atam.md)
+**Referência:** [references/trade-off-analysis/atam.md](references/trade-off-analysis/atam.md)
 
 ---
 
@@ -532,7 +531,7 @@ def test_domain_does_not_import_infra():
                     assert alias.name.split(".")[0] not in forbidden
 ```
 
-**Referencia:** [references/testing-strategy/by-layer.md](references/testing-strategy/by-layer.md)
+**Referência:** [references/testing-strategy/by-layer.md](references/testing-strategy/by-layer.md)
 
 ---
 
@@ -584,7 +583,7 @@ Layer 5: Monitoring  — audit logs, anomaly detection, SIEM
 - [ ] CSP: Content-Security-Policy headers
 ```
 
-**Referencia:** [references/security/zero-trust.md](references/security/zero-trust.md)
+**Referência:** [references/security/zero-trust.md](references/security/zero-trust.md)
 
 ---
 
@@ -662,7 +661,7 @@ Every log line includes request_id="abc-123"
 Every span includes trace_id from OpenTelemetry
 ```
 
-**Referencia:** [references/observability/design-patterns.md](references/observability/design-patterns.md)
+**Referência:** [references/observability/design-patterns.md](references/observability/design-patterns.md)
 
 ---
 
@@ -742,7 +741,7 @@ Design Principles:
 | Browser support | Native | Native | Via proxy |
 | Schema evolution | Manual | Built-in | Protobuf rules |
 
-**Referencia:** [references/api-design/comparison.md](references/api-design/comparison.md)
+**Referência:** [references/api-design/comparison.md](references/api-design/comparison.md)
 
 ---
 
@@ -812,7 +811,7 @@ Write Model (normalized, consistent) --[events]--> Read Model (denormalized, fas
 | Auditability (event sourcing) | Schema evolution (versioning events) |
 | Independent deployment | Infrastructure complexity (broker, DLQ) |
 
-**Referencia:** [references/event-driven/patterns.md](references/event-driven/patterns.md)
+**Referência:** [references/event-driven/patterns.md](references/event-driven/patterns.md)
 
 ---
 
@@ -895,7 +894,7 @@ Choose MICROSERVICES when:
 5. Microservices (only where justified)
 ```
 
-**Referencia:** [references/decomposition/monolith-vs-microservices.md](references/decomposition/monolith-vs-microservices.md)
+**Referência:** [references/decomposition/monolith-vs-microservices.md](references/decomposition/monolith-vs-microservices.md)
 
 ---
 
@@ -903,7 +902,7 @@ Choose MICROSERVICES when:
 
 | Aspecto | Software Architecture | Arch-Py | Arch-Ts |
 |---------|----------------------|---------|---------|
-| Scope | Design e decisoes | Implementacao Python | Implementacao TS |
+| Scope | Design e decisões | Implementacao Python | Implementacao TS |
 | SOLID | Trade-offs e quando usar | Patterns Python | Patterns TS |
 | ADR | Templates e lifecycle | — | — |
 | C4 | Diagramas e niveis | — | — |
@@ -911,11 +910,11 @@ Choose MICROSERVICES when:
 | Testing | Estrategia por camada | pytest | vitest, playwright |
 | Security | Patterns arquiteturais | Python security | Frontend security |
 
-**Sempre use esta skill como fundacao de decisoes arquiteturais, depois arch-py/arch-ts para implementacao.**
+**Sempre use esta skill como fundacao de decisões arquiteturais, depois arch-py/arch-ts para implementacao.**
 
 ---
 
-## Referencias por Dominio
+## Referências por Dominio
 
 ### ADR
 - [references/adr/templates.md](references/adr/templates.md) - MADR template completo e variantes

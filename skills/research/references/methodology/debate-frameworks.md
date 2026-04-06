@@ -1,6 +1,6 @@
-# Debate & Trade-off Frameworks
+# Frameworks de Debate e Trade-off
 
-## Trade-off Analysis Structure
+## Estrutura de Análise de Trade-off
 ```markdown
 ## Decision: [What we're deciding]
 
@@ -21,21 +21,21 @@
 [Which option and why, acknowledging what we lose]
 ```
 
-## Devil's Advocate Protocol
-1. Take the OPPOSITE position of the initial recommendation
-2. Find the strongest arguments FOR the alternative
-3. If the alternative arguments are compelling → reconsider
-4. If the original still wins → recommendation is stronger
+## Protocolo do Advogado do Diabo
+1. Assuma a posição OPOSTA à recomendação inicial
+2. Encontre os argumentos mais fortes A FAVOR da alternativa
+3. Se os argumentos da alternativa forem convincentes → reconsidere
+4. Se o original ainda vencer → a recomendação está mais forte
 
-## Diminishing Returns Threshold
-Stop researching when:
-- 3+ sources agree on the same conclusion
-- New sources repeat information already found
-- You've spent >30min on a non-critical decision
-- The options are close enough that either works
+## Limiar de Retornos Decrescentes
+Pare de pesquisar quando:
+- 3+ fontes concordam na mesma conclusão
+- Novas fontes repetem informação já encontrada
+- Você gastou >30min em uma decisão não crítica
+- As opções são próximas o suficiente para qualquer uma funcionar
 
-## Common Traps
-- **Analysis paralysis**: too much research, no decision
-- **Confirmation bias**: only searching for evidence that supports initial preference
-- **Novelty bias**: preferring new/shiny over proven/boring
-- **Authority bias**: trusting a single expert over data
+## Armadilhas Comuns
+- **Paralisia de análise**: pesquisa demais, nenhuma decisão
+- **Viés de confirmação**: buscar apenas evidências que suportam a preferência inicial
+- **Viés de novidade**: preferir o novo/brilhante sobre o provado/estável
+- **Viés de autoridade**: confiar em um único especialista sobre os dados

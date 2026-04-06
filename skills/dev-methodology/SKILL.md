@@ -23,9 +23,7 @@ turn requirements into production-ready code.
 
 **Global skill** — loaded automatically by all agents.
 
-- Agent `dev-ts` -> development workflow and test discipline
 
-- Agent `architect` -> feature breakdown and design methodology
 - Any agent that writes code
 
 **What this skill contains:**

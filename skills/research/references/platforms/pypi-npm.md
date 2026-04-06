@@ -1,4 +1,4 @@
-# PyPI & npm Search
+# Busca no PyPI e npm
 
 ## PyPI
 ```
@@ -8,12 +8,12 @@
 # Download stats: https://pypistats.org/packages/<name>
 ```
 
-### Key Signals
-- Last release date (active maintenance?)
-- Download count (adoption)
-- Python version support
-- License
-- Dependencies count
+### Sinais Chave
+- Data da última release (manutenção ativa?)
+- Contagem de downloads (adoção)
+- Suporte a versões Python
+- Licença
+- Contagem de dependências
 
 ## npm
 ```
@@ -22,14 +22,14 @@
 # Bundle size: https://bundlephobia.com/package/<name>
 ```
 
-### Key Signals
-- Weekly downloads
-- Last publish date
+### Sinais Chave
+- Downloads semanais
+- Data da última publicação
 - Bundle size (bundlephobia)
 - TypeScript types (built-in vs @types)
-- Unpacked size
+- Tamanho descompactado
 
-## Alternative Discovery
-- PyPI: `pip install <name>` → check if alternatives listed in README
-- npm: search for `<category>` on npm, sort by popularity
-- awesome-* lists on GitHub
+## Descoberta de Alternativas
+- PyPI: `pip install <name>` → verifique se alternativas são listadas no README
+- npm: busque por `<category>` no npm, ordene por popularidade
+- Listas awesome-* no GitHub

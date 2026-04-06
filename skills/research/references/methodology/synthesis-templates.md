@@ -1,6 +1,6 @@
-# Synthesis Templates
+# Templates de Síntese
 
-## Comparison Table
+## Tabela de Comparação
 ```markdown
 | Criteria | Option A | Option B | Option C |
 |----------|----------|----------|----------|
@@ -14,7 +14,7 @@
 | Our fit | ✅ Good | ⚠️ Partial | ❌ Poor |
 ```
 
-## Recommendation Format
+## Formato de Recomendação
 ```markdown
 ## Recommendation: [Option]
 
@@ -37,7 +37,7 @@
 - [Link 2] — [what it shows]
 ```
 
-## Decision Matrix (Weighted)
+## Decision Matrix (Ponderada)
 ```
 Criteria (weight)    | Option A | Option B
 Performance (0.3)    | 8 (2.4)  | 6 (1.8)

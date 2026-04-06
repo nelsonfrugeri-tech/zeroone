@@ -1,30 +1,30 @@
-# HuggingFace Search
+# Busca no HuggingFace
 
-## Model Search
+## Busca de Modelos
 ```
 # By task: https://huggingface.co/models?pipeline_tag=text-generation
 # By library: filter by transformers, gguf, etc.
 # Sort by: downloads, likes, trending
 ```
 
-### Key Signals
-- Model card completeness (good card = serious project)
-- License (commercial use?)
-- Benchmark scores (compare on leaderboards)
-- Community activity (discussions, PRs)
-- Download trends
+### Sinais Chave
+- Completude do model card (card bom = projeto sério)
+- Licença (uso comercial?)
+- Scores de benchmark (compare nos leaderboards)
+- Atividade da comunidade (discussions, PRs)
+- Tendências de download
 
-## Dataset Search
+## Busca de Datasets
 ```
 # https://huggingface.co/datasets?search=<query>
 # Filter by: task, size, language, license
 ```
 
 ## Spaces
-- Live demos of models/tools
-- Good for quick evaluation before committing
+- Demos ao vivo de modelos/ferramentas
+- Bom para avaliação rápida antes de se comprometer
 
 ## Leaderboards
-- Open LLM Leaderboard (general)
+- Open LLM Leaderboard (geral)
 - MTEB (embeddings)
-- Task-specific leaderboards
+- Leaderboards específicos por tarefa

@@ -8,42 +8,41 @@ description: |
   (2) Comparar alternativas, (3) Avaliar estado da arte, (4) Fundamentar decisões arquiteturais,
   (5) Investigar vulnerabilidades ou breaking changes.
   Triggers: /research, pesquisar, comparar opções, estado da arte, avaliar alternativas.
+globs:
+  - "**/*"
 ---
 
-# Research — Metodologia de Pesquisa Técnica
+# Skill de Pesquisa - Metodologia de Pesquisa Técnica
 
 ## Propósito
 
-Esta skill é a **knowledge base** for structured technical research.
-It provides methodology, not opinions. Every recommendation an agent makes
-should be grounded in current, verified, multi-source research.
+Esta skill é a **base de conhecimento** para pesquisa técnica estruturada.
+Ela fornece metodologia, não opiniões. Toda recomendação que um agent fizer
+deve ser fundamentada em pesquisa atual, verificada e multi-fonte.
 
-**Global skill** — loaded automatically by all agents.
-- Any agent that needs to make a technology choice
+**Quem usa esta skill:**
+- Qualquer agent que precise fazer uma escolha de tecnologia
+- Oracle para decisões de ecossistema
 
-- Agent `dev-py` / `dev-ts` for library selection
+**O que esta skill contém:**
+- Estratégias de busca por plataforma
+- Operadores avançados de busca
+- Taxonomia de fontes por domínio
+- Protocolo de validação (multi-fonte, verificação de data, detecção de viés)
+- Templates de síntese (tabelas de comparação, formato de recomendação)
+- Frameworks de debate (análise de trade-off, decision matrices)
+- Anti-patterns a evitar
+- Quando parar de pesquisar
 
-- Oracle for ecosystem decisions
-
-**What this skill contains:**
-- Search strategies per platform
-- Advanced search operators
-- Source taxonomy by domain
-- Validation protocol (multi-source, date check, bias detection)
-- Synthesis templates (comparison tables, recommendation format)
-- Debate frameworks (trade-off analysis, decision matrices)
-- Anti-patterns to avoid
-- When to stop researching
-
-**What this skill does NOT contain:**
-- Domain-specific knowledge (that lives in arch-py, ai-engineer, etc.)
-- Execution workflow (agents own that)
+**O que esta skill NÃO contém:**
+- Conhecimento de domínio específico (isso vive em arch-py, ai-engineer, etc.)
+- Workflow de execução (agents são donos disso)
 
 ---
 
 ## 1. Estratégias de Busca por Plataforma
 
-Each platform has different strengths. Use the right platform for the right question.
+Cada plataforma tem forças diferentes. Use a plataforma certa para a pergunta certa.
 
 ### Árvore de Decisão
 
@@ -65,26 +64,26 @@ What am I researching?
   +-- Breaking changes/migration? --> GitHub releases + changelog + Google
 ```
 
-### Pontos Fortes por Plataforma
+### Forças por Plataforma
 
-| Platform | Best for | Limitations |
-|----------|----------|-------------|
-| **Google** | General queries, blog posts, tutorials, docs | Noisy, SEO spam, outdated results |
-| **GitHub** | Source code, releases, stars, issues, real usage | Popularity != quality |
-| **PyPI** | Python packages, versions, dependencies | No quality signal beyond downloads |
-| **npm** | JS/TS packages, versions, dependencies | Same as PyPI |
-| **HuggingFace** | Models, datasets, spaces, benchmarks | AI/ML specific |
-| **arXiv** | Research papers, cutting-edge techniques | Academic, may not be practical |
-| **Papers with Code** | SOTA benchmarks, paper+code links | Academic focus |
-| **Stack Overflow** | Common problems, workarounds | Answers may be outdated |
-| **Vendor docs** | Official API reference, guides | May lag behind releases |
+| Plataforma | Melhor para | Limitações |
+|------------|-------------|------------|
+| **Google** | Buscas gerais, blog posts, tutoriais, docs | Ruidoso, SEO spam, resultados desatualizados |
+| **GitHub** | Código fonte, releases, stars, issues, uso real | Popularidade != qualidade |
+| **PyPI** | Pacotes Python, versões, dependências | Sem sinal de qualidade além de downloads |
+| **npm** | Pacotes JS/TS, versões, dependências | Mesmo que PyPI |
+| **HuggingFace** | Modelos, datasets, spaces, benchmarks | Específico para AI/ML |
+| **arXiv** | Papers de pesquisa, técnicas de ponta | Acadêmico, pode não ser prático |
+| **Papers with Code** | Benchmarks SOTA, links paper+código | Foco acadêmico |
+| **Stack Overflow** | Problemas comuns, workarounds | Respostas podem estar desatualizadas |
+| **Docs oficiais** | Referência de API oficial, guias | Pode ficar atrás das releases |
 
-**Reference:** [references/platforms/google.md](references/platforms/google.md)
-**Reference:** [references/platforms/github.md](references/platforms/github.md)
-**Reference:** [references/platforms/pypi-npm.md](references/platforms/pypi-npm.md)
-**Reference:** [references/platforms/huggingface.md](references/platforms/huggingface.md)
-**Reference:** [references/platforms/arxiv.md](references/platforms/arxiv.md)
-**Reference:** [references/platforms/infrastructure.md](references/platforms/infrastructure.md)
+**Referência:** [references/platforms/google.md](references/platforms/google.md)
+**Referência:** [references/platforms/github.md](references/platforms/github.md)
+**Referência:** [references/platforms/pypi-npm.md](references/platforms/pypi-npm.md)
+**Referência:** [references/platforms/huggingface.md](references/platforms/huggingface.md)
+**Referência:** [references/platforms/arxiv.md](references/platforms/arxiv.md)
+**Referência:** [references/platforms/infrastructure.md](references/platforms/infrastructure.md)
 
 ---
 
@@ -213,78 +212,78 @@ ti:"RAG" AND cat:cs.CL AND submittedDate:[2025-01-01 TO *]
 
 ## 3. Taxonomia de Fontes por Domínio
 
-Different domains require different source strategies.
+Domínios diferentes exigem estratégias de fontes diferentes.
 
 ### Bibliotecas e Frameworks
 
-| Priority | Source | What to check |
-|----------|--------|---------------|
-| 1 | **Official docs** | API reference, migration guides, changelog |
-| 2 | **GitHub releases** | Release notes, breaking changes, version history |
-| 3 | **PyPI/npm** | Download trends, last release date, dependencies |
-| 4 | **GitHub issues** | Known bugs, common problems, maintainer responsiveness |
-| 5 | **Blog posts** | Tutorials, comparisons, real-world usage |
-| 6 | **Stack Overflow** | Common errors, workarounds |
+| Prioridade | Fonte | O que verificar |
+|------------|-------|-----------------|
+| 1 | **Docs oficiais** | Referência de API, guias de migração, changelog |
+| 2 | **GitHub releases** | Notas de release, breaking changes, histórico de versões |
+| 3 | **PyPI/npm** | Tendências de download, data da última release, dependências |
+| 4 | **GitHub issues** | Bugs conhecidos, problemas comuns, responsividade dos maintainers |
+| 5 | **Blog posts** | Tutoriais, comparações, uso no mundo real |
+| 6 | **Stack Overflow** | Erros comuns, workarounds |
 
 **Red flags:**
-- Last release > 12 months ago
-- Declining download trend
-- Many open issues with no maintainer response
-- No type stubs (Python) or no @types (TypeScript)
+- Última release > 12 meses atrás
+- Tendência de downloads em declínio
+- Muitas issues abertas sem resposta dos maintainers
+- Sem type stubs (Python) ou sem @types (TypeScript)
 
 ### Modelos e Técnicas de AI/ML
 
-| Priority | Source | What to check |
-|----------|--------|---------------|
-| 1 | **Papers with Code** | SOTA benchmarks, leaderboards |
-| 2 | **HuggingFace** | Model cards, benchmarks, community usage |
-| 3 | **arXiv** | Original paper, methodology, limitations |
-| 4 | **Official blogs** | Anthropic, OpenAI, Google announcements |
-| 5 | **GitHub** | Reference implementations, community reproductions |
+| Prioridade | Fonte | O que verificar |
+|------------|-------|-----------------|
+| 1 | **Papers with Code** | Benchmarks SOTA, leaderboards |
+| 2 | **HuggingFace** | Model cards, benchmarks, uso pela comunidade |
+| 3 | **arXiv** | Paper original, metodologia, limitações |
+| 4 | **Blogs oficiais** | Anúncios da Anthropic, OpenAI, Google |
+| 5 | **GitHub** | Implementações de referência, reproduções da comunidade |
 | 6 | **Benchmarks** | MMLU, HumanEval, MTEB, etc. |
 
 **Red flags:**
-- No reproduction by independent teams
-- Benchmarks only on cherry-picked datasets
-- No open weights or API access
-- Paper without code
+- Sem reprodução por times independentes
+- Benchmarks apenas em datasets selecionados a dedo
+- Sem pesos abertos ou acesso via API
+- Paper sem código
 
 ### Infraestrutura e DevOps
 
-| Priority | Source | What to check |
-|----------|--------|---------------|
-| 1 | **Official docs** | Installation, configuration, operations |
-| 2 | **GitHub** | Stars, issues, release cadence |
-| 3 | **CNCF landscape** | Maturity level, adoption |
-| 4 | **Vendor comparisons** | (read with bias awareness) |
-| 5 | **Production postmortems** | Real failure modes |
-| 6 | **Benchmarks** | Performance under load |
+| Prioridade | Fonte | O que verificar |
+|------------|-------|-----------------|
+| 1 | **Docs oficiais** | Instalação, configuração, operação |
+| 2 | **GitHub** | Stars, issues, cadência de releases |
+| 3 | **CNCF landscape** | Nível de maturidade, adoção |
+| 4 | **Comparações de vendors** | (ler com consciência de viés) |
+| 5 | **Postmortems de produção** | Modos reais de falha |
+| 6 | **Benchmarks** | Performance sob carga |
 
 **Red flags:**
-- No production usage references
-- Single-maintainer project for critical infra
-- No disaster recovery documentation
-- Vendor lock-in without exit strategy
+- Sem referências de uso em produção
+- Projeto com único maintainer para infra crítica
+- Sem documentação de disaster recovery
+- Vendor lock-in sem estratégia de saída
 
-### Security
+### Segurança
 
-| Priority | Source | What to check |
-|----------|--------|---------------|
-| 1 | **NVD (nvd.nist.gov)** | CVE database, severity scores |
-| 2 | **GitHub Security Advisories** | Per-repo advisories |
-| 3 | **OWASP** | Top 10, cheat sheets, testing guide |
-| 4 | **Snyk/Sonatype** | Dependency vulnerability databases |
-| 5 | **Vendor security bulletins** | Provider-specific advisories |
+| Prioridade | Fonte | O que verificar |
+|------------|-------|-----------------|
+| 1 | **NVD (nvd.nist.gov)** | Base de dados de CVE, scores de severidade |
+| 2 | **GitHub Security Advisories** | Advisories por repositório |
+| 3 | **OWASP** | Top 10, cheat sheets, guia de testes |
+| 4 | **Snyk/Sonatype** | Bases de dados de vulnerabilidades de dependências |
+| 5 | **Boletins de segurança de vendors** | Advisories específicos do provedor |
 
-**Reference:** [references/security/vulnerability-sources.md](references/security/vulnerability-sources.md)
+**Referência:** [references/security/vulnerability-sources.md](references/security/vulnerability-sources.md)
 
 ---
 
 ## 4. Protocolo de Validação
 
-Every piece of research must pass validation before being presented as fact.
+Toda informação pesquisada deve passar por validação antes de ser apresentada como fato.
 
-### The 4-Check Protocol
+### O Protocolo de 4 Verificações
 
 ```
 For every claim or recommendation:
@@ -313,18 +312,18 @@ For every claim or recommendation:
    - Is there active debate? -> present both sides
 ```
 
-### Confidence Levels
+### Níveis de Confiança
 
-After validation, assign a confidence level to each claim:
+Após validação, atribua um nível de confiança a cada afirmação:
 
-| Level | Criteria | Label |
-|-------|----------|-------|
-| **High** | 3+ independent recent sources agree, no contradictions | Present as fact |
-| **Medium** | 2 sources agree, or sources are recent but limited | "Based on available evidence..." |
-| **Low** | Single source, or sources are dated, or contradictions exist | "[Unverified]" label required |
-| **None** | No sources found, or all sources are outdated | "Cannot verify. Based on training data which may be outdated." |
+| Nível | Critérios | Rótulo |
+|-------|-----------|--------|
+| **Alto** | 3+ fontes independentes recentes concordam, sem contradições | Apresentar como fato |
+| **Médio** | 2 fontes concordam, ou fontes são recentes mas limitadas | "Com base nas evidências disponíveis..." |
+| **Baixo** | Fonte única, ou fontes datadas, ou existem contradições | Rótulo "[Unverified]" obrigatório |
+| **Nenhum** | Nenhuma fonte encontrada, ou todas as fontes estão desatualizadas | "Cannot verify. Based on training data which may be outdated." |
 
-### What to do when sources conflict
+### O que fazer quando fontes conflitam
 
 ```
 1. Note the conflict explicitly
@@ -335,15 +334,15 @@ After validation, assign a confidence level to each claim:
 6. Recommend the user verify with their specific version/setup
 ```
 
-**Reference:** [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md)
+**Referência:** [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md)
 
 ---
 
-## 5. Síntese -- Templates and Formats
+## 5. Síntese -- Templates e Formatos
 
-### Tabela de Comparação Template
+### Template de Tabela de Comparação
 
-Use this format when comparing 2+ alternatives:
+Use este formato quando comparar 2+ alternativas:
 
 ```markdown
 ## Comparison: {Topic}
@@ -377,9 +376,9 @@ Use this format when comparing 2+ alternatives:
 3. ...
 ```
 
-### Single Recommendation Format
+### Formato de Recomendação Única
 
-Use when a single recommendation is needed:
+Use quando uma única recomendação é necessária:
 
 ```markdown
 ## Recommendation: {Topic}
@@ -408,9 +407,9 @@ Use when a single recommendation is needed:
 2. {source}
 ```
 
-### Research Log Format
+### Formato de Log de Pesquisa
 
-Use to document the research process itself:
+Use para documentar o processo de pesquisa em si:
 
 ```markdown
 ## Research Log: {Topic}
@@ -440,15 +439,15 @@ Use to document the research process itself:
 {Final answer with confidence level}
 ```
 
-**Reference:** [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md)
+**Referência:** [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md)
 
 ---
 
-## 6. Debate Frameworks
+## 6. Frameworks de Debate
 
-Use these when multiple valid approaches exist and a decision must be made.
+Use quando múltiplas abordagens válidas existem e uma decisão precisa ser tomada.
 
-### Trade-off Analysis
+### Análise de Trade-off
 
 ```markdown
 ## Trade-off Analysis: {Decision}
@@ -473,7 +472,7 @@ Use these when multiple valid approaches exist and a decision must be made.
 **Best when:** ...
 **Worst when:** ...
 
-### Matriz de Decisão
+### Decision Matrix
 
 | Criterion | Weight | Option A | Option B |
 |-----------|--------|----------|----------|
@@ -488,7 +487,7 @@ Use these when multiple valid approaches exist and a decision must be made.
 
 ### Protocolo do Advogado do Diabo
 
-When evaluating a strong preference or popular choice:
+Ao avaliar uma preferência forte ou escolha popular:
 
 ```
 1. State the preferred option clearly
@@ -499,7 +498,7 @@ When evaluating a strong preference or popular choice:
 6. Final decision with honest acknowledgment of risks
 ```
 
-### Reversibility Check
+### Verificação de Reversibilidade
 
 ```
 Before committing to a decision:
@@ -517,13 +516,13 @@ Before committing to a decision:
    -> Maximum research, prototype, get stakeholder buy-in
 ```
 
-**Reference:** [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md)
+**Referência:** [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md)
 
 ---
 
 ## 7. Anti-Patterns
 
-### 1. Training Data Trust
+### 1. Confiança em Dados de Treinamento
 
 ```
 WRONG: "Based on my knowledge, X is the best option for Y."
@@ -534,7 +533,7 @@ WHY: Training data has a cutoff. Libraries release new versions,
      for technology recommendations.
 ```
 
-### 2. Single Source
+### 2. Fonte Única
 
 ```
 WRONG: "According to this blog post, X is better than Y."
@@ -544,7 +543,7 @@ WHY: A single source may be biased, outdated, or wrong.
      Cross-reference is mandatory.
 ```
 
-### 3. Ignoring Dates
+### 3. Ignorar Datas
 
 ```
 WRONG: "This tutorial says to use library X version 2.0."
@@ -555,7 +554,7 @@ WHY: Software moves fast. A 6-month-old recommendation may already
      be outdated if a major version was released.
 ```
 
-### 4. Popularity Bias
+### 4. Viés de Popularidade
 
 ```
 WRONG: "X has 50k GitHub stars, so it's the best choice."
@@ -566,7 +565,7 @@ WHY: Stars measure popularity, not fitness for purpose.
      A smaller, focused tool may be better than a popular general one.
 ```
 
-### 5. Vendor Docs as Neutral Source
+### 5. Docs de Vendor como Fonte Neutra
 
 ```
 WRONG: "According to AWS, Bedrock is the best choice for LLM hosting."
@@ -577,7 +576,7 @@ WHY: Vendors always recommend their own products.
      Independent sources are required for unbiased evaluation.
 ```
 
-### 6. Premature Closure
+### 6. Encerramento Prematuro
 
 ```
 WRONG: Found one good option -> recommend it immediately
@@ -588,7 +587,7 @@ WHY: The first good option found is rarely the best option.
      Always compare at least 2-3 alternatives.
 ```
 
-### 7. Ignoring Negative Evidence
+### 7. Ignorar Evidências Negativas
 
 ```
 WRONG: "X is great because [pros only]."
@@ -599,7 +598,7 @@ WHY: Every technology has trade-offs. Hiding negatives leads to
      surprises later. Acknowledge trade-offs explicitly.
 ```
 
-### 8. Research Rabbit Hole
+### 8. Buraco de Coelho da Pesquisa
 
 ```
 WRONG: Spending 2 hours researching which JSON library to use
@@ -612,21 +611,21 @@ WHY: Research depth should match decision impact.
 
 ---
 
-## 8. Quando Parar Researching
+## 8. Quando Parar de Pesquisar
 
-Research without bounds is waste. Apply these stopping rules:
+Pesquisa sem limites é desperdício. Aplique estas regras de parada:
 
-### Time Budgets by Decision Impact
+### Orçamentos de Tempo por Impacto da Decisão
 
-| Impact | Max research time | Sources needed | Examples |
-|--------|-------------------|----------------|----------|
-| **Trivial** | 5 minutes | 1 (official docs) | Utility function, formatting lib |
-| **Low** | 15 minutes | 2 | Testing helper, dev tool |
-| **Medium** | 30 minutes | 3 | API framework, database driver |
-| **High** | 1 hour | 4+ | Core architecture, main database |
-| **Critical** | 2+ hours | 5+ | Cloud provider, data format, public API |
+| Impacto | Tempo máximo de pesquisa | Fontes necessárias | Exemplos |
+|---------|--------------------------|---------------------|----------|
+| **Trivial** | 5 minutos | 1 (docs oficiais) | Função utilitária, lib de formatação |
+| **Baixo** | 15 minutos | 2 | Helper de testes, ferramenta de dev |
+| **Médio** | 30 minutos | 3 | Framework de API, driver de banco |
+| **Alto** | 1 hora | 4+ | Arquitetura core, banco de dados principal |
+| **Crítico** | 2+ horas | 5+ | Provedor de cloud, formato de dados, API pública |
 
-### Stopping Criteria
+### Critérios de Parada
 
 ```
 STOP researching when ANY of these is true:
@@ -644,7 +643,7 @@ CONTINUE researching when ALL of these are true:
 4. Time budget not yet exceeded
 ```
 
-### The "Good Enough" Principle
+### O Princípio do "Bom o Suficiente"
 
 ```
 For most decisions, you need a GOOD choice, not the PERFECT choice.
@@ -659,20 +658,20 @@ vendor lock-in) deserve maximum research.
 
 ---
 
-## Reference Files
+## Arquivos de Referência
 
-### Platform-Specific Guides
-- [references/platforms/google.md](references/platforms/google.md) - Google search operators, filtering, date tricks
-- [references/platforms/github.md](references/platforms/github.md) - GitHub code/repo/issue search, quality signals
-- [references/platforms/pypi-npm.md](references/platforms/pypi-npm.md) - Package registry evaluation, version checking
-- [references/platforms/huggingface.md](references/platforms/huggingface.md) - Model/dataset search, benchmark interpretation
-- [references/platforms/arxiv.md](references/platforms/arxiv.md) - Paper search, category codes, citation analysis
-- [references/platforms/infrastructure.md](references/platforms/infrastructure.md) - CNCF landscape, vendor evaluation
+### Guias Específicos por Plataforma
+- [references/platforms/google.md](references/platforms/google.md) - Operadores de busca do Google, filtragem, truques de data
+- [references/platforms/github.md](references/platforms/github.md) - Busca de código/repo/issue no GitHub, sinais de qualidade
+- [references/platforms/pypi-npm.md](references/platforms/pypi-npm.md) - Avaliação de registros de pacotes, verificação de versões
+- [references/platforms/huggingface.md](references/platforms/huggingface.md) - Busca de modelos/datasets, interpretação de benchmarks
+- [references/platforms/arxiv.md](references/platforms/arxiv.md) - Busca de papers, códigos de categoria, análise de citações
+- [references/platforms/infrastructure.md](references/platforms/infrastructure.md) - CNCF landscape, avaliação de vendors
 
-### Methodology
-- [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md) - 4-check protocol, confidence levels
-- [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md) - Comparison, recommendation, research log templates
-- [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md) - Trade-off analysis, devil's advocate, decision matrix
+### Metodologia
+- [references/methodology/validation-protocol.md](references/methodology/validation-protocol.md) - Protocolo de 4 verificações, níveis de confiança
+- [references/methodology/synthesis-templates.md](references/methodology/synthesis-templates.md) - Templates de comparação, recomendação, log de pesquisa
+- [references/methodology/debate-frameworks.md](references/methodology/debate-frameworks.md) - Análise de trade-off, advogado do diabo, decision matrix
 
-### Security
+### Segurança
 - [references/security/vulnerability-sources.md](references/security/vulnerability-sources.md) - NVD, GitHub Advisories, OWASP, Snyk

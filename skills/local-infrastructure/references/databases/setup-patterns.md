@@ -1,12 +1,12 @@
 # Database Setup Patterns
 
-## PostgreSQL 17.4
+## PostgreSQL 18.4
 
 ### Compose service
 
 ```yaml
 postgres:
-  image: postgres:17.4
+  image: postgres:18.4
   environment:
     POSTGRES_DB: ${DB_NAME}
     POSTGRES_USER: ${DB_USER}
