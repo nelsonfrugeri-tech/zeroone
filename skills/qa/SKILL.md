@@ -20,7 +20,7 @@ description: |
 Esta skill é a **knowledge base** for modern Quality Assurance (2026).
 It complements `arch-py` and `arch-ts` skills with QA-specific patterns and strategies.
 
-**Who uses this skill:**
+**Global skill** — loaded automatically by all agents.
 
 - Agent `review-py` / `review-ts` -> when evaluating test coverage and quality
 - You directly -> when defining test strategy or validating readiness

@@ -21,7 +21,7 @@ Esta skill é a **knowledge base** for systematic software development methodolo
 It defines HOW to develop software — the process, discipline, and quality gates that
 turn requirements into production-ready code.
 
-**Who uses this skill:**
+**Global skill** — loaded automatically by all agents.
 
 - Agent `dev-ts` -> development workflow and test discipline
 
@@ -127,6 +127,7 @@ but none can be skipped.
 
 ### Fase 2: PESQUISAR
 
+> Para metodologia detalhada de pesquisa, consulte a skill `research`.
 **Goal:** Ground decisions in current knowledge, not assumptions.
 
 **Actions:**

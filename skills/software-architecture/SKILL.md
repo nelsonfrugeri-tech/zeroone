@@ -19,7 +19,7 @@ description: |
 Esta skill e a **biblioteca de conhecimento** para arquitetura de software (2026).
 Ela e **language-agnostic** — complementa skills como `arch-py` e `arch-ts` com a camada de design e decisao arquitetural.
 
-**Quem usa esta skill:**
+**Skill global** — carregada automaticamente por todos os agents.
 
 - Agent `dev-py` / `dev-ts` -> ao tomar decisoes de design que impactam arquitetura
 

@@ -18,7 +18,7 @@ description: |
 Esta skill é a **knowledge base** for local development infrastructure (2026).
 It covers everything needed to run, debug, and maintain multi-service development environments.
 
-**Who uses this skill:**
+**Global skill** — loaded automatically by all agents.
 
 - Agent `dev-py` / `dev-ts` -> when running local services
 - You directly -> when troubleshooting infrastructure issues
@@ -43,7 +43,9 @@ It covers everything needed to run, debug, and maintain multi-service developmen
 
 ---
 
-## Versões Fixadas (April 2026)
+## Versões de Referência
+
+> **Nota:** Sempre verificar versões atuais antes de usar. Consultar sites oficiais (Docker Hub, PyPI, npmjs.com, etc.)
 
 | Tool | Version | Notes |
 |------|---------|-------|

@@ -34,7 +34,7 @@ triggers:
 Esta skill e a **biblioteca de conhecimento** para SRE e observabilidade moderna (2026).
 Ela complementa `arch-py` (fundacao Python) e `ai-engineer` (AI layer) com a camada operacional.
 
-**Quem usa esta skill:**
+**Skill global** — carregada automaticamente por todos os agents.
 
 - Agent `dev-py` -> ao instrumentar aplicacoes com telemetria
 - Voce diretamente -> quando precisar de referencia de observabilidade

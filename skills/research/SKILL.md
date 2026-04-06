@@ -8,8 +8,6 @@ description: |
   (2) Comparar alternativas, (3) Avaliar estado da arte, (4) Fundamentar decisões arquiteturais,
   (5) Investigar vulnerabilidades ou breaking changes.
   Triggers: /research, pesquisar, comparar opções, estado da arte, avaliar alternativas.
-globs:
-  - "**/*"
 ---
 
 # Research — Metodologia de Pesquisa Técnica
@@ -20,7 +18,7 @@ Esta skill é a **knowledge base** for structured technical research.
 It provides methodology, not opinions. Every recommendation an agent makes
 should be grounded in current, verified, multi-source research.
 
-**Who uses this skill:**
+**Global skill** — loaded automatically by all agents.
 - Any agent that needs to make a technology choice
 
 - Agent `dev-py` / `dev-ts` for library selection
