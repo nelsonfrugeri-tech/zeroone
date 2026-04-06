@@ -110,8 +110,22 @@ docker exec ollama ollama pull qwen3:4b
 | **neo** | Pragmatic, fast, MVP-first. YAGNI. | First draft, MVPs, rapid iteration, discovery |
 | **trinity** | Executor, surgical, closer. | Precise execution, finalize work, delivery |
 | **morpheus** | Socratic, questioner, mentor. | Debates, exploration, questioning, mentoring |
-| **oracle** | Holistic, cross-project vision. Living memory. | Coordination, context, memory, ecosystem management |
+| **oracle** | Holistic, cross-project vision. Living memory. **Entry point for all feature work.** | Feature orchestration, discovery, planning, distribution, monitoring, review, merge |
 | **cypher** | Pure SRE. Numbers and tables, not essays. | Infra ops, monitoring, incident response, health checks |
+
+### Oracle Orchestration Flow
+
+Oracle is the **single entry point** for all feature work. The user talks to Oracle, Oracle orchestrates everything:
+
+```
+User → Oracle (discovery → planning → distribution)
+  → Dev agent (code → self-judge → QA → open PR)
+    → Oracle (assign different agent as reviewer)
+      → Reviewer (review → approve or request changes)
+        → Oracle (notify user → user tests → merge on confirmation)
+```
+
+Oracle does NOT write code, review code, or merge without user confirmation. Details in `agents/oracle.md`.
 
 ### Adversarial Review Flow
 

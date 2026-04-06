@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Oracle as entry point** (#27) — oracle.md rewritten as single entry point for all feature work: 6-phase orchestration flow (discovery, planning, distribution, monitoring, review orchestration, merge), communication protocol with SendMessage patterns, delegation template, explicit boundaries (no code, no review, no merge without user confirmation). README updated with orchestration flow diagram.
+
 ### Added
 - **Three-level scoped memory system** (#25) — adapted from bike-shop Memory System v0.3.0
   - Three scopes: `team` (global), `team:{project}` (project), `{agent}:{project}` (agent)
