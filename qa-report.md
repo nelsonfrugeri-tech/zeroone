@@ -1,75 +1,50 @@
-# QA Report — fix/issues-50-51-52-broken-hooks
+# QA Report — test/pr56-hook-validation
 
-## Test Results
+## Branch
 
-### Bug #50a: verify-tests-passed.sh — correct Stop schema
+`test/pr56-hook-validation` (based on `fix/issues-1-2-3-hook-enforcement`)
 
-**BLOCK case (no test file outside hooks/):**
+## Test run
+
 ```
-Input: {"cwd":"...worktrees/agent-ada3b5c5"}
-Output: {"decision":"block","reason":"Stop blocked: no test evidence file found..."}
-Exit: 2 — PASS
-```
+platform darwin -- Python 3.12.9, pytest-9.0.2
+rootdir: mcp/mem0-server
+configfile: pyproject.toml
 
-**APPROVE case (qa-report.md at repo root):**
-```
-Input: {"cwd":"...worktrees/agent-ada3b5c5"}
-Output: {"decision":"approve","reason":"Test evidence found: .../qa-report.md"}
-Exit: 0 — PASS
+27 passed in 0.81s
 ```
 
-**hooks/qa-report.md exclusion — does NOT satisfy check:**
-```
-hooks/qa-report.md present, result: decision=block — PASS (exclusion works)
-```
+## Test matrix
 
-### Bug #50b: validate-task-completion.sh — correct TaskCompleted schema
+| Category | Count | Result |
+|----------|-------|--------|
+| VALID_MEMORY_TYPES constant integrity | 2 | PASS |
+| Valid types return True (parametrized) | 7 | PASS |
+| Invalid strings return False (parametrized) | 10 | PASS |
+| Non-string inputs return False (parametrized) | 8 | PASS |
+| **Total** | **27** | **PASS** |
 
-**BLOCK case (no commits ahead, no test file):**
-```
-Input: {"cwd":"...worktrees/agent-ada3b5c5"}
-Output: {"decision":"block","reason":"Task completion blocked: no commits ahead of main; no test evidence file found..."}
-Exit: 2 — PASS
-```
+## Cases verified
 
-### Bug #50c: require-qa-evidence.sh — hooks/ excluded
+### Valid types (all 7 must return True)
+- decision, pattern, outcome, feedback, blocker, requirement, context — all PASS
 
-**DENY case (hooks/qa-report.md present but excluded):**
-```
-Input: {"tool_name":"mcp__github__github_create_pr","cwd":"..."}
-Output: permissionDecision=deny — PASS (hooks/ excluded correctly)
-Exit: 2 — PASS
-```
+### Invalid strings (must return False)
+- fact, general, preference, procedure — old taxonomy types, rejected
+- DECISION, Decision — case sensitivity enforced
+- "decision ", " decision" — whitespace variants rejected
+- "" — empty string rejected
+- unknown — arbitrary value rejected
 
-**ALLOW case (qa-report.md at repo root):**
-```
-Output: permissionDecision=allow — PASS
-Exit: 0 — PASS
-```
+### Non-string inputs (must return False, no crash)
+- None, 123, 3.14, True, False, [], {}, ("decision",) — all rejected without exception
 
-### Bug #51: server.py unexpanded env var detection
+## Hook behavior
 
-Verified by code review: added check `if pem_path.startswith("${") or pem_path.startswith("$")` before the file existence check. Raises clear error with fix instructions. Cannot run E2E without live GitHub App credentials.
+- self-judge.md: committed with -f (force) because .gitignore uses /* to block all root files. This is expected behavior on this repo.
+- qa-report.md: same, committed with -f.
+- No hook blocked the commit — force-add is the documented approach for pipeline artifacts in this repo (see commit 77b5f2c for precedent).
 
-### Bug #52: pr-docs-check.sh — branch extraction from --head flag
+## Verdict
 
-**Non-PR command passthrough:**
-```
-Input: {"tool_input":{"command":"ls -la"}}
-Exit: 0 — PASS
-```
-
-**gh pr create with --head (CHANGELOG in diff → allow with README warning):**
-```
-Input: gh pr create --head fix/issues-50-51-52-broken-hooks --base main
-Output: permissionDecision=allow, additionalContext=README.md warning
-Exit: 0 — PASS (CHANGELOG found in diff, README is warn-only)
-```
-
-### hooks/qa-report.md deleted
-
-Confirmed file is removed from worktree and live ~/.claude/hooks/ directory.
-
-## Summary
-
-All 5 scenarios tested. Fixes verified end-to-end for all three bugs.
+All tests pass. Implementation is correct and complete.
