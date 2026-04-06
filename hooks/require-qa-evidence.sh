@@ -30,6 +30,7 @@ QA_IN_DIFF=$(echo "$CHANGED" | grep -iE '(qa-report|test-results|qa-evidence|\.t
 # Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
 QA_ON_DISK=$(find "$ROOT" -maxdepth 4 \
   -not -path "*/hooks/*" \
+  -not -path "*/.claude/worktrees/*" \
   \( \
   -name "qa-report.md" -o \
   -name "qa-report.txt" -o \

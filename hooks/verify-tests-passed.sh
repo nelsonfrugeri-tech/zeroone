@@ -18,6 +18,7 @@ ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
 # Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
 TEST_FILE=$(find "$ROOT" -maxdepth 4 \
   -not -path "*/hooks/*" \
+  -not -path "*/.claude/worktrees/*" \
   \( \
   -name "pytest-*.xml" -o \
   -name "test-results.xml" -o \
