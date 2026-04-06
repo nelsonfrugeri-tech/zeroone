@@ -10,6 +10,8 @@ description: |
 
 # GitHub Skill — Operações GitHub via MCP
 
+**Skill global** — carregada automaticamente por todos os agents.
+
 ## Regra Fundamental
 
 **TODA operação de escrita no GitHub DEVE usar as tools `mcp__github__*`.**

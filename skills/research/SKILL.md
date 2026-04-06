@@ -20,9 +20,7 @@ Esta skill é a **base de conhecimento** para pesquisa técnica estruturada.
 Ela fornece metodologia, não opiniões. Toda recomendação que um agent fizer
 deve ser fundamentada em pesquisa atual, verificada e multi-fonte.
 
-**Quem usa esta skill:**
-- Qualquer agent que precise fazer uma escolha de tecnologia
-- Oracle para decisões de ecossistema
+**Skill global** — carregada automaticamente por todos os agents.
 
 **O que esta skill contém:**
 - Estratégias de busca por plataforma

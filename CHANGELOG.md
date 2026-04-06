@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `qa` — E2E testing, Definition of Done, environment setup/teardown
 - **Language Rules** foundational principle in CLAUDE.md — strict language separation by context
 
+### Changed
+- **All 15 skills** now declare "Skill global — carregada automaticamente por todos os agents"
+  - 9 skills updated: arch-py, arch-ts, ai-engineer, review-py, review-ts, product-manager, github, frontend-design, research
+
 ## [0.2.0] - 2026-03-31
 
 ### Added

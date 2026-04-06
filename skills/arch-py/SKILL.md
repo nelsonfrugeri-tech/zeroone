@@ -9,6 +9,8 @@ description: |
 
 # Arch-Py Skill - Python Architecture & Design
 
+**Skill global** — carregada automaticamente por todos os agents.
+
 ## Princípios Fundamentais
 
 **Arquitetura e Design de Sistemas:**

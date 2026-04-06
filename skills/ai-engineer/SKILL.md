@@ -15,6 +15,8 @@ description: |
 ## Propósito
 
 Esta skill é a **biblioteca de conhecimento** para AI/ML engineering moderno em Python (2026).
+
+**Skill global** — carregada automaticamente por todos os agents.
 Ela complementa a `arch-py` skill com patterns específicos de AI systems.
 
 **Casos de uso:**

@@ -12,6 +12,8 @@ description: |
 ## Propósito
 
 Esta skill é a **biblioteca de conhecimento** para design frontend estado da arte (2026).
+
+**Skill global** — carregada automaticamente por todos os agents.
 Ela complementa a `arch-ts` skill (arquitetura tecnica) com a camada de **taste e elegancia**.
 
 **O que esta skill contem:**

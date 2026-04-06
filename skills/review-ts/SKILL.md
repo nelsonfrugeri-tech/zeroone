@@ -14,6 +14,8 @@ description: |
 
 Esta skill é uma **biblioteca de conhecimento** para code review TypeScript/Frontend. Provê padrões, templates e critérios para reviews sistemáticos de código TypeScript/Frontend.
 
+**Skill global** — carregada automaticamente por todos os agents.
+
 **O que esta skill contem:**
 - Templates de comentários por severidade e categoria
 - Checklist de verificação (o que revisar em cada arquivo TS/TSX)

@@ -11,6 +11,8 @@ description: |
 
 # Product Manager Skill - Technical Product/Platform Management
 
+**Skill global** — carregada automaticamente por todos os agents.
+
 ## Princípios Fundamentais
 
 ### Produto e Valor
