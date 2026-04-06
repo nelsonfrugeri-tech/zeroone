@@ -27,7 +27,11 @@ if [ "$AHEAD" -eq 0 ]; then
 fi
 
 # 2. Check for test evidence on disk
-TEST_FILE=$(find "$ROOT" -maxdepth 4 \( \
+# Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
+TEST_FILE=$(find "$ROOT" -maxdepth 4 \
+  -not -path "*/hooks/*" \
+  -not -path "*/.claude/worktrees/*" \
+  \( \
   -name "pytest-*.xml" -o \
   -name "test-results.xml" -o \
   -name "test-results.json" -o \
@@ -48,11 +52,8 @@ fi
 if [ -z "$REASONS" ]; then
   cat <<EOF
 {
-  "hookSpecificOutput": {
-    "hookEventName": "TaskCompleted",
-    "permissionDecision": "allow",
-    "additionalContext": "Task completion validated: commits exist and test evidence found."
-  }
+  "decision": "approve",
+  "reason": "Task completion validated: commits exist and test evidence found."
 }
 EOF
   exit 0
@@ -63,12 +64,8 @@ REASONS=$(echo "$REASONS" | sed 's/; $//')
 
 cat <<EOF
 {
-  "hookSpecificOutput": {
-    "hookEventName": "TaskCompleted",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "Task completion blocked: ${REASONS}.",
-    "additionalContext": "To complete a task: (1) commit your changes, (2) ensure test evidence exists (qa-report.md, test-results.xml, etc.). All checks must pass before marking done."
-  }
+  "decision": "block",
+  "reason": "Task completion blocked: ${REASONS}. To complete a task: (1) commit your changes, (2) ensure test evidence exists (qa-report.md, test-results.xml, etc.)."
 }
 EOF
 exit 2

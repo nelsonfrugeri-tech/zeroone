@@ -15,7 +15,11 @@ fi
 ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
 
 # Check for test output files on disk (explicit file evidence only)
-TEST_FILE=$(find "$ROOT" -maxdepth 4 \( \
+# Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
+TEST_FILE=$(find "$ROOT" -maxdepth 4 \
+  -not -path "*/hooks/*" \
+  -not -path "*/.claude/worktrees/*" \
+  \( \
   -name "pytest-*.xml" -o \
   -name "test-results.xml" -o \
   -name "test-results.json" -o \
@@ -32,11 +36,8 @@ TEST_FILE=$(find "$ROOT" -maxdepth 4 \( \
 if [ -n "$TEST_FILE" ]; then
   cat <<EOF
 {
-  "hookSpecificOutput": {
-    "hookEventName": "Stop",
-    "permissionDecision": "allow",
-    "additionalContext": "Test evidence found: $TEST_FILE"
-  }
+  "decision": "approve",
+  "reason": "Test evidence found: $TEST_FILE"
 }
 EOF
   exit 0
@@ -44,12 +45,8 @@ fi
 
 cat <<EOF
 {
-  "hookSpecificOutput": {
-    "hookEventName": "Stop",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "Stop blocked: no test evidence file found. Run tests and capture output (e.g., qa-report.md, test-results.xml, coverage.xml) before stopping.",
-    "additionalContext": "Create a test output file (e.g., qa-report.md, test-results.xml) before the agent stops."
-  }
+  "decision": "block",
+  "reason": "Stop blocked: no test evidence file found. Run tests and capture output (e.g., qa-report.md, test-results.xml, coverage.xml) before stopping."
 }
 EOF
 exit 2

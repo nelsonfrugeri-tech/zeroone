@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **Hook JSON schema for Stop and TaskCompleted events** (#50) — `verify-tests-passed.sh` and `validate-task-completion.sh` were using the PreToolUse schema (`hookSpecificOutput.permissionDecision`), which is invalid for Stop/TaskCompleted events and caused "JSON validation failed" in the Claude Code runtime. Both hooks now use the correct schema: `{"decision": "approve|block", "reason": "..."}`.
+- **qa-report.md in hooks/ bypassing enforcement** (#50) — `verify-tests-passed.sh`, `validate-task-completion.sh`, and `require-qa-evidence.sh` all used `find` without excluding the `hooks/` directory. The `hooks/qa-report.md` historical file always satisfied the check, making it a no-op. All three hooks now add `-not -path "*/hooks/*"` to the find command. The stale `hooks/qa-report.md` file is deleted.
+- **pr-docs-check.sh diff against wrong HEAD** (#52) — The hook used `git diff --name-only "$BASE"...HEAD`, which evaluates HEAD of the running branch (e.g., main), producing an empty diff. The hook now extracts the `--head` branch from the `gh pr create` command and diffs `"$BASE"..origin/$HEAD_BRANCH`. Falls back to the previous behavior if `--head` is not present.
+- **GitHub MCP PEM path unexpanded env var detection** (#51) — `server.py` `_get_installation_token` now detects when `pem_path` is a literal unexpanded shell variable (starts with `${` or `$`) and raises a clear error message explaining the cause and how to fix it, instead of a confusing "PEM file not found" error.
+
 ### Added
 - **`settings.json` hooks registration** (#42) — enforcement hooks wired into harness: `require-qa-evidence.sh` on `PreToolUse(mcp__github__github_create_pr)`, `verify-tests-passed.sh` on `Stop`, `validate-task-completion.sh` on `TaskCompleted`. Deny rules added: `git push origin main`, `git push --force*`, `rm -rf *`.
 
@@ -18,10 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - `hooks/require-qa-evidence.sh` — PreToolUse: blocks `mcp__github__github_create_pr` if no QA evidence file (qa-report.md, test-results.*, etc.) exists
   - `hooks/verify-tests-passed.sh` — Stop: blocks agent from stopping without test evidence (output files or test refs in git log); supports pytest, npm test, cargo test, go test, jest, rspec, phpunit
   - `hooks/validate-task-completion.sh` — TaskCompleted: blocks task completion if no commits ahead of base branch or no test evidence file found
-<<<<<<< HEAD
-=======
 - **`reviewer` agent** (#43) — dedicated read-only code reviewer with `disallowedTools: [Write, Edit]` enforcement. Reviews code quality, security (OWASP Top 10), patterns; posts findings via GitHub MCP comments with severity classification (`[BLOCKER]`, `[MAJOR]`, `[MINOR]`, `[NIT]`). Memory scoping consistent with all other agents.
->>>>>>> origin/main
 
 ### Changed
 - **Oracle as entry point** (#27) — oracle.md rewritten as single entry point for all feature work: 6-phase orchestration flow (discovery, planning, distribution, monitoring, review orchestration, merge), communication protocol with SendMessage patterns, delegation template, explicit boundaries (no code, no review, no merge without user confirmation). README updated with orchestration flow diagram.
