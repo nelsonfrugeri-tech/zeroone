@@ -93,14 +93,19 @@ async def mem0_store(
     """Store a memory in shared semantic storage. Content should be pre-processed
     (extracted facts, summaries) by Claude Code before storing.
 
+    Three-level scoping model — pass the right user_id:
+      - Team scope:    user_id="team"              (global prefs, cross-project rules)
+      - Project scope: user_id="team:{project}"    (architecture, stack, conventions)
+      - Agent scope:   user_id="{agent}:{project}" (agent's own decisions and outcomes)
+
     Args:
         content: The memory content to store. Should be concise, factual, and self-contained.
-        memory_type: Category — feedback, project, reference, decision, procedural, general,
-            task_claim, blocker, progress, conflict (coordination types for multi-agent).
+        memory_type: Category — decision, fact, preference, procedure, outcome (primary types),
+            or coordination types: task_claim, blocker, progress, conflict.
         project: Project name (empty for cross-project memories).
         tags: Comma-separated tags (e.g. "architecture,python").
-        user_id: Memory scope/owner (defaults to MEM0_USER_ID env var). Use shared ID
-            (e.g. "oracle-team") for cross-instance coordination memories.
+        user_id: Memory scope — use three-level format: "team", "team:{project}",
+            or "{agent}:{project}". Defaults to MEM0_USER_ID env var.
     """
     uid = user_id or DEFAULT_USER
 
@@ -340,6 +345,69 @@ async def mem0_update(
             points=[PointStruct(id=memory_id, vector=vector, payload=old_payload)],
         )
         return json.dumps({"status": "updated", "memory_id": memory_id})
+    except Exception as e:
+        return json.dumps({"status": "error", "error": str(e)})
+
+
+@mcp.tool()
+async def mem0_recall_context(
+    query: str,
+    agent: str,
+    project: str,
+    agent_limit: int = 5,
+    project_limit: int = 5,
+    team_limit: int = 3,
+) -> str:
+    """Retrieve context from all three memory scopes in one call.
+
+    Queries team, project, and agent scopes in parallel and returns merged
+    results respecting the retrieval budget (~13 items total).
+
+    Args:
+        query: Natural language query (e.g. "architecture decisions", "recent work").
+        agent: Agent name (e.g. "neo", "oracle", "trinity").
+        project: Project name (e.g. "bike-shop", "claude-code").
+        agent_limit: Max results from agent scope (default 5).
+        project_limit: Max results from project scope (default 5).
+        team_limit: Max results from team scope (default 3).
+    """
+    scopes = [
+        (f"{agent}:{project}", agent_limit, "agent"),
+        (f"team:{project}", project_limit, "project"),
+        ("team", team_limit, "team"),
+    ]
+
+    try:
+        vector = embed(query)
+        result = {}
+
+        for uid, limit, scope_name in scopes:
+            hits = get_qdrant().query_points(
+                collection_name=COLLECTION,
+                query=vector,
+                query_filter=Filter(
+                    must=[FieldCondition(key="user_id", match=MatchValue(value=uid))]
+                ),
+                limit=limit,
+                with_payload=True,
+            )
+
+            memories = []
+            for point in hits.points:
+                p = point.payload or {}
+                memories.append({
+                    "id": str(point.id),
+                    "content": p.get("content", ""),
+                    "score": round(point.score, 4),
+                    "type": p.get("type", "general"),
+                    "project": p.get("project", ""),
+                    "tags": p.get("tags", ""),
+                    "stored_at": p.get("stored_at", ""),
+                })
+            result[scope_name] = {"user_id": uid, "count": len(memories), "memories": memories}
+
+        total = sum(r["count"] for r in result.values())
+        return json.dumps({"query": query, "total": total, "scopes": result})
     except Exception as e:
         return json.dumps({"status": "error", "error": str(e)})
 

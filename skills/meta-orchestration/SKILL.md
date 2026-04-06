@@ -337,58 +337,139 @@ Eles não coordenam diretamente entre si. O Oracle gerencia toda coordenação.
 Todo conhecimento persistente vive no Mem0 (Qdrant vector store + Ollama embeddings).
 Compartilhado entre todos os terminais e agents.
 
+### Modelo de Escopo em Três Níveis
+
+```
+Mem0 (Qdrant + Ollama nomic-embed-text):
+├── team scope       → user_id="team"
+├── project scope    → user_id="team:{project}"
+└── agent scope      → user_id="{agent}:{project}"
+```
+
+| Escopo | user_id | O que armazenar | Quem lê |
+|--------|---------|-----------------|---------|
+| **Team** | `"team"` | Preferências globais, procedimentos cross-project, regras fundacionais | Todos os agents |
+| **Project** | `"team:{project}"` | Arquitetura, stack, convenções, contexto do repo | Todos os agents naquele projeto |
+| **Agent** | `"{agent}:{project}"` | Decisões próprias, outcomes de tarefas, erros, padrões aprendidos | Apenas o agent (+ oracle para coordenação) |
+
+**Exemplos:**
+```
+user_id="team"                    → "Always pin exact dependency versions"
+user_id="team:bike-shop"          → "bike-shop uses FastAPI + MongoDB + Redis"
+user_id="neo:bike-shop"           → "Chose pydantic BaseSettings over python-dotenv for config"
+user_id="trinity:claude-code"     → "Deploy uses docker-compose with health checks"
+user_id="oracle:claude-code"      → "Project claude-code connects to bike-shop via shared Mem0"
+```
+
 ### Tipos de Memória
 
-| Tipo | Propósito | Ciclo de Vida | Exemplo |
-|------|-----------|---------------|---------|
-| `feedback` | Correções e preferências do usuário | Longa duração, raramente podado | "Never push to main" |
-| `project` | Estado do projeto, decisões, contexto | Vive com o projeto | "Project X uses event-driven arch" |
-| `reference` | Ponteiros para sistemas externos | Longa duração | "Bugs tracked in Linear INGEST" |
-| `decision` | Decisões arquiteturais/técnicas | Longa duração até substituída | "Chose stdio over SSE for MCP" |
-| `procedural` | Conhecimento how-to, procedimentos reutilizáveis | Longa duração, atualizado | "Steps to create a GitHub App" |
-| `task_claim` | Coordenação: quem está trabalhando em quê | Efêmero (tempo de sessão) | "Oracle-A working on MCP isolation" |
-| `blocker` | Coordenação: sinalizar blockers | Efêmero (até resolvido) | "Blocked on Qdrant timeout" |
-| `progress` | Coordenação: atualizações de status | Efêmero a médio | "MCP server 80% complete" |
-| `conflict` | Coordenação: colisão detectada | Efêmero (até resolvido) | "Two agents editing settings.json" |
+| Tipo | Quando armazenar | Exemplo |
+|------|-------------------|---------|
+| `decision` | Escolha técnica ou de produto com justificativa | "Chose OKLCH over HSL for color system — perceptual uniformity" |
+| `fact` | Conhecimento verificado sobre projeto ou domínio | "API runs on port 8000, docs at /docs" |
+| `preference` | Preferência declarada pelo usuário/lead | "User prefers pt-BR for conversation, English for code" |
+| `procedure` | Workflow reutilizável | "To deploy: git push, wait CI, merge PR" |
+| `outcome` | Resultado de tarefa completada | "Migrated auth middleware — 3 files changed, all tests pass" |
+| `task_claim` | Coordenação: quem está trabalhando em quê | "Oracle-A working on MCP isolation" |
+| `blocker` | Coordenação: sinalizar blockers | "Blocked on Qdrant timeout" |
+| `progress` | Coordenação: atualizações de status | "MCP server 80% complete" |
+| `conflict` | Coordenação: colisão detectada | "Two agents editing settings.json" |
+
+### Protocolo de Save — Self-Save Model
+
+Cada agent salva suas próprias memórias. Sem observer paralelo.
+
+**O que salvar:**
+- Decisões técnicas com justificativa (o "porquê")
+- Fatos novos não deriváveis do código
+- Preferências e correções do usuário
+- Outcomes de tarefas completadas com impacto
+- Procedimentos reutilizáveis descobertos durante o trabalho
+
+**O que NÃO salvar:**
+- Contexto efêmero de conversação
+- Snippets de código (vivem no git)
+- Paths e estrutura de arquivos (derivável lendo o projeto)
+- Histórico git (use `git log`)
+- Qualquer coisa já documentada no CLAUDE.md
+
+**Antes de salvar, o agent DEVE:**
+1. Classificar o escopo (team / project / agent)
+2. Classificar o tipo (decision / fact / preference / procedure / outcome)
+3. Verificar se memória similar já existe (`mem0_search`)
+4. Se existe → `mem0_update`, se não → `mem0_store`
+
+```
+mem0_store(
+  content="Chose FastAPI over Flask for bike-shop API — async native, auto OpenAPI docs",
+  user_id="neo:bike-shop",
+  memory_type="decision",
+  project="bike-shop",
+  tags="architecture,python"
+)
+```
+
+### Fluxo de Retrieval
+
+Antes de iniciar uma tarefa, agents recuperam contexto em paralelo com `mem0_recall_context`:
+
+```
+mem0_recall_context(
+  query="current task context",
+  agent="neo",
+  project="bike-shop",
+  agent_limit=5,    # Own past decisions and outcomes
+  project_limit=5,  # Shared project context
+  team_limit=3      # Global preferences and procedures
+)
+```
+
+| Query | Escopo | Max | Propósito |
+|-------|--------|-----|-----------|
+| Agent memory | `user_id="{agent}:{project}"` | 5 | Decisões e outcomes anteriores do agent |
+| Project memory | `user_id="team:{project}"` | 5 | Contexto compartilhado do projeto |
+| Team memory | `user_id="team"` | 3 | Preferências e procedimentos globais |
+
+**Budget total: ~13 itens** — previne sobrecarga de contexto.
 
 ### Regras de Armazenamento
 
-| Evento | Ação |
-|--------|------|
-| Início de sessão | `mem0_search(metadata={"type": "coordination", "subtype": "claim"})` -- verificar peers |
-| Início de sessão | `mem0_recall("pending work, recent decisions")` -- restaurar contexto |
-| Tarefa reivindicada | `mem0_store(metadata={"type": "coordination", "subtype": "claim"})` |
-| Decisão tomada | `mem0_store(metadata={"type": "decision"})` |
-| Procedimento aprendido | `mem0_store(metadata={"type": "decision"})` |
-| Problema resolvido | `mem0_store(metadata={"type": "decision"}, tags="troubleshooting")` |
-| Projeto configurado | `mem0_store(metadata={"type": "project"}, project="X")` |
-| Agent criado/modificado | `mem0_store(metadata={"type": "decision"})` |
-| Blocker encontrado | `mem0_store(metadata={"type": "coordination", "subtype": "blocker"}, tags="active")` |
-| Fim de sessão | Armazenar resumo de progresso, deletar task_claims, deletar blockers resolvidos |
+| Evento | Escopo | Ação |
+|--------|--------|------|
+| Início de sessão | multi | `mem0_recall_context(query="pending work, recent decisions", agent=SELF, project=PROJECT)` |
+| Início de sessão | team | `mem0_search(query="active tasks", memory_type="task_claim", user_id="team")` |
+| Tarefa reivindicada | team | `mem0_store(memory_type="task_claim", user_id="team")` |
+| Decisão técnica | agent | `mem0_store(memory_type="decision", user_id="{agent}:{project}")` |
+| Decisão arquitetural | project | `mem0_store(memory_type="decision", user_id="team:{project}")` |
+| Preferência do usuário | team | `mem0_store(memory_type="preference", user_id="team")` |
+| Procedimento aprendido | project/agent | `mem0_store(memory_type="procedure", user_id=...)` |
+| Tarefa completada | agent | `mem0_store(memory_type="outcome", user_id="{agent}:{project}")` |
+| Fato do projeto | project | `mem0_store(memory_type="fact", user_id="team:{project}")` |
+| Fim de sessão | team | Deletar task_claims, deletar blockers resolvidos |
 
 ### Padrões de Query
 
 ```
-# Restore context at session start
-mem0_recall(query="pending work, recent changes", limit=10)
+# Restore context at session start (all 3 scopes in one call)
+mem0_recall_context(query="pending work, recent decisions", agent="neo", project="bike-shop")
 
 # Check what other agents are doing
-mem0_search(query="active tasks", metadata={"type": "coordination", "subtype": "claim"}, limit=20)
+mem0_search(query="active tasks", memory_type="task_claim", user_id="team")
 
-# Find how-to knowledge
-mem0_search(query="how to create GitHub App", metadata={"type": "decision"})
+# Find project architecture decisions
+mem0_search(query="architecture decisions", memory_type="decision", user_id="team:bike-shop")
 
-# Find project context
-mem0_search(query="architecture decisions", metadata={"type": "decision"}, project="bike-shop")
+# Find agent's own past work
+mem0_search(query="recent outcomes", memory_type="outcome", user_id="neo:bike-shop")
 
-# List all claims for cleanup
-mem0_list(metadata={"type": "coordination", "subtype": "claim"}, limit=50)
+# Store team-wide preference
+mem0_store(content="Always use pt-BR for conversation", memory_type="preference", user_id="team")
+
+# Store project fact
+mem0_store(content="API runs on port 8000", memory_type="fact", user_id="team:bike-shop", project="bike-shop")
 
 # Clean up stale memories
 mem0_delete(memory_id="<id>")
-
-# Update outdated memory
-mem0_update(memory_id="<id>", content="Updated procedure...", metadata={"type": "decision"})
 ```
 
 **Referência:** [references/memory/knowledge-structure.md](references/memory/knowledge-structure.md)

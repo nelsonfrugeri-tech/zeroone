@@ -148,61 +148,48 @@ All skills are **global** — loaded automatically by every agent. No per-agent 
 
 ## Shared Memory (Mem0)
 
-Persistent semantic memory shared across all agents and terminals.
+Persistent semantic memory shared across all agents and terminals, with **three-level scoping**.
+
+### Three-Level Scoping Model
 
 ```
-Terminal 1 (Oracle)          Terminal 2 (Oracle)          Terminal 3 (dev-py)
-       │                            │                            │
-       └────────────┬───────────────┴────────────────────────────┘
-                    │
-                    ▼
-         ┌─────────────────────┐
-         │    Mem0 MCP Server   │
-         │                     │
-         │  mem0_store()       │ ← Save decisions, procedures, context
-         │  mem0_recall()      │ ← Semantic search before starting work
-         │  mem0_search()      │ ← Filter by type, project, tags
-         │  mem0_list()        │ ← Browse all memories
-         │  mem0_update()      │ ← Modify existing memories
-         │  mem0_delete()      │ ← Remove outdated memories
-         │                     │
-         └────────┬────────────┘
-                  │
-         ┌────────┴────────┐
-         │                 │
-    ┌────▼─────┐    ┌──────▼──────┐
-    │  Qdrant  │    │   Ollama    │
-    │  :6333   │    │   :11434    │
-    │ vectors  │    │ embeddings  │
-    │          │    │ nomic-embed │
-    │          │    │ qwen3:4b    │
-    └──────────┘    └─────────────┘
+Mem0 (Qdrant + Ollama nomic-embed-text):
+├── team scope       → user_id="team"              (global prefs, cross-project rules)
+├── project scope    → user_id="team:{project}"    (architecture, stack, conventions)
+└── agent scope      → user_id="{agent}:{project}" (agent's own decisions and outcomes)
+```
+
+| Scope | user_id | What goes here | Who reads |
+|-------|---------|----------------|-----------|
+| **Team** | `"team"` | Global preferences, cross-project procedures | All agents |
+| **Project** | `"team:{project}"` | Architecture, stack decisions, conventions | All agents on that project |
+| **Agent** | `"{agent}:{project}"` | Own decisions, task outcomes, patterns learned | Only that agent (+ oracle) |
+
+### MCP Tools (7)
+
+```
+mem0_store()           ← Save with scoped user_id
+mem0_recall()          ← Semantic search (single scope)
+mem0_recall_context()  ← Query all 3 scopes in one call (~13 item budget)
+mem0_search()          ← Filter by type, project, scope
+mem0_list()            ← Browse all memories
+mem0_update()          ← Modify existing memories
+mem0_delete()          ← Remove outdated memories
 ```
 
 ### Memory Types
 
 | Type | What to store | Example |
 |------|--------------|---------|
-| `procedural` | How to do things | "Create GitHub issues via curl + $GITHUB_PERSONAL_ACCESS_TOKEN" |
-| `decision` | Architectural choices | "Chose Qdrant over Pinecone for local-first vector storage" |
-| `project` | Project context | "bike-shop uses semantic router with 7 experts" |
-| `feedback` | User preferences | "Always use pt-BR for conversation, English for code" |
-| `reference` | Where to find things | "Pipeline bugs tracked in Linear project INGEST" |
-| `episodic` | What happened | "Migrated from memory-keeper to Mem0 on 2026-03-30" |
+| `decision` | Technical/product choices with rationale | "Chose OKLCH over HSL — perceptual uniformity" |
+| `fact` | Verified project or domain knowledge | "API runs on port 8000, docs at /docs" |
+| `preference` | Stated preference from user/lead | "Always use pt-BR for conversation" |
+| `procedure` | Reusable workflows | "To deploy: git push, wait CI, merge PR" |
+| `outcome` | Completed task results | "Migrated auth — 3 files, all tests pass" |
 | `task_claim` | Coordination: who's working on what | "Oracle-A working on MCP isolation" |
 | `blocker` | Coordination: signal blockers | "Blocked on Qdrant timeout" |
 | `progress` | Coordination: status updates | "MCP server 80% complete" |
 | `conflict` | Coordination: collision detected | "Two agents editing settings.json" |
-
-### Why Mem0?
-
-| Feature | memory-keeper (old) | Mem0 (current) |
-|---------|-------------------|----------------|
-| Persistence | Session-only, dies on terminal close | Permanent (Qdrant on Docker) |
-| Multi-terminal | No — each terminal is isolated | Yes — shared Qdrant instance |
-| Search | Exact match only | Semantic similarity (vector search) |
-| LLM | None | Local qwen3:4b for fact extraction |
-| Cost | Free (but limited) | Free (100% local, no API calls) |
 
 ---
 
@@ -391,23 +378,15 @@ Enable in `settings.json`:
 
 ```
 ~/.claude/
-├── agents/
-│   ├── founds/                    # Foundational (ecosystem-only)
-│   │   ├── oracle.md              #   Ecosystem manager
-│   │   └── sentinel.md            #   SRE/observability
-│   │
-│   └── experts/                   # Specialists (reusable by any project)
-│       ├── architect.md           #   System design
-│       ├── dev-py.md              #   Python development
-│       ├── dev-ts.md              #   TypeScript/Frontend development
-│       ├── review-py.md           #   Python code review
-│       ├── review-ts.md           #   Frontend code review
-│       ├── debater.md             #   Trade-off debates
-│       ├── tech-pm.md             #   Product management
-│       ├── explorer.md            #   Repo analysis
-│       └── builder.md             #   Infrastructure
+├── agents/                        # Matrix Personas (flat directory)
+│   ├── the_architect.md           #   Perfectionist, quality gate, judge
+│   ├── neo.md                     #   Pragmatic, MVP-first, fast mover
+│   ├── trinity.md                 #   Executor, surgical closer
+│   ├── morpheus.md                #   Socratic questioner, mentor
+│   ├── oracle.md                  #   Ecosystem manager, living memory
+│   └── cypher.md                  #   Pure SRE, numbers and tables
 │
-├── skills/                        # Knowledge bases
+├── skills/                        # Knowledge bases (global, all agents)
 │   ├── arch-py/                   #   Python architecture
 │   ├── arch-ts/                   #   TypeScript/Frontend architecture
 │   ├── review-py/                 #   Python code review
@@ -415,17 +394,26 @@ Enable in `settings.json`:
 │   ├── frontend-design/           #   UI/UX/Visual design
 │   ├── ai-engineer/               #   AI/ML engineering
 │   ├── github/                    #   GitHub operations (enforced MCP usage)
-│   └── product-manager/           #   Product management
+│   ├── product-manager/           #   Product management
+│   ├── meta-orchestration/        #   Task routing, agent coordination, memory
+│   ├── dev-methodology/           #   Full dev workflow, TDD, refactoring
+│   ├── dev-pipeline/              #   Mandatory delivery pipeline
+│   ├── qa/                        #   E2E testing, Definition of Done
+│   ├── research/                  #   Search strategies, source validation
+│   ├── software-architecture/     #   SOLID, ADR, C4, trade-offs
+│   ├── sre-observability/         #   OpenTelemetry, SLOs, incident response
+│   └── local-infrastructure/      #   Docker, compose, databases
 │
 ├── mcp/                           # MCP servers
-│   ├── mem0-server/               #   Shared semantic memory
-│   │   ├── server.py              #   Qdrant + Ollama embeddings
+│   ├── mem0-server/               #   Scoped semantic memory (3-level)
+│   │   ├── server.py              #   7 tools, Qdrant + Ollama embeddings
 │   │   └── pyproject.toml         #   Dependencies
 │   └── github-server/             #   GitHub operations via bot identity
 │       └── server.py              #   JWT → installation token (env var auth)
 │
 ├── hooks/                         # Programmatic enforcement
-│   └── pr-docs-check.sh           #   Blocks PR without CHANGELOG
+│   ├── pr-docs-check.sh           #   Blocks PR without CHANGELOG
+│   └── enforce-worktree.sh        #   Blocks sessions not in a worktree
 │
 ├── CLAUDE.md                      # Global agent instructions
 ├── CHANGELOG.md                   # Version history
@@ -443,8 +431,8 @@ These are encoded in `CLAUDE.md` and enforced across all agents:
 | **Research First** | Every technical decision backed by current web research. Never rely on training data alone. |
 | **Autonomy with Guardrails** | Maximum speed for routine work. Human approval only for security-critical operations. |
 | **PR Quality** | No PR without updated CHANGELOG. README and API docs checked automatically. |
-| **Founds vs Experts** | Founds build the foundation. Experts provide reusable expertise. Clear separation. |
-| **Memory Persistence** | Decisions, procedures, context stored in Mem0. Nothing gets lost between sessions. |
+| **Matrix Personas** | 6 agents with distinct personalities, same skills. Adversarial review flow for quality. |
+| **Scoped Memory** | Three-level Mem0 scoping (team/project/agent). Nothing gets lost between sessions. |
 | **Never Push Main** | All changes via branch + PR. No exceptions. |
 
 ---
@@ -465,7 +453,7 @@ Every PR must include:
 ## Contributing
 
 1. Branch: `git checkout -b feat/my-feature`
-2. Add experts in `agents/experts/`, founds in `agents/founds/`, skills in `skills/`
+2. Add agents in `agents/`, skills in `skills/`
 3. Update `CHANGELOG.md` with your changes
 4. **Audit for secrets/PII** — no personal paths, no API keys
 5. PR to `main`

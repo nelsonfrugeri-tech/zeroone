@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **Three-level scoped memory system** (#25) — adapted from bike-shop Memory System v0.3.0
+  - Three scopes: `team` (global), `team:{project}` (project), `{agent}:{project}` (agent)
+  - 5 primary memory types: `decision`, `fact`, `preference`, `procedure`, `outcome`
+  - New `mem0_recall_context` tool — queries all 3 scopes in one call with retrieval budget (~13 items)
+  - Save protocol: classify scope → classify type → check duplicates → store/update
+  - Memory hygiene criteria with per-scope cleanup protocol
+  - All 6 agents updated with Memory Scoping section
+  - `meta-orchestration` skill rewritten with three-level scoping, retrieval flow, and save protocol
+  - Reference docs updated: `knowledge-structure.md`, `hygiene.md`
 - **`dev-pipeline` skill** (#26) — mandatory delivery pipeline: CODE → SELF-JUDGE → QA → PR → REVIEW → FIX loop. 8 reference files covering stages, transitions, self-judge checklist, QA protocol, review handoff, and templates
 - **7 new state-of-the-art skills** (#24)
   - `sre-observability` — OpenTelemetry, SLOs, incident response, dashboards
