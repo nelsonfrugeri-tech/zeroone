@@ -47,7 +47,8 @@ def _get_installation_token(agent_name: str) -> tuple[str, str]:
     Returns (token, app_slug) tuple.
     Raises ValueError if env vars are missing or PEM file not found.
     """
-    prefix = agent_name.upper().replace("-", "_") if agent_name else ""
+    agent = agent_name.strip() if agent_name else ""
+    prefix = agent.upper().replace("-", "_") if agent else ""
 
     def _env(key: str) -> str:
         """Try per-agent env var first, then generic fallback."""
@@ -60,7 +61,7 @@ def _get_installation_token(agent_name: str) -> tuple[str, str]:
     app_id = _env("ID")
     pem_path = os.path.expanduser(_env("PEM_PATH"))
     installation_id = _env("INSTALLATION_ID")
-    app_slug = _env("SLUG") or agent_name
+    app_slug = _env("SLUG") or agent
 
     missing = []
     if not app_id:
