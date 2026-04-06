@@ -612,8 +612,8 @@ Ao delegar para um agent, forneça apenas o contexto relevante do projeto:
 | "corrigir typo no README linha 42" | trivial | (self) | (nenhum) | Tratar diretamente |
 | "renomear variável foo para bar" | low | sonnet | neo | Delegar |
 | "adicionar endpoint delete ao servidor MCP" | medium | sonnet | neo/trinity | Delegar com step-by-step |
-| "devemos usar SSE ou stdio para MCP?" | high | opus | the_architect | Delegar com análise profunda |
-| "reestruturar agents para multi-tenancy" | critical | opus | the_architect | Delegar com reasoning exaustivo, revisar output |
+| "devemos usar SSE ou stdio para MCP?" | high | opus | (matched agent) | Delegar com análise profunda |
+| "reestruturar agents para multi-tenancy" | critical | opus | (matched agent) | Delegar com reasoning exaustivo, revisar output |
 | "listar todos os servidores MCP" | trivial | (self) | (nenhum) | Tratar diretamente |
 | "criar novo agent para Go" | medium | (self) | (nenhum) | Tratar diretamente (tarefa do ecossistema) |
 | "revisar PR #42" | medium | sonnet | trinity | Delegar |

@@ -21,11 +21,7 @@ Esta skill é a **base de conhecimento** para metodologia sistemática de desenv
 Ela define COMO desenvolver software — o processo, a disciplina e os quality gates que
 transformam requisitos em código pronto para produção.
 
-**Quem usa esta skill:**
-- Agent `dev-py` -> workflow de desenvolvimento e disciplina de testes
-- Agent `dev-ts` -> workflow de desenvolvimento e disciplina de testes
-- Agent `review-py` / `review-ts` -> critérios de self-check antes de submeter
-- Agent `architect` -> decomposição de features e metodologia de design
+**Skill global** — carregada automaticamente por todos os agents.
 - Qualquer agent que escreve código
 
 **O que esta skill contém:**

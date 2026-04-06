@@ -38,7 +38,7 @@ isolation: worktree
 - [ ] Model adequado: `haiku` (trivial), `sonnet` (maioria), `opus` (crítico)
 
 ## Convenção de Nomes
-- Lowercase, com underscore se necessário: `neo`, `trinity`, `the_architect`
+- Lowercase, com underscore se necessário: `my_agent`, `code_reviewer`, `infra_ops`
 - Nome reflete a persona, não a implementação
 - Evitar nomes genéricos: `helper`, `assistant`, `worker`
 
