@@ -27,7 +27,7 @@ CHANGED=$(git -C "$ROOT" diff --name-only "$BASE"...HEAD 2>/dev/null || git -C "
 QA_IN_DIFF=$(echo "$CHANGED" | grep -iE '(qa-report|test-results|qa-evidence|\.test-output)' || true)
 
 # Also check if a QA evidence file exists anywhere under ROOT
-QA_ON_DISK=$(find "$ROOT" -maxdepth 3 \( \
+QA_ON_DISK=$(find "$ROOT" -maxdepth 4 \( \
   -name "qa-report.md" -o \
   -name "qa-report.txt" -o \
   -name "test-results.*" -o \

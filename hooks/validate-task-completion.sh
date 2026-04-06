@@ -33,6 +33,7 @@ TEST_FILE=$(find "$ROOT" -maxdepth 4 \( \
   -name "test-results.json" -o \
   -name "coverage.xml" -o \
   -name "coverage.json" -o \
+  -name "coverage.txt" -o \
   -name "junit*.xml" -o \
   -name "qa-report.md" -o \
   -name "test-output.txt" -o \
