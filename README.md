@@ -6,12 +6,12 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-CLI-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/6_Agents-Ready-blue?style=for-the-badge)](#-agents)
-[![Skills](https://img.shields.io/badge/8_Skills-Loaded-purple?style=for-the-badge)](#-skills)
+[![Skills](https://img.shields.io/badge/16_Skills-Loaded-purple?style=for-the-badge)](#-skills)
 [![Memory](https://img.shields.io/badge/Mem0-Shared_Memory-green?style=for-the-badge)](#-shared-memory-mem0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 **Turn `~/.claude` into a fully autonomous development environment.**
-**6 persona-based agents, 8 knowledge bases, shared semantic memory, and zero configuration.**
+**6 persona-based agents, 16 knowledge bases, shared semantic memory, and zero configuration.**
 
 [Features](#-features) · [Quick Start](#-quick-start) · [Agents](#-agents) · [Memory](#-shared-memory-mem0) · [Autonomy](#-autonomy--permissions) · [Hooks](#-hooks)
 
@@ -133,6 +133,14 @@ All skills are loaded by every agent automatically.
 | **ai-engineer** | LLM engineering, RAG, agents, vector DBs, MLOps |
 | **product-manager** | Discovery, delivery, OKRs, user stories, roadmap |
 | **github** | GitHub operations via MCP — enforced bot-identity PRs, issues, comments |
+| **dev-pipeline** | Mandatory delivery pipeline: CODE → SELF-JUDGE → QA → PR → REVIEW → FIX loop |
+| **dev-methodology** | Full dev workflow: TDD, refactoring, vertical slicing, Definition of Done |
+| **research** | Structured technical research: search strategies, source validation, synthesis |
+| **meta-orchestration** | Task routing, agent coordination, Mem0 management, agent creation |
+| **qa** | E2E testing, test strategy, Definition of Done, environment setup/teardown |
+| **software-architecture** | SOLID, ADR, C4, trade-offs, API design, event-driven architecture |
+| **sre-observability** | OpenTelemetry, SLOs, incident response, dashboards, cost optimization |
+| **local-infrastructure** | Docker, compose, databases, service orchestration, env management |
 
 All skills are **global** — loaded automatically by every agent. No per-agent skill declaration.
 

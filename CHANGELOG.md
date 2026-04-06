@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **`dev-pipeline` skill** (#26) — mandatory delivery pipeline: CODE → SELF-JUDGE → QA → PR → REVIEW → FIX loop. 8 reference files covering stages, transitions, self-judge checklist, QA protocol, review handoff, and templates
 - **7 new state-of-the-art skills** (#24)
   - `sre-observability` — OpenTelemetry, SLOs, incident response, dashboards
   - `local-infrastructure` — Docker, compose, databases, service orchestration
