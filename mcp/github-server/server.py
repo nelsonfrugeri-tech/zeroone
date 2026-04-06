@@ -24,27 +24,43 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP(name="github")
 
 # ---------------------------------------------------------------------------
-# GitHub App auth — all credentials via environment variables
+# GitHub App auth — multi-agent credentials via environment variables
 # ---------------------------------------------------------------------------
 #
-# Required env vars:
-#   GITHUB_APP_ID             — GitHub App ID
-#   GITHUB_APP_PEM_PATH       — Path to the App's private key PEM file
-#   GITHUB_APP_INSTALLATION_ID — Installation ID for the target org/user
-#   GITHUB_APP_SLUG           — App slug (used as bot identity in responses)
+# Per-agent env vars (preferred):
+#   GITHUB_APP_{AGENT}_ID              — GitHub App ID for this agent
+#   GITHUB_APP_{AGENT}_PEM_PATH        — Path to the App's private key PEM file
+#   GITHUB_APP_{AGENT}_INSTALLATION_ID — Installation ID for the target org/user
+#   GITHUB_APP_{AGENT}_SLUG            — App slug (used as bot identity in responses)
+#
+# Fallback env vars (used when per-agent vars not found):
+#   GITHUB_APP_ID / GITHUB_APP_PEM_PATH / GITHUB_APP_INSTALLATION_ID / GITHUB_APP_SLUG
 # ---------------------------------------------------------------------------
 
 
 def _get_installation_token(agent_name: str) -> tuple[str, str]:
     """Get a GitHub installation token via env var credentials.
 
+    Looks up per-agent env vars first (GITHUB_APP_{AGENT}_*), then falls back
+    to generic env vars (GITHUB_APP_*).
+
     Returns (token, app_slug) tuple.
     Raises ValueError if env vars are missing or PEM file not found.
     """
-    app_id = os.environ.get("GITHUB_APP_ID", "")
-    pem_path = os.path.expanduser(os.environ.get("GITHUB_APP_PEM_PATH", ""))
-    installation_id = os.environ.get("GITHUB_APP_INSTALLATION_ID", "")
-    app_slug = os.environ.get("GITHUB_APP_SLUG", agent_name)
+    prefix = agent_name.upper().replace("-", "_") if agent_name else ""
+
+    def _env(key: str) -> str:
+        """Try per-agent env var first, then generic fallback."""
+        if prefix:
+            val = os.environ.get(f"GITHUB_APP_{prefix}_{key}", "")
+            if val:
+                return val
+        return os.environ.get(f"GITHUB_APP_{key}", "")
+
+    app_id = _env("ID")
+    pem_path = os.path.expanduser(_env("PEM_PATH"))
+    installation_id = _env("INSTALLATION_ID")
+    app_slug = _env("SLUG") or agent_name
 
     missing = []
     if not app_id:

@@ -211,15 +211,28 @@ Agent (oracle, neo, trinity, ...)
 │  github_close_pr()     │
 │  github_list_issues()  │
 │                        │
-│  Auth: env vars        │ ← GITHUB_APP_ID, _PEM_PATH, _INSTALLATION_ID, _SLUG
+│  Auth: per-agent envs  │ ← GITHUB_APP_{AGENT}_ID, _PEM_PATH, _INSTALLATION_ID, _SLUG
+│  Fallback: generic envs│ ← GITHUB_APP_ID (used when agent has no own App)
 └────────────────────────┘
 ```
+
+### Registered Agents
+
+| Agent | App Slug | Status |
+|-------|----------|--------|
+| **oracle** | `oracle-zeroone` | Active |
+| **neo** | `neo-zeroone` | Active |
+| **trinity** | — | Pending (uses fallback) |
+| **morpheus** | — | Pending (uses fallback) |
+| **the_architect** | — | Pending (uses fallback) |
+| **cypher** | — | Pending (uses fallback) |
 
 **Rules enforced by the `github` skill:**
 - All GitHub writes MUST use `mcp__github__*` tools — never `curl`, `gh CLI`, or raw HTTP
 - CHANGELOG must be updated before creating a PR (blocks otherwise)
 - README warnings treated as hard blocks
 - Credentials configured via env vars in `.mcp.json` — never hardcoded in source
+- Each agent authenticates via per-agent env vars (`GITHUB_APP_{AGENT}_*`) with generic fallback
 
 ---
 

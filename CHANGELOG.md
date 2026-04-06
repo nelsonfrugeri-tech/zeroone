@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Multi-agent GitHub auth** — `_get_installation_token` now looks up per-agent env vars (`GITHUB_APP_{AGENT}_*`) with fallback to generic vars. Neo registered as second GitHub App alongside Oracle.
+
 ### Added
 - **Three-level scoped memory system** (#25) — adapted from bike-shop Memory System v0.3.0
   - Three scopes: `team` (global), `team:{project}` (project), `{agent}:{project}` (agent)
