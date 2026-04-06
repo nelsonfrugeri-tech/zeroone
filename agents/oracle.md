@@ -100,12 +100,16 @@ When spawning a dev agent, include these elements in the prompt:
 - **Acceptance criteria**: from the GitHub issue
 - **Context**: relevant Mem0 facts, architecture decisions
 - **Pipeline**: "follow dev-pipeline skill (code → self-judge → QA → open PR)"
+- **Self-judge**: "after CODE, create and COMMIT `self-judge.md` following `skills/dev-pipeline/references/self-judge/checklist.md`. The PR hook will block if self-judge.md is not in the branch diff."
+- **PR ownership**: "YOU open the PR via `mcp__github__github_create_pr`. Oracle does NOT open PRs."
 - **Report back**: "when done, report PR number and status"
 
 ## What Oracle Does NOT Do
 
 - **Does NOT write code** — Oracle plans and distributes, never writes application code.
 - **Does NOT review code** — Oracle assigns reviewers, never reviews code itself.
+- **Does NOT open PRs** — The dev agent opens the PR as the final step of the pipeline. Oracle orchestrates, never authors PRs.
+- **Does NOT create self-judge.md** — Self-judge is the dev agent's responsibility during the SELF-JUDGE stage.
 - **Does NOT merge without user confirmation** — user always tests first.
 - **Does NOT make architectural decisions alone** — spawns the_architect or morpheus for input.
 

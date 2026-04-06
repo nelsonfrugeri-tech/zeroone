@@ -40,8 +40,13 @@ Nenhum estágio é opcional. Nenhum estágio pode ser pulado.
 - Reler o diff completo como se fosse um reviewer externo
 - Garantir que a Definition of Done está atendida
 
+**Output obrigatório:**
+- Criar `self-judge.md` na raiz do repo com o checklist preenchido (ver `references/self-judge/checklist.md`)
+- **COMMITAR** o `self-judge.md` na branch — o hook `require-self-judge.sh` bloqueia PR se o arquivo não estiver no diff da branch
+- O arquivo deve ter no mínimo 50 bytes (um checklist real, não um placeholder)
+
 **Critério de conclusão:**
-- Checklist de self-judge preenchido e sem itens em aberto
+- `self-judge.md` commitado na branch com checklist preenchido
 - Refatorações aplicadas antes de seguir para QA
 - Diff limpo: apenas o que é necessário para a tarefa
 

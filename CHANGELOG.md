@@ -12,8 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - **require-qa-evidence.sh Bash matcher** (#1) — The QA evidence hook previously only triggered on `mcp__github__github_create_pr` tool calls. Agents using `gh pr create` via the Bash tool bypassed the check entirely. The hook now detects both: MCP tool calls (existing behavior) and Bash `gh pr create` invocations using the same robust regex. Registered as a second Bash PreToolUse matcher in `settings.json`.
-- **require-self-judge.sh hook** (#2) — New hook that blocks all PR creation (both MCP and CLI paths) unless `self-judge.md` exists in the repo root with at least 50 bytes of content. Agents must create a filled self-review checklist before opening any PR. Registered for both `Bash` and `mcp__github__github_create_pr` matchers in `settings.json`.
-- **Test suite for all three hooks** — `hooks/tests/test-pr-docs-check.sh` (15 cases), `hooks/tests/test-require-qa-evidence.sh` (6 cases), `hooks/tests/test-require-self-judge.sh` (8 cases). All tests are executable and self-reporting.
+- **require-self-judge.sh hook** (#2) — New hook that blocks all PR creation (both MCP and CLI paths) unless `self-judge.md` is **committed in the branch diff** with at least 50 bytes of content. The dev agent must create and commit self-judge.md during the SELF-JUDGE stage — ad-hoc creation at PR time is blocked. Registered for both `Bash` and `mcp__github__github_create_pr` matchers in `settings.json`.
+- **Test suite for all three hooks** — `hooks/tests/test-pr-docs-check.sh` (14 cases), `hooks/tests/test-require-qa-evidence.sh` (6 cases), `hooks/tests/test-require-self-judge.sh` (8 cases — validates git diff check, not just disk presence). All tests are executable and self-reporting.
+
+### Changed
+- **oracle.md delegation template** — Dev agents are now explicitly instructed to: (1) create and commit `self-judge.md` during SELF-JUDGE stage, (2) open the PR themselves. Oracle does NOT open PRs or create self-judge.md.
+- **dev-pipeline stages.md** — SELF-JUDGE stage now specifies mandatory output: `self-judge.md` committed in branch, enforced by hook.
 
 ### Fixed
 - **Hook JSON schema for Stop and TaskCompleted events** (#50) — `verify-tests-passed.sh` and `validate-task-completion.sh` were using the PreToolUse schema (`hookSpecificOutput.permissionDecision`), which is invalid for Stop/TaskCompleted events and caused "JSON validation failed" in the Claude Code runtime. Both hooks now use the correct schema: `{"decision": "approve|block", "reason": "..."}`.

@@ -33,37 +33,50 @@ if [ -z "$CWD" ]; then
 fi
 
 ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
-SELF_JUDGE="$ROOT/self-judge.md"
+BASE=$(git -C "$ROOT" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
 
-# Check file exists and is non-empty (at least 50 bytes)
-if [ -f "$SELF_JUDGE" ] && [ "$(wc -c < "$SELF_JUDGE")" -ge 50 ]; then
+# self-judge.md must be COMMITTED in the branch diff, not just on disk.
+# This prevents ad-hoc creation by Oracle or other non-dev agents.
+CHANGED=$(git -C "$ROOT" diff --name-only "$BASE"...HEAD 2>/dev/null || git -C "$ROOT" diff --name-only HEAD~1 2>/dev/null || echo "")
+SJ_IN_DIFF=$(echo "$CHANGED" | grep -E '^self-judge\.md$' || true)
+
+if [ -z "$SJ_IN_DIFF" ]; then
   cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "permissionDecision": "allow",
-    "additionalContext": "self-judge.md found and non-empty — PR creation allowed."
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "PR blocked: self-judge.md not found in branch diff. The dev agent must create and COMMIT self-judge.md during the SELF-JUDGE stage (after CODE, before QA).",
+    "additionalContext": "self-judge.md must be committed in the branch — not created ad-hoc at PR time. Follow the dev-pipeline: CODE → SELF-JUDGE (create self-judge.md with filled checklist) → QA → OPEN PR. See skills/dev-pipeline/references/self-judge/checklist.md for the required format."
   }
 }
 EOF
-  exit 0
+  exit 2
 fi
 
-# Determine failure reason
-if [ ! -f "$SELF_JUDGE" ]; then
-  REASON="self-judge.md not found in repo root ($ROOT)."
-else
-  REASON="self-judge.md exists but is empty or too short (< 50 bytes)."
+# Verify committed file has meaningful content (at least 50 bytes)
+SELF_JUDGE="$ROOT/self-judge.md"
+if [ ! -f "$SELF_JUDGE" ] || [ "$(wc -c < "$SELF_JUDGE")" -lt 50 ]; then
+  cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "PR blocked: self-judge.md is committed but empty or too short (< 50 bytes). Fill the self-review checklist before opening a PR.",
+    "additionalContext": "See skills/dev-pipeline/references/self-judge/checklist.md for the required format."
+  }
+}
+EOF
+  exit 2
 fi
 
 cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "PR blocked: $REASON",
-    "additionalContext": "Create self-judge.md at the repo root with a filled self-review checklist (at least 50 bytes) before opening a PR. Example checklist: ## Self-Judge\n- [ ] All tests pass\n- [ ] CHANGELOG updated\n- [ ] README updated\n- [ ] No debug code left\n- [ ] Edge cases considered"
+    "permissionDecision": "allow",
+    "additionalContext": "self-judge.md found in branch diff and non-empty — PR creation allowed."
   }
 }
 EOF
-exit 2
+exit 0
