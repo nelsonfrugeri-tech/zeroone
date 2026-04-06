@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **require-self-judge.sh hook** (#2) — New hook that blocks all PR creation (both MCP and CLI paths) unless `self-judge.md` is **committed in the branch diff** with at least 50 bytes of content. The dev agent must create and commit self-judge.md during the SELF-JUDGE stage — ad-hoc creation at PR time is blocked. Registered for both `Bash` and `mcp__github__github_create_pr` matchers in `settings.json`.
 - **Test suite for all three hooks** — `hooks/tests/test-pr-docs-check.sh` (14 cases), `hooks/tests/test-require-qa-evidence.sh` (6 cases), `hooks/tests/test-require-self-judge.sh` (8 cases — validates git diff check, not just disk presence). All tests are executable and self-reporting.
 
+### Fixed
+- **Worktree path exclusion deadlock** — `verify-tests-passed.sh`, `require-qa-evidence.sh`, and `validate-task-completion.sh` had `-not -path "*/.claude/worktrees/*"` which excluded ALL files when ROOT was itself a worktree. Now only excludes other agents' worktrees, not the current one.
+- **pr-docs-check.sh missing MCP matcher** — Hook only fired on Bash commands; MCP `github_create_pr` calls bypassed CHANGELOG check. Now registered for both matchers and handles both tool types.
+- **pr-docs-check.sh exit 0 on deny** — Hook returned `permissionDecision: deny` in JSON but `exit 0`. Changed to `exit 2` for deny path.
+- **enforce-worktree.sh silent allow without jq** — When `jq` was missing, hook silently allowed sessions outside worktrees. Now blocks with `exit 2` and clear error.
+- **require-self-judge.sh no checklist validation** — Hook only checked file size (>50 bytes). An agent could write 50 chars of filler. Now validates at least 3 real checklist items (`- [x]` or `- [ ]` format).
+
 ### Changed
 - **oracle.md delegation template** — Dev agents are now explicitly instructed to: (1) create and commit `self-judge.md` during SELF-JUDGE stage, (2) open the PR themselves. Oracle does NOT open PRs or create self-judge.md.
 - **dev-pipeline stages.md** — SELF-JUDGE stage now specifies mandatory output: `self-judge.md` committed in branch, enforced by hook.

@@ -41,9 +41,15 @@ QA_IN_DIFF=$(echo "$CHANGED" | grep -iE '(qa-report|test-results|qa-evidence|\.t
 
 # Also check if a QA evidence file exists anywhere under ROOT
 # Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
+# Exclude other agents' worktrees, but NOT the current agent's worktree (which IS ROOT)
+WORKTREE_EXCLUDE=""
+if ! echo "$ROOT" | grep -q '/.claude/worktrees/'; then
+  WORKTREE_EXCLUDE="-not -path */.claude/worktrees/*"
+fi
+
 QA_ON_DISK=$(find "$ROOT" -maxdepth 4 \
   -not -path "*/hooks/*" \
-  -not -path "*/.claude/worktrees/*" \
+  $WORKTREE_EXCLUDE \
   \( \
   -name "qa-report.md" -o \
   -name "qa-report.txt" -o \

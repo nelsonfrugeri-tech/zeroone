@@ -16,9 +16,15 @@ ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
 
 # Check for test output files on disk (explicit file evidence only)
 # Exclude hooks/ directory to prevent qa-report.md in hooks/ from satisfying this check
+# Exclude other agents' worktrees, but NOT the current agent's worktree (which IS ROOT)
+WORKTREE_EXCLUDE=""
+if ! echo "$ROOT" | grep -q '/.claude/worktrees/'; then
+  WORKTREE_EXCLUDE="-not -path */.claude/worktrees/*"
+fi
+
 TEST_FILE=$(find "$ROOT" -maxdepth 4 \
   -not -path "*/hooks/*" \
-  -not -path "*/.claude/worktrees/*" \
+  $WORKTREE_EXCLUDE \
   \( \
   -name "pytest-*.xml" -o \
   -name "test-results.xml" -o \

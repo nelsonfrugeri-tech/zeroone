@@ -27,6 +27,20 @@ from qdrant_client.models import (
 mcp = FastMCP(name="mem0")
 
 # ---------------------------------------------------------------------------
+# Memory entity types (issue #48)
+# ---------------------------------------------------------------------------
+
+VALID_MEMORY_TYPES: frozenset[str] = frozenset({
+    "decision",
+    "pattern",
+    "outcome",
+    "feedback",
+    "blocker",
+    "requirement",
+    "context",
+})
+
+# ---------------------------------------------------------------------------
 # Configuration (all via env vars)
 # ---------------------------------------------------------------------------
 
@@ -418,3 +432,4 @@ async def mem0_recall_context(
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+# Test

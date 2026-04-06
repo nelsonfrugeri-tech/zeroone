@@ -71,7 +71,17 @@ git -C "$TMPDIR_ROOT" add self-judge.md
 git -C "$TMPDIR_ROOT" commit -q -m "add empty self-judge"
 check "MCP tool with short self-judge.md committed → deny" "$MCP_INPUT" "deny"
 
-# --- Commit valid self-judge.md (>= 50 bytes) → allow ---
+# --- Commit self-judge.md with >50 bytes but no checklist items → deny ---
+cat > "$TMPDIR_ROOT/self-judge.md" <<'CONTENT'
+## Self-Judge
+
+I reviewed the code and everything looks good to me. No issues found at all.
+CONTENT
+git -C "$TMPDIR_ROOT" add self-judge.md
+git -C "$TMPDIR_ROOT" commit -q -m "add fake self-judge without checklist"
+check "MCP tool with self-judge.md but no checklist items → deny" "$MCP_INPUT" "deny"
+
+# --- Commit valid self-judge.md (>= 50 bytes + checklist items) → allow ---
 cat > "$TMPDIR_ROOT/self-judge.md" <<'CONTENT'
 ## Self-Judge
 

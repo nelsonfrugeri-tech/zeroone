@@ -6,8 +6,8 @@
 # submodules are allowed through. Use `git worktree list` for stricter checks.
 
 if ! command -v jq &>/dev/null; then
-  echo "WARNING: jq not found. enforce-worktree.sh requires jq to validate worktree." >&2
-  exit 0
+  echo "BLOCKED: jq not found. enforce-worktree.sh requires jq to validate worktree. Install jq first." >&2
+  exit 2
 fi
 
 INPUT=$(cat)

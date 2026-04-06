@@ -1,36 +1,53 @@
 #!/usr/bin/env bash
-# Hook: PreToolUse on Bash
+# Hook: PreToolUse on Bash AND mcp__github__github_create_pr
 # Checks if CHANGELOG.md and README.md were updated before allowing PR creation.
 # Returns JSON to block the PR if docs are missing from the diff.
 
 set -euo pipefail
 
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+TOOL=$(echo "$INPUT" | jq -r '.tool_name // ""')
 
-# Only check actual PR creation invocations at command start.
-# Once gh CLI writes are blocked by deny rules, this only catches edge cases
-# where the substring appears in unrelated Bash commands.
-if ! echo "$COMMAND" | grep -qE '^\s*gh\s+pr\s+create\b'; then
+# Determine if this is a PR creation event (MCP or Bash)
+IS_PR_EVENT=0
+
+if [ "$TOOL" = "mcp__github__github_create_pr" ]; then
+  IS_PR_EVENT=1
+elif [ "$TOOL" = "Bash" ]; then
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+  if echo "$COMMAND" | grep -qE '^\s*gh\s+pr\s+create\b'; then
+    IS_PR_EVENT=1
+  fi
+fi
+
+if [ "$IS_PR_EVENT" -eq 0 ]; then
   exit 0
 fi
 
-# Get the base branch (usually main)
-BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+# Determine repo root
+CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+if [ -z "$CWD" ]; then
+  CWD=$(pwd)
+fi
 
-# Try to extract --head branch from the gh pr create command
-# e.g.: gh pr create --head feat/my-feature --base main ...
-HEAD_BRANCH=$(echo "$COMMAND" | grep -oE '\-\-head\s+\S+' | awk '{print $2}' || true)
+ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || echo "$CWD")
+
+# Get the base branch (usually main)
+BASE=$(git -C "$ROOT" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "main")
+
+# Try to extract --head branch from the gh pr create command (Bash path only)
+HEAD_BRANCH=""
+if [ "$TOOL" = "Bash" ]; then
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+  HEAD_BRANCH=$(echo "$COMMAND" | grep -oE '\-\-head\s+\S+' | awk '{print $2}' || true)
+fi
 
 # Get files changed in this branch vs base
-# If HEAD_BRANCH is known, compare base..origin/HEAD_BRANCH so it works from any worktree/branch context
-# Fallback to HEAD-based diff if branch not extractable
 if [ -n "$HEAD_BRANCH" ]; then
-  # Fetch to ensure remote ref is up-to-date, then diff
-  git fetch origin "$HEAD_BRANCH" 2>/dev/null || true
-  CHANGED=$(git diff --name-only "$BASE"..origin/"$HEAD_BRANCH" 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+  git -C "$ROOT" fetch origin "$HEAD_BRANCH" 2>/dev/null || true
+  CHANGED=$(git -C "$ROOT" diff --name-only "$BASE"..origin/"$HEAD_BRANCH" 2>/dev/null || git -C "$ROOT" diff --name-only HEAD~1 2>/dev/null || echo "")
 else
-  CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+  CHANGED=$(git -C "$ROOT" diff --name-only "$BASE"...HEAD 2>/dev/null || git -C "$ROOT" diff --name-only HEAD~1 2>/dev/null || echo "")
 fi
 
 MISSING=""
@@ -48,7 +65,7 @@ fi
 
 # Check API collections if any exist and endpoints changed
 API_WARNING=""
-if ls ./*.postman_collection.json ./*.insomnia.json docs/*.postman_collection.json docs/*.insomnia.json 2>/dev/null | head -1 > /dev/null 2>&1; then
+if ls "$ROOT"/*.postman_collection.json "$ROOT"/*.insomnia.json "$ROOT"/docs/*.postman_collection.json "$ROOT"/docs/*.insomnia.json 2>/dev/null | head -1 > /dev/null 2>&1; then
   if echo "$CHANGED" | grep -qE '\.(py|ts|js|go|rs)$'; then
     if ! echo "$CHANGED" | grep -qE '(postman|insomnia|bruno)'; then
       API_WARNING="API collection files exist but were not updated — verify if endpoints changed."
@@ -72,7 +89,7 @@ if [ -n "$MISSING" ]; then
   }
 }
 EOF
-  exit 0
+  exit 2
 fi
 
 # Warn about README and API collections (don't block)

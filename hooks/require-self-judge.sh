@@ -54,8 +54,10 @@ EOF
   exit 2
 fi
 
-# Verify committed file has meaningful content (at least 50 bytes)
+# Verify committed file has meaningful content
 SELF_JUDGE="$ROOT/self-judge.md"
+
+# Check 1: file exists and has minimum size (50 bytes)
 if [ ! -f "$SELF_JUDGE" ] || [ "$(wc -c < "$SELF_JUDGE")" -lt 50 ]; then
   cat <<EOF
 {
@@ -64,6 +66,22 @@ if [ ! -f "$SELF_JUDGE" ] || [ "$(wc -c < "$SELF_JUDGE")" -lt 50 ]; then
     "permissionDecision": "deny",
     "permissionDecisionReason": "PR blocked: self-judge.md is committed but empty or too short (< 50 bytes). Fill the self-review checklist before opening a PR.",
     "additionalContext": "See skills/dev-pipeline/references/self-judge/checklist.md for the required format."
+  }
+}
+EOF
+  exit 2
+fi
+
+# Check 2: file must contain real checklist items (at least 3 lines matching "- [x]" or "- [ ]")
+CHECKLIST_ITEMS=$(grep -cE '^\s*-\s*\[(x|X| )\]' "$SELF_JUDGE" 2>/dev/null) || CHECKLIST_ITEMS=0
+if [ "$CHECKLIST_ITEMS" -lt 3 ]; then
+  cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "PR blocked: self-judge.md has no real checklist items (found $CHECKLIST_ITEMS, need at least 3). Use '- [x]' or '- [ ]' markdown checklist format.",
+    "additionalContext": "See skills/dev-pipeline/references/self-judge/checklist.md for the required format. Each section must have checked items."
   }
 }
 EOF
