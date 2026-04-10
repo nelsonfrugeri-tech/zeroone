@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **CLAUDE.md** — stripped company-specific sections (Matrix Personas, Local AI Performance, GitHub Operations, Language Rules, Agent Isolation details), keeping only 5 universal foundational principles (#58). Reduced from 202 to 68 lines
+
 ## [0.4.0] - 2026-04-10
 
 _New phase — starting point for the next evolution of agents and skills._
