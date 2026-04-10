@@ -1,0 +1,57 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch",
+      "Agent",
+      "TaskCreate",
+      "TaskUpdate",
+      "mcp__excalidraw__*",
+      "mcp__drawio__*",
+      "mcp__mem0__*"
+    ],
+    "deny": [
+      "Bash(git push origin main)",
+      "Bash(git push --force*)",
+      "Bash(rm -rf *)"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "allow": [
+      "Reading, searching, and exploring files and directories",
+      "Writing and editing source code, configs, docs, and scripts",
+      "Running build, test, lint, format, and dev server commands",
+      "Git operations: status, diff, log, add, commit, branch, checkout, push, pull, fetch",
+      "Running package managers: npm, pip, uv, brew",
+      "Docker operations: build, up, down, logs, ps, exec",
+      "Creating directories and new files",
+      "Running MCP tool calls"
+    ],
+    "soft_deny": [
+      "Deleting files or directories (rm, git rm, shred) — always confirm first",
+      "Creating, rotating, or modifying tokens, API keys, secrets, or credentials",
+      "Modifying .env files, PEM files, certificates, or any file containing secrets",
+      "Changing permissions or access controls (chmod, chown, IAM, GitHub permissions)",
+      "Force-pushing to any branch (git push --force)",
+      "Destructive git operations: reset --hard, clean -f, branch -D on remote branches",
+      "Publishing packages or deploying to production",
+      "Sending messages to external services (Slack, email, webhooks) on behalf of the user"
+    ],
+    "environment": [
+      "This is a development environment with multiple projects",
+      "Agents have high autonomy for code and infrastructure work",
+      "Security-sensitive operations (tokens, keys, secrets, permissions) always require human approval",
+      "File deletion always requires human approval",
+      "When in doubt about impact, ask"
+    ]
+  }
+}
