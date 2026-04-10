@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Zeroone Agent
+- **`zeroone` agent** (#63) — ecosystem controller agent. Detects drift between the zeroone repo and `~/.claude/` deployed agents/skills, syncs agents/skills to `~/.claude/`, sets up project workspaces with Qdrant collections, and checks memory infrastructure health (Qdrant + Ollama).
+
+### Added — Workspaces
+- **`workspaces/` directory** (#63) — per-project knowledge base convention. Each project gets a `workspaces/{project}/` directory with `context.md`, `decisions.md`, and `runbook.md`. Agents discover workspaces via `ZEROONE_HOME` env var.
+
+### Added — Infra
+- **`infra/docker-compose.yml`** (#63) — Qdrant v1.17.1 service with persistent volume, health check, and ports 6333/6334. Ollama runs native (not containerized) per Local AI Performance principle.
+- **`infra/README.md`** (#63) — infrastructure startup guide: Qdrant via compose, Ollama native, `nomic-embed-text` model requirement, port reference, health check, and troubleshooting.
+
 ## [0.4.0] - 2026-04-10
 
 _New phase — starting point for the next evolution of agents and skills._

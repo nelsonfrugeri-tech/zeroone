@@ -5,13 +5,13 @@
 ### Your AI agents never forget. They research, they collaborate, they ship.
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-CLI-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
-[![Agents](https://img.shields.io/badge/7_Agents-Ready-blue?style=for-the-badge)](#-agents)
+[![Agents](https://img.shields.io/badge/8_Agents-Ready-blue?style=for-the-badge)](#-agents)
 [![Skills](https://img.shields.io/badge/16_Skills-Loaded-purple?style=for-the-badge)](#-skills)
 [![Memory](https://img.shields.io/badge/Mem0-Shared_Memory-green?style=for-the-badge)](#-shared-memory-mem0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 **Turn `~/.claude` into a fully autonomous development environment.**
-**7 persona-based agents, 16 knowledge bases, shared semantic memory, and zero configuration.**
+**8 persona-based agents, 16 knowledge bases, shared semantic memory, and zero configuration.**
 
 [Features](#-features) · [Quick Start](#-quick-start) · [Agents](#-agents) · [Memory](#-shared-memory-mem0) · [Autonomy](#-autonomy--permissions) · [Hooks](#-hooks)
 
@@ -23,7 +23,7 @@
 
 **claude-code** is the foundation layer that makes [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) intelligent. Install it once, and every project you work on gets:
 
-- **6 persona-based AI agents** with distinct personalities covering the full dev lifecycle
+- **8 persona-based AI agents** with distinct personalities covering the full dev lifecycle
 - **Shared semantic memory** that persists across sessions and terminals (Mem0 + Qdrant)
 - **Auto mode permissions** — agents work autonomously, only stop for critical decisions
 - **PR quality hooks** — CHANGELOG and docs enforced programmatically
@@ -35,7 +35,7 @@ Any project built on this foundation inherits all capabilities automatically.
 
 ## Features
 
-**Matrix Persona Agents** — 6 agents with distinct personalities (the_architect, neo, trinity, morpheus, oracle, cypher). Same skills, different lenses. Adversarial review flow: neo (draft) -> the_architect (judge) -> morpheus (debate).
+**Matrix Persona Agents** — 8 agents with distinct personalities (the_architect, neo, trinity, morpheus, oracle, cypher, reviewer, zeroone). Same skills, different lenses. Adversarial review flow: neo (draft) -> the_architect (judge) -> morpheus (debate).
 
 **Shared Semantic Memory** — Mem0 MCP server backed by Qdrant + Ollama. Store decisions, procedures, context. Search semantically. Persists across terminal restarts. Multiple agents share the same memory pool.
 
@@ -88,13 +88,17 @@ See [`.mcp.json.example`](.mcp.json.example) for all available env vars.
 ### Start memory infrastructure
 
 ```bash
-# From any project using this foundation (e.g., bike-shop)
-docker compose up -d qdrant ollama
+# Start Qdrant (from the zeroone repo)
+cd infra && docker compose up -d
 
-# Pull embedding + LLM models
-docker exec ollama ollama pull nomic-embed-text
-docker exec ollama ollama pull qwen3:4b
+# Start Ollama natively (not containerized — required for GPU acceleration)
+ollama serve
+
+# Pull the embedding model
+ollama pull nomic-embed-text
 ```
+
+See [`infra/README.md`](infra/README.md) for full setup details, port reference, and troubleshooting.
 
 ---
 
@@ -102,7 +106,7 @@ docker exec ollama ollama pull qwen3:4b
 
 ### Matrix Personas
 
-7 agents with distinct personalities. All share the same skills (loaded globally). Differentiation is personality only.
+8 agents with distinct personalities. All share the same skills (loaded globally). Differentiation is personality only.
 
 | Agent | Personality | Use case |
 |-------|------------|----------|
@@ -113,6 +117,7 @@ docker exec ollama ollama pull qwen3:4b
 | **oracle** | Holistic, cross-project vision. Living memory. **Entry point for all feature work.** | Feature orchestration, discovery, planning, distribution, monitoring, review, merge |
 | **cypher** | Pure SRE. Numbers and tables, not essays. | Infra ops, monitoring, incident response, health checks |
 | **reviewer** | Read-only, detail-oriented code reviewer. | Code quality, security audits, PR review comments |
+| **zeroone** | Ecosystem controller. Detects drift, syncs, manages infra. | Sync agents/skills to ~/.claude, setup project workspaces, check infra health |
 
 ### Oracle Orchestration Flow
 
@@ -413,7 +418,15 @@ Enable in `settings.json`:
 │   ├── morpheus.md                #   Socratic questioner, mentor
 │   ├── oracle.md                  #   Ecosystem manager, living memory
 │   ├── cypher.md                  #   Pure SRE, numbers and tables
-│   └── reviewer.md                #   Read-only code reviewer
+│   ├── reviewer.md                #   Read-only code reviewer
+│   └── zeroone.md                 #   Ecosystem controller (sync, setup, status)
+│
+├── workspaces/                    # Per-project knowledge bases
+│   └── {project}/                 #   context.md, decisions.md, runbook.md
+│
+├── infra/                         # Memory infrastructure
+│   ├── docker-compose.yml         #   Qdrant v1.17.1 (persistent volume)
+│   └── README.md                  #   Startup guide, ports, troubleshooting
 │
 ├── skills/                        # Knowledge bases (global, all agents)
 │   ├── arch-py/                   #   Python architecture
