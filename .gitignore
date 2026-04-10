@@ -19,8 +19,9 @@ setup/.local-state.json
 setup/bootstrap.log
 
 # Adicione aqui outras pastas quando quiser versionar:
-# !workspace/
 # !plugins/
+!workspaces/
+!infra/
 mcp/mem0-server/__pycache__/
 mcp/mem0-server/.venv/
 mcp/mem0-server/uv.lock
