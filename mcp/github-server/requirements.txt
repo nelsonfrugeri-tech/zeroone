@@ -1,4 +1,0 @@
-mcp[cli]==1.26.0
-httpx==0.28.1
-PyJWT[crypto]==2.12.1
-pydantic==2.12.5
