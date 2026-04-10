@@ -3,6 +3,10 @@
 Stores and retrieves memories via Qdrant (vector DB) + Ollama (embeddings).
 No LLM needed — Claude Code handles intelligence (fact extraction, summarization).
 This server is a pure storage + semantic search layer.
+
+Two-scope memory model:
+  - Project scope: user_id="project:{name}"    (shared decisions, architecture, conventions)
+  - Agent scope:   user_id="{agent}:{project}" (agent's own learnings, attempts, errors)
 """
 
 from __future__ import annotations
@@ -36,7 +40,7 @@ COLLECTION = os.environ.get("MEM0_COLLECTION", "claude-code-memory")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 EMBED_MODEL = os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 EMBED_DIMS = int(os.environ.get("OLLAMA_EMBED_DIMS", "768"))
-DEFAULT_USER = os.environ.get("MEM0_USER_ID", "claude-code")
+DEFAULT_USER = os.environ.get("MEM0_USER_ID", "project:default")
 
 # ---------------------------------------------------------------------------
 # Clients (lazy singletons)
@@ -93,19 +97,17 @@ async def mem0_store(
     """Store a memory in shared semantic storage. Content should be pre-processed
     (extracted facts, summaries) by Claude Code before storing.
 
-    Three-level scoping model — pass the right user_id:
-      - Team scope:    user_id="team"              (global prefs, cross-project rules)
-      - Project scope: user_id="team:{project}"    (architecture, stack, conventions)
-      - Agent scope:   user_id="{agent}:{project}" (agent's own decisions and outcomes)
+    Two-scope memory model — pass the right user_id:
+      - Project scope: user_id="project:{name}"    (shared decisions, architecture, conventions)
+      - Agent scope:   user_id="{agent}:{project}" (agent's own learnings, attempts, errors)
 
     Args:
         content: The memory content to store. Should be concise, factual, and self-contained.
-        memory_type: Category — decision, fact, preference, procedure, outcome (primary types),
-            or coordination types: task_claim, blocker, progress, conflict.
-        project: Project name (empty for cross-project memories).
+        memory_type: Category — decision, fact, preference, procedure, outcome.
+        project: Project name (for metadata/filtering).
         tags: Comma-separated tags (e.g. "architecture,python").
-        user_id: Memory scope — use three-level format: "team", "team:{project}",
-            or "{agent}:{project}". Defaults to MEM0_USER_ID env var.
+        user_id: Memory scope — "project:{name}" or "{agent}:{project}".
+            Defaults to MEM0_USER_ID env var.
     """
     uid = user_id or DEFAULT_USER
 
@@ -138,12 +140,13 @@ async def mem0_recall(
     limit: int = 10,
     user_id: str = "",
 ) -> str:
-    """Semantic search across all memories. Use before starting work to get context.
+    """Semantic search across memories. Use before starting work to get context.
 
     Args:
-        query: Natural language query (e.g. "language preferences", "bike-shop architecture").
+        query: Natural language query (e.g. "architecture decisions", "checkout-ecom stack").
         limit: Maximum results (default 10).
-        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
+        user_id: Filter by scope — "project:{name}" or "{agent}:{project}".
+            Defaults to MEM0_USER_ID env var.
     """
     uid = user_id or DEFAULT_USER
 
@@ -189,11 +192,11 @@ async def mem0_search(
 
     Args:
         query: Natural language search query.
-        memory_type: Filter by type — feedback, project, reference, decision, procedural, general,
-            task_claim, blocker, progress, conflict (coordination types for multi-agent).
+        memory_type: Filter by type — decision, fact, preference, procedure, outcome, general.
         project: Filter by project name.
         limit: Maximum results (default 10).
-        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
+        user_id: Filter by scope — "project:{name}" or "{agent}:{project}".
+            Defaults to MEM0_USER_ID env var.
     """
     uid = user_id or DEFAULT_USER
 
@@ -242,10 +245,11 @@ async def mem0_list(
     user_id: str = "",
     limit: int = 50,
 ) -> str:
-    """List all stored memories.
+    """List all stored memories for a scope.
 
     Args:
-        user_id: Filter by owner (defaults to MEM0_USER_ID env var).
+        user_id: Filter by scope — "project:{name}" or "{agent}:{project}".
+            Defaults to MEM0_USER_ID env var.
         limit: Maximum memories to return (default 50).
     """
     uid = user_id or DEFAULT_USER
@@ -284,11 +288,12 @@ async def mem0_delete(
     user_id: str = "",
     delete_all: bool = False,
 ) -> str:
-    """Delete a specific memory by ID, or all memories for a user.
+    """Delete a specific memory by ID, or all memories for a scope.
 
     Args:
         memory_id: The ID of the memory to delete (from recall/search results).
-        user_id: Memory scope (defaults to MEM0_USER_ID env var).
+        user_id: Memory scope — "project:{name}" or "{agent}:{project}".
+            Defaults to MEM0_USER_ID env var.
         delete_all: If true, deletes ALL memories for user_id. Use with caution.
     """
     uid = user_id or DEFAULT_USER
@@ -325,7 +330,7 @@ async def mem0_update(
     """Update an existing memory's content (re-embeds automatically).
 
     Args:
-        memory_id: The ID of the memory to update.
+        memory_id: The ID of the memory to update (from recall/search results).
         content: The new content for this memory.
     """
     try:
@@ -356,25 +361,22 @@ async def mem0_recall_context(
     project: str,
     agent_limit: int = 5,
     project_limit: int = 5,
-    team_limit: int = 3,
 ) -> str:
-    """Retrieve context from all three memory scopes in one call.
+    """Retrieve context from both memory scopes in one call.
 
-    Queries team, project, and agent scopes in parallel and returns merged
-    results respecting the retrieval budget (~13 items total).
+    Queries project and agent scopes and returns merged results
+    respecting the retrieval budget (~10 items total).
 
     Args:
         query: Natural language query (e.g. "architecture decisions", "recent work").
-        agent: Agent name (e.g. "neo", "oracle", "trinity").
-        project: Project name (e.g. "bike-shop", "claude-code").
+        agent: Agent name (e.g. "developer", "architect", "sre").
+        project: Project name (e.g. "checkout-ecom", "zeroone").
         agent_limit: Max results from agent scope (default 5).
         project_limit: Max results from project scope (default 5).
-        team_limit: Max results from team scope (default 3).
     """
     scopes = [
         (f"{agent}:{project}", agent_limit, "agent"),
-        (f"team:{project}", project_limit, "project"),
-        ("team", team_limit, "team"),
+        (f"project:{project}", project_limit, "project"),
     ]
 
     try:
