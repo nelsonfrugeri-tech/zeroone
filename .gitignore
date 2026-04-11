@@ -12,6 +12,9 @@
 !agents/
 !skills/
 !hooks/
+!config/
+!scripts/
+!.claude/
 hooks/logs/
 !setup/
 !mcp/

@@ -12,9 +12,9 @@
       "Agent",
       "TaskCreate",
       "TaskUpdate",
+      "mcp__mem0__*",
       "mcp__excalidraw__*",
       "mcp__drawio__*",
-      "mcp__mem0__*",
       "mcp__github__*"
     ],
     "deny": [

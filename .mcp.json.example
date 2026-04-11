@@ -1,26 +1,10 @@
 {
   "mcpServers": {
     "github": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["run", "--directory", "mcp/github-server", "python", "server.py"],
-      "env": {
-        "GITHUB_APP_ORACLE_ID": "${GITHUB_APP_ORACLE_ID}",
-        "GITHUB_APP_ORACLE_PEM_PATH": "${GITHUB_APP_ORACLE_PEM_PATH}",
-        "GITHUB_APP_ORACLE_INSTALLATION_ID": "${GITHUB_APP_ORACLE_INSTALLATION_ID}",
-        "GITHUB_APP_ORACLE_SLUG": "${GITHUB_APP_ORACLE_SLUG}",
-        "GITHUB_APP_NEO_ID": "${GITHUB_APP_NEO_ID}",
-        "GITHUB_APP_NEO_PEM_PATH": "${GITHUB_APP_NEO_PEM_PATH}",
-        "GITHUB_APP_NEO_INSTALLATION_ID": "${GITHUB_APP_NEO_INSTALLATION_ID}",
-        "GITHUB_APP_NEO_SLUG": "${GITHUB_APP_NEO_SLUG}",
-        "GITHUB_APP_THE_ARCHITECT_ID": "${GITHUB_APP_THE_ARCHITECT_ID}",
-        "GITHUB_APP_THE_ARCHITECT_PEM_PATH": "${GITHUB_APP_THE_ARCHITECT_PEM_PATH}",
-        "GITHUB_APP_THE_ARCHITECT_INSTALLATION_ID": "${GITHUB_APP_THE_ARCHITECT_INSTALLATION_ID}",
-        "GITHUB_APP_THE_ARCHITECT_SLUG": "${GITHUB_APP_THE_ARCHITECT_SLUG}",
-        "GITHUB_APP_ID": "${GITHUB_APP_ID}",
-        "GITHUB_APP_PEM_PATH": "${GITHUB_APP_PEM_PATH}",
-        "GITHUB_APP_INSTALLATION_ID": "${GITHUB_APP_INSTALLATION_ID}",
-        "GITHUB_APP_SLUG": "${GITHUB_APP_SLUG}"
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
     },
     "mem0": {
