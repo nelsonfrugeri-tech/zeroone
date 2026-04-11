@@ -67,6 +67,32 @@ printf "  outdated:  %s\n" "${outdated:-(none)}"
 printf "  missing:   %s\n" "${missing:-(none)}"
 printf "  orphaned:  %s\n" "${orphaned:-(none)}"
 
+# --- Config drift ---
+echo ""
+echo "CONFIG"
+
+if [[ ! -f "$CLAUDE_HOME/settings.json" ]]; then
+    echo "  settings.json   MISSING"
+elif diff -q "$ZEROONE_HOME/config/settings.base.json" "$CLAUDE_HOME/settings.json" >/dev/null 2>&1; then
+    echo "  settings.json   SYNCED"
+else
+    echo "  settings.json   OUTDATED"
+fi
+
+if [[ ! -f "$CLAUDE_HOME/CLAUDE.md" ]]; then
+    echo "  CLAUDE.md       MISSING"
+elif diff -q "$ZEROONE_HOME/config/CLAUDE.global.md" "$CLAUDE_HOME/CLAUDE.md" >/dev/null 2>&1; then
+    echo "  CLAUDE.md       SYNCED"
+else
+    echo "  CLAUDE.md       OUTDATED"
+fi
+
+if [[ ! -f "$ZEROONE_HOME/.mcp.json" ]]; then
+    echo "  .mcp.json       MISSING"
+else
+    echo "  .mcp.json       PRESENT"
+fi
+
 # --- Infra health ---
 echo ""
 echo "INFRA"
@@ -74,16 +100,16 @@ echo "INFRA"
 # Qdrant
 if qdrant_resp=$(curl -s --max-time 3 http://localhost:6333/healthz 2>/dev/null); then
     qdrant_version=$(curl -s --max-time 3 http://localhost:6333/ 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('version','?'))" 2>/dev/null || echo "?")
-    printf "  Qdrant     UP   v%-8s http://localhost:6333\n" "$qdrant_version"
+    printf "  Qdrant             UP    v%-8s http://localhost:6333\n" "$qdrant_version"
 else
-    echo "  Qdrant     DOWN             http://localhost:6333"
+    echo "  Qdrant             DOWN           http://localhost:6333"
 fi
 
 # Ollama
 if curl -s --max-time 3 http://localhost:11434/ >/dev/null 2>&1; then
-    echo "  Ollama     UP               http://localhost:11434"
+    echo "  Ollama             UP             http://localhost:11434"
 else
-    echo "  Ollama     DOWN             http://localhost:11434"
+    echo "  Ollama             DOWN           http://localhost:11434"
 fi
 
 # Embedding model

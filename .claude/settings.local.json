@@ -2,6 +2,7 @@
   "enabledMcpjsonServers": [
     "excalidraw",
     "drawio",
-    "mem0"
+    "mem0",
+    "github"
   ]
 }
