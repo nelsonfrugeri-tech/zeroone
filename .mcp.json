@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "excalidraw": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["tool", "run", "excalidraw-mcp"],
+      "env": {}
+    },
+    "drawio": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["tool", "run", "drawio-mcp"],
+      "env": {}
+    },
+    "mem0": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--directory", "mcp/mem0-server", "python", "server.py"],
+      "env": {
+        "QDRANT_HOST": "localhost",
+        "QDRANT_PORT": "6333",
+        "OLLAMA_URL": "http://localhost:11434",
+        "OLLAMA_EMBED_MODEL": "nomic-embed-text",
+        "MEM0_COLLECTION": "claude-code-memory",
+        "MEM0_USER_ID": "project:default"
+      }
+    }
+  }
+}

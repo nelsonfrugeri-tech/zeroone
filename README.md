@@ -1,8 +1,8 @@
 <div align="center">
 
-# Claude Code
+# Zeroone
 
-### Your AI agents never forget. They research, they collaborate, they ship.
+### Composable AI agents. Persistent memory. One ecosystem.
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-CLI-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/8_Agents-Ready-blue?style=for-the-badge)](#-agents)
@@ -13,15 +13,15 @@
 **Turn `~/.claude` into a fully autonomous development environment.**
 **8 persona-based agents, 16 knowledge bases, shared semantic memory, and zero configuration.**
 
-[Features](#-features) · [Quick Start](#-quick-start) · [Agents](#-agents) · [Memory](#-shared-memory-mem0) · [Autonomy](#-autonomy--permissions) · [Hooks](#-hooks)
+[Quick Start](#quick-start) · [Agents](#agents) · [Skills](#skills) · [Memory](#memory) · [Workspaces](#workspaces) · [Infrastructure](#infrastructure)
 
 </div>
 
 ---
 
-## What is this?
+## What is Zeroone?
 
-**claude-code** is the foundation layer that makes [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) intelligent. Install it once, and every project you work on gets:
+**Zeroone** is the foundation layer for [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code). Clone it, sync it, and every project you work on gets:
 
 - **8 persona-based AI agents** with distinct personalities covering the full dev lifecycle
 - **Shared semantic memory** that persists across sessions and terminals (Mem0 + Qdrant)
@@ -52,15 +52,24 @@ Any project built on this foundation inherits all capabilities automatically.
 ## Quick Start
 
 ```bash
-# Install
-git clone https://github.com/nelsonfrugeri-tech/claude-code.git ~/.claude
-cp ~/.claude/.mcp.json.example ~/.claude/.mcp.json
-# Edit .mcp.json with your credentials
+# 1. Clone
+git clone https://github.com/nelsonfrugeri-tech/claude-code.git ~/projects/zeroone
+cd ~/projects/zeroone
 
-# Use any agent
-claude --agent neo             # Fast, pragmatic, MVP-first
-claude --agent the_architect   # Perfectionist, quality gate
-claude --agent trinity         # Surgical executor, closer
+# 2. Set env var (add to your shell profile)
+export ZEROONE_HOME="$HOME/projects/zeroone"
+
+# 3. Start memory infrastructure
+docker compose -f infra/docker-compose.yml up -d   # Qdrant
+ollama pull nomic-embed-text                         # Embedding model
+
+# 4. Sync agents and skills to ~/.claude
+bash scripts/sync.sh
+
+# 5. Use any agent from any project
+claude --agent developer     # Implement features, fix bugs
+claude --agent architect     # System design, ADRs, trade-offs
+claude --agent ai-engineer   # LLM, RAG, data pipelines
 ```
 
 ### Prerequisites
@@ -104,8 +113,6 @@ See [`infra/README.md`](infra/README.md) for full setup details, port reference,
 
 ## Agents
 
-### Matrix Personas
-
 8 agents with distinct personalities. All share the same skills (loaded globally). Differentiation is personality only.
 
 | Agent | Personality | Use case |
@@ -119,290 +126,120 @@ See [`infra/README.md`](infra/README.md) for full setup details, port reference,
 | **reviewer** | Read-only, detail-oriented code reviewer. | Code quality, security audits, PR review comments |
 | **zeroone** | Ecosystem controller. Detects drift, syncs, manages infra. | Sync agents/skills to ~/.claude, setup project workspaces, check infra health |
 
-### Oracle Orchestration Flow
+### Zeroone Controller
 
-Oracle is the **single entry point** for all feature work. The user talks to Oracle, Oracle orchestrates everything:
+| Command | What it does |
+|---------|-------------|
+| `status` | Compare repo vs `~/.claude/` — detect drift, check infra health |
+| `sync` | Deploy agents and skills from repo to `~/.claude/` |
+| `setup {project}` | Create workspace + Qdrant collection for a new project |
 
-```
-User → Oracle (discovery → planning → distribution)
-  → Dev agent (code → self-judge → QA → open PR)
-    → Oracle (assign different agent as reviewer)
-      → Reviewer (review → approve or request changes)
-        → Oracle (notify user → user tests → merge on confirmation)
-```
-
-Oracle does NOT write code, review code, or merge without user confirmation. Details in `agents/oracle.md`.
-
-### Adversarial Review Flow
-
-```
-neo (draft) -> the_architect (judge) -> morpheus (debate) -> decision
-```
-
-### Skills — Knowledge Bases (Global)
-
-All skills are loaded by every agent automatically.
-
-| Skill | Domain |
-|-------|--------|
-| **arch-py** | Python architecture, patterns, type system, async, Pydantic v2 |
-| **arch-ts** | TypeScript/Frontend architecture: React patterns, RSC, state management, testing, tooling |
-| **review-py** | Python code review templates, checklists, severity criteria |
-| **review-ts** | Frontend code review: accessibility, styling, bundle impact, 28 checks |
-| **frontend-design** | UI/UX/Visual design: OKLCH colors, typography, layout, motion, WCAG 2.2, shadcn/ui, 2026 trends |
-| **ai-engineer** | LLM engineering, RAG, agents, vector DBs, MLOps |
-| **product-manager** | Discovery, delivery, OKRs, user stories, roadmap |
-| **github** | GitHub operations via MCP — enforced bot-identity PRs, issues, comments |
-| **dev-pipeline** | Mandatory delivery pipeline: CODE → SELF-JUDGE → QA → PR → REVIEW → FIX loop |
-| **dev-methodology** | Full dev workflow: TDD, refactoring, vertical slicing, Definition of Done |
-| **research** | Structured technical research: search strategies, source validation, synthesis |
-| **meta-orchestration** | Task routing, agent coordination, Mem0 management, agent creation |
-| **qa** | E2E testing, test strategy, Definition of Done, environment setup/teardown |
-| **software-architecture** | SOLID, ADR, C4, trade-offs, API design, event-driven architecture |
-| **sre-observability** | OpenTelemetry, SLOs, incident response, dashboards, cost optimization |
-| **local-infrastructure** | Docker, compose, databases, service orchestration, env management |
-
-All skills are **global** — loaded automatically by every agent. No per-agent skill declaration.
+Operations live in `scripts/` (status.sh, sync.sh, setup-project.sh).
 
 ---
 
-## Shared Memory (Mem0)
+## Skills
 
-Persistent semantic memory shared across all agents and terminals, with **three-level scoping**.
+16 composable skills — agents load only what they need.
 
-### Three-Level Scoping Model
+### Capability Skills (8) — Methodology
 
-```
-Mem0 (Qdrant + Ollama nomic-embed-text):
-├── team scope       → user_id="team"              (global prefs, cross-project rules)
-├── project scope    → user_id="team:{project}"    (architecture, stack, conventions)
-└── agent scope      → user_id="{agent}:{project}" (agent's own decisions and outcomes)
-```
+| Skill | Purpose |
+|-------|---------|
+| **review** | Language-agnostic review. Severity: BLOCKER/MAJOR/MINOR/NIT |
+| **research** | Structured technical research. Platform strategies, validation, synthesis |
+| **implement** | Development workflow. TDD/BDD, bug fix protocol, refactoring, vertical slicing |
+| **test** | Testing strategy. Pyramid vs trophy, E2E, contract, performance, accessibility |
+| **design** | System design. SOLID, ADR, C4 Model, trade-off analysis, decomposition |
+| **environment** | Local environments. Docker Compose, databases, service readiness, teardown |
+| **manage** | Product management. INVEST stories, RICE/MoSCoW, PRD, metrics |
+| **operate** | Production operations. Three pillars, SLI/SLO, incident response, alerting |
 
-| Scope | user_id | What goes here | Who reads |
-|-------|---------|----------------|-----------|
-| **Team** | `"team"` | Global preferences, cross-project procedures | All agents |
-| **Project** | `"team:{project}"` | Architecture, stack decisions, conventions | All agents on that project |
-| **Agent** | `"{agent}:{project}"` | Own decisions, task outcomes, patterns learned | Only that agent (+ oracle) |
+### Knowledge Skills (8) — Domain
 
-### MCP Tools (7)
+| Skill | Purpose |
+|-------|---------|
+| **python** | Type system, async/await, Pydantic v2, structlog, pytest, ruff/mypy |
+| **typescript** | Discriminated unions, React 19+, Server Components, Zustand, Tailwind, Vitest |
+| **api-design** | REST, GraphQL, gRPC, OpenAPI, versioning, pagination, error responses |
+| **security** | OWASP Top 10, STRIDE, zero trust, auth patterns, secrets management |
+| **observability** | OpenTelemetry, Prometheus, Grafana, Jaeger, Langfuse |
+| **ai-engineer** | LLM integration, RAG, Qdrant, semantic caching, LangGraph |
+| **frontend-ui** | OKLCH color, fluid typography, container queries, WCAG 2.2, design systems |
+| **ci-cd** | GitHub Actions, quality gates, blue/green, canary, release management |
 
-```
-mem0_store()           ← Save with scoped user_id
-mem0_recall()          ← Semantic search (single scope)
-mem0_recall_context()  ← Query all 3 scopes in one call (~13 item budget)
-mem0_search()          ← Filter by type, project, scope
-mem0_list()            ← Browse all memories
-mem0_update()          ← Modify existing memories
-mem0_delete()          ← Remove outdated memories
-```
+---
+
+## Memory
+
+Persistent semantic memory via Qdrant + Ollama embeddings.
+
+### Two-Scope Model
+
+| Scope | user_id | Purpose | Who reads |
+|-------|---------|---------|-----------|
+| **Project** | `project:{name}` | Shared decisions, architecture, conventions | All agents |
+| **Agent** | `{agent}:{project}` | Personal learnings, attempts, errors | Only that agent |
+
+### MCP Tools
+
+| Tool | Purpose |
+|------|---------|
+| `mem0_store` | Save a memory with type and scope |
+| `mem0_recall` | Semantic search (single scope) |
+| `mem0_recall_context` | Query both scopes in one call (~10 item budget) |
+| `mem0_search` | Search with filters (type, project) |
+| `mem0_list` | List all memories for a scope |
+| `mem0_update` | Update content (re-embeds automatically) |
+| `mem0_delete` | Remove by ID or all for a scope |
 
 ### Memory Types
 
-| Type | What to store | Example |
-|------|--------------|---------|
-| `decision` | Technical/product choices with rationale | "Chose OKLCH over HSL — perceptual uniformity" |
-| `fact` | Verified project or domain knowledge | "API runs on port 8000, docs at /docs" |
-| `preference` | Stated preference from user/lead | "Always use pt-BR for conversation" |
-| `procedure` | Reusable workflows | "To deploy: git push, wait CI, merge PR" |
-| `outcome` | Completed task results | "Migrated auth — 3 files, all tests pass" |
-| `task_claim` | Coordination: who's working on what | "Oracle-A working on MCP isolation" |
-| `blocker` | Coordination: signal blockers | "Blocked on Qdrant timeout" |
-| `progress` | Coordination: status updates | "MCP server 80% complete" |
-| `conflict` | Coordination: collision detected | "Two agents editing settings.json" |
+| Type | When to store |
+|------|--------------|
+| `decision` | Technical or product choice with rationale |
+| `fact` | Verified project or domain knowledge |
+| `preference` | Stated preference from user |
+| `procedure` | Reusable workflow |
+| `outcome` | Completed task result |
 
 ---
 
-## GitHub Integration (MCP)
+## Workspaces
 
-All GitHub write operations go through a dedicated MCP server with bot identity — PRs, issues, and comments are created as the agent's GitHub App, never the user's personal account.
+Per-project knowledge bases in `workspaces/{project}/`:
 
 ```
-Agent (oracle, neo, trinity, ...)
-        │
-        ▼
-┌────────────────────────┐
-│  GitHub MCP Server     │
-│                        │
-│  github_create_pr()    │ ← Bot identity (oracle-zeroone)
-│  github_create_issue() │ ← Multi-app: each agent has its own App
-│  github_add_comment()  │ ← JWT → installation token auth
-│  github_merge_pr()     │ ← Merge with merge/squash/rebase
-│  github_close_pr()     │
-│  github_list_issues()  │
-│                        │
-│  Auth: per-agent envs  │ ← GITHUB_APP_{AGENT}_ID, _PEM_PATH, _INSTALLATION_ID, _SLUG
-│  Fallback: generic envs│ ← GITHUB_APP_ID (used when agent has no own App)
-└────────────────────────┘
+workspaces/checkout-ecom/
+├── context.md       # Project overview, stack, conventions
+├── decisions.md     # Architecture decisions log
+└── runbook.md       # Operational runbook
 ```
 
-### Registered Agents
-
-| Agent | App Slug | Status |
-|-------|----------|--------|
-| **oracle** | `oracle-zeroone` | Active |
-| **neo** | `neo-zeroone` | Active |
-| **trinity** | — | Pending (uses fallback) |
-| **morpheus** | — | Pending (uses fallback) |
-| **the_architect** | `the-architect-zeroone` | Active |
-| **cypher** | — | Pending (uses fallback) |
-
-**Rules enforced by the `github` skill:**
-- All GitHub writes MUST use `mcp__github__*` tools — never `curl`, `gh CLI`, or raw HTTP
-- CHANGELOG must be updated before creating a PR (blocks otherwise)
-- README warnings treated as hard blocks
-- Credentials configured via env vars in `.mcp.json` — never hardcoded in source
-- Each agent authenticates via per-agent env vars (`GITHUB_APP_{AGENT}_*`) with generic fallback
+Agents discover workspaces via `$ZEROONE_HOME`. Workspaces complement Qdrant memory: static curated knowledge (git) vs dynamic work memories (vector search).
 
 ---
 
-## Autonomy & Permissions
-
-Agents operate in **auto mode** — maximum autonomy for development work, with guardrails for critical operations.
-
-### Full autonomy (no approval needed)
-
-- Read, write, edit any source code, configs, docs
-- Run build, test, lint, format, dev server commands
-- Git operations: commit, push, pull, branch, checkout
-- Create GitHub issues and PRs
-- Run package managers, Docker, infrastructure commands
-- MCP tool calls (memory, diagrams, etc.)
-
-### Always requires human approval
-
-- **File deletion** — `rm`, `git rm`, `shred`
-- **Secrets** — creating, rotating, or modifying tokens, API keys, PEM files
-- **Environment files** — modifying `.env` or any file containing secrets
-- **Access control** — permissions, IAM, GitHub repo settings
-- **Force push** — `git push --force` to any branch
-- **Destructive git** — `reset --hard`, `clean -f`, `branch -D`
-- **Publishing** — deploying to production, publishing packages
-- **External messages** — Slack, email, webhooks on behalf of the user
-
-### Configure auto mode
-
-Add to your `settings.json` (not versioned — configure after cloning):
-
-```json
-{
-  "permissions": {
-    "defaultMode": "auto"
-  },
-  "autoMode": {
-    "allow": [
-      "Reading, searching, and exploring files",
-      "Writing and editing source code, configs, docs",
-      "Running build, test, lint, format commands",
-      "Git operations: commit, push, pull, branch",
-      "Creating GitHub issues and PRs",
-      "Running package managers and Docker",
-      "MCP tool calls"
-    ],
-    "soft_deny": [
-      "Deleting files or directories",
-      "Creating or modifying tokens, API keys, secrets",
-      "Modifying .env files or certificates",
-      "Force-pushing or destructive git operations",
-      "Publishing or deploying to production",
-      "Sending messages to external services"
-    ]
-  }
-}
-```
-
----
-
-## Hooks
-
-Programmatic enforcement — agents can't skip these even if they wanted to.
-
-### PR Docs Check
-
-Every PR is blocked unless CHANGELOG is updated. README and API collection warnings are also shown.
+## Infrastructure
 
 ```
-Agent tries to open PR
-        │
-        ▼
-┌─────────────────────┐
-│  pr-docs-check.sh   │  ← PreToolUse hook on Bash
-│                     │
-│  CHANGELOG updated? │──── No → ❌ PR BLOCKED
-│        │            │
-│       Yes           │
-│        │            │
-│  README updated?    │──── No → ⚠️ Warning (not blocked)
-│        │            │
-│  API collections?   │──── Changed but not updated → ⚠️ Warning
-│        │            │
-│       ✅ PR allowed  │
-└─────────────────────┘
+Agent → MCP (mem0-server) → Qdrant (port 6333)
+                          → Ollama (port 11434)
 ```
 
----
-
-## Parallel Execution
-
-Run multiple agents simultaneously without conflicts.
-
-### Git Worktrees
-
-Each agent gets its own isolated copy of the codebase:
+| Component | How | Why |
+|-----------|-----|-----|
+| Qdrant | Docker Compose (`infra/docker-compose.yml`) | Vector DB for semantic memory |
+| Ollama | Native (not containerized) | GPU acceleration for embeddings |
+| nomic-embed-text | `ollama pull nomic-embed-text` | 768-dim embedding model |
 
 ```bash
-# Terminal 1: Oracle working on memory migration
-claude --worktree memory-migration --agent oracle
+# Start
+docker compose -f infra/docker-compose.yml up -d
+ollama pull nomic-embed-text
 
-# Terminal 2: Oracle working on PR reviews
-claude --worktree pr-reviews --agent oracle
-
-# Terminal 3: dev-py implementing a feature
-claude --worktree feat-auth --agent dev-py
-```
-
-### Agent Teams + Multi-Oracle Coordination
-
-Multiple Oracle instances coordinate through Mem0 shared memory and Agent Teams:
-
-```
-Terminal 1: Oracle (task A)     Terminal 2: Oracle (task B)     Terminal 3: Oracle (task C)
-       │                              │                           │
-       │  mem0_search(task_claim)     │  mem0_search(task_claim)  │  mem0_search(task_claim)
-       │  → sees B and C              │  → sees A and C           │  → sees A and B
-       │                              │                           │
-       └──────────────┬───────────────┴───────────────────────────┘
-                      │
-                      ▼
-           ┌─────────────────────┐
-           │  Mem0 (shared)      │
-           │                     │
-           │  task_claim → who   │ ← Prevents duplicate work
-           │  decision → what    │ ← Shares architectural choices
-           │  blocker → blocked  │ ← Signals blockers to team
-           │  progress → status  │ ← Status updates
-           │  conflict → alert   │ ← Collision detection
-           └─────────────────────┘
-```
-
-**Coordination protocol:**
-1. **Startup** — `mem0_search(memory_type="task_claim")` to check active work
-2. **Claim** — `mem0_store(memory_type="task_claim")` before starting
-3. **Work** — Store decisions and progress for visibility
-4. **Finish** — Delete task claim, store final progress summary
-
-**Team patterns:**
-- **Parallel experts** — Oracle spawns dev-py + review-py + architect in worktrees
-- **Research + Build** — explorer → architect → dev-py pipeline
-- **Multi-Oracle** — Peer-to-peer coordination via Mem0 shared memory, no lead needed
-
-Enable in `settings.json`:
-```json
-{
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  }
-}
+# Verify
+bash scripts/status.sh
 ```
 
 ---
@@ -428,79 +265,38 @@ Enable in `settings.json`:
 │   ├── docker-compose.yml         #   Qdrant v1.17.1 (persistent volume)
 │   └── README.md                  #   Startup guide, ports, troubleshooting
 │
-├── skills/                        # Knowledge bases (global, all agents)
-│   ├── arch-py/                   #   Python architecture
-│   ├── arch-ts/                   #   TypeScript/Frontend architecture
-│   ├── review-py/                 #   Python code review
-│   ├── review-ts/                 #   Frontend code review
-│   ├── frontend-design/           #   UI/UX/Visual design
-│   ├── ai-engineer/               #   AI/ML engineering
-│   ├── github/                    #   GitHub operations (enforced MCP usage)
-│   ├── product-manager/           #   Product management
-│   ├── meta-orchestration/        #   Task routing, agent coordination, memory
-│   ├── dev-methodology/           #   Full dev workflow, TDD, refactoring
-│   ├── dev-pipeline/              #   Mandatory delivery pipeline
-│   ├── qa/                        #   E2E testing, Definition of Done
-│   ├── research/                  #   Search strategies, source validation
-│   ├── software-architecture/     #   SOLID, ADR, C4, trade-offs
-│   ├── sre-observability/         #   OpenTelemetry, SLOs, incident response
-│   └── local-infrastructure/      #   Docker, compose, databases
+├── skills/                     # 8 capability + 8 knowledge
+│   ├── review/                 ├── python/
+│   ├── research/               ├── typescript/
+│   ├── implement/              ├── api-design/
+│   ├── test/                   ├── security/
+│   ├── design/                 ├── observability/
+│   ├── environment/            ├── ai-engineer/
+│   ├── manage/                 ├── frontend-ui/
+│   └── operate/                └── ci-cd/
 │
-├── mcp/                           # MCP servers
-│   ├── mem0-server/               #   Scoped semantic memory (3-level)
-│   │   ├── server.py              #   7 tools, Qdrant + Ollama embeddings
-│   │   └── pyproject.toml         #   Dependencies
-│   └── github-server/             #   GitHub operations via bot identity
-│       └── server.py              #   JWT → installation token (env var auth)
+├── scripts/                    # Ecosystem operations
+│   ├── status.sh
+│   ├── sync.sh
+│   └── setup-project.sh
 │
-├── hooks/                         # Programmatic enforcement
-│   ├── pr-docs-check.sh           #   Blocks PR without CHANGELOG
-│   └── enforce-worktree.sh        #   Blocks sessions not in a worktree
-│
-├── CLAUDE.md                      # Global agent instructions
-├── CHANGELOG.md                   # Version history
-└── settings.json                  # Permissions, hooks, auto mode (not versioned)
+├── workspaces/                 # Per-project knowledge bases
+├── infra/                      # Docker Compose (Qdrant)
+├── mcp/mem0-server/            # Semantic memory MCP
+├── CLAUDE.md                   # Global agent instructions
+├── CHANGELOG.md
+└── README.md
 ```
 
 ---
 
-## Foundational Principles
+## Autonomy & Permissions
 
-These are encoded in `CLAUDE.md` and enforced across all agents:
+### Full autonomy
+Read/write code, run builds/tests, git operations, Docker, MCP tools.
 
-| Principle | What it means |
-|-----------|--------------|
-| **Research First** | Every technical decision backed by current web research. Never rely on training data alone. |
-| **Autonomy with Guardrails** | Maximum speed for routine work. Human approval only for security-critical operations. |
-| **PR Quality** | No PR without updated CHANGELOG. README and API docs checked automatically. |
-| **Matrix Personas** | 6 agents with distinct personalities, same skills. Adversarial review flow for quality. |
-| **Scoped Memory** | Three-level Mem0 scoping (team/project/agent). Nothing gets lost between sessions. |
-| **Never Push Main** | All changes via branch + PR. No exceptions. |
-
----
-
-## PR Standards
-
-Every PR must include:
-
-| Item | Enforcement |
-|------|-------------|
-| **CHANGELOG** | Hook blocks PR if missing |
-| **README** | Hook warns if not updated |
-| **API Collections** | Hook warns if endpoints changed |
-| **Version** | Manual — coordinate with human for major/minor bumps |
-
----
-
-## Contributing
-
-1. Branch: `git checkout -b feat/my-feature`
-2. Add agents in `agents/`, skills in `skills/`
-3. Update `CHANGELOG.md` with your changes
-4. **Audit for secrets/PII** — no personal paths, no API keys
-5. PR to `main`
-
-**Rules**: Agents must be project-agnostic. No hardcoded paths. Use `$HOME` and env vars.
+### Requires approval
+File deletion, secrets, force push, destructive git, production deploys, external messages.
 
 ---
 
@@ -512,7 +308,7 @@ MIT
 
 <div align="center">
 
-**The foundation for AI-powered development teams**
+**The foundation for AI-powered development**
 
 [![Claude Code](https://img.shields.io/badge/Powered_by-Claude_Code-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
 
